@@ -1,0 +1,13 @@
+### An FCM registration token for one of a user's devices.
+class: DeviceToken
+table: device_token
+fields:
+  authUserId: UuidValue
+  token: String
+  updatedAt: DateTime
+indexes:
+  device_token_token_idx:
+    fields: token
+    unique: true
+  device_token_user_idx:
+    fields: authUserId

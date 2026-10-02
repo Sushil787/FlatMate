@@ -1,0 +1,6 @@
+### The signed-in user's Flat, their own Mate record and everyone in it.
+class: MyFlat
+fields:
+  flat: Flat
+  me: Mate
+  mates: List<Mate>

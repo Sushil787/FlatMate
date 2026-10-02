@@ -1,0 +1,17 @@
+### A recurring responsibility passed round-robin through [rotation].
+class: Chore
+table: chore
+fields:
+  flatId: int
+  name: String
+  ### Rotation period: how long one Turn lasts.
+  period: Duration
+  startsAt: DateTime
+  ### Mate ids in order; a Mate may appear more than once.
+  rotation: List<int>
+  ### Index in [rotation] of the slot the latest Turn was taken from.
+  rotationIndex: int
+  archived: bool
+indexes:
+  chore_flat_idx:
+    fields: flatId

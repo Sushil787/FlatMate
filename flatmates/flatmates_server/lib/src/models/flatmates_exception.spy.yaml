@@ -1,0 +1,4 @@
+### A rule the request broke, with a message fit to show the user.
+exception: FlatmatesException
+fields:
+  message: String

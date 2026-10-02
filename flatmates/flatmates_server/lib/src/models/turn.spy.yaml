@@ -1,0 +1,18 @@
+### One Mate's responsibility for a Chore during one Rotation period.
+class: Turn
+table: turn
+fields:
+  flatId: int
+  choreId: int
+  mateId: int
+  ### Set when [mateId] is doing this Turn on someone else's behalf (Swap).
+  coveringForMateId: int?
+  startsAt: DateTime
+  endsAt: DateTime
+  status: TurnStatus
+  doneAt: DateTime?
+indexes:
+  turn_chore_idx:
+    fields: choreId
+  turn_flat_time_idx:
+    fields: flatId, startsAt

@@ -1,0 +1,14 @@
+### The shared home; the boundary for everything else.
+class: Flat
+table: flat
+fields:
+  name: String
+  timezone: String
+  adminMateId: int?
+  inviteCode: String
+  awayRule: AwayRule
+  createdAt: DateTime
+indexes:
+  flat_invite_code_idx:
+    fields: inviteCode
+    unique: true

@@ -1,0 +1,11 @@
+### A Turn owed back under the Swap rule: [debtorMateId] takes [creditorMateId]'s next Turn.
+class: SwapDebt
+table: swap_debt
+fields:
+  choreId: int
+  debtorMateId: int
+  creditorMateId: int
+  createdAt: DateTime
+indexes:
+  swap_debt_chore_idx:
+    fields: choreId

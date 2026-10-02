@@ -1,0 +1,4 @@
+### Streamed to every open app in a Flat when something changes.
+class: FlatChange
+fields:
+  kind: FlatChangeKind

@@ -1,0 +1,6 @@
+enum: TurnStatus
+serialized: byName
+values:
+  - active
+  - done
+  - missed

@@ -1,0 +1,9 @@
+enum: FlatChangeKind
+serialized: byName
+values:
+  - flat
+  - chores
+  - away
+  - events
+  - notices
+  - groceries

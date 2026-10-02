@@ -1,0 +1,7 @@
+### What happens to an Away Mate's Turns. One rule per Flat, set by the Admin.
+enum: AwayRule
+serialized: byName
+values:
+  - swap
+  - skip
+  - pause
