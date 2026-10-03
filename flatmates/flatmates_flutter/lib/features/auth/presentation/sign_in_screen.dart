@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
@@ -61,8 +60,8 @@ class SignInScreen extends ConsumerWidget {
                             const SizedBox(height: Insets.lg),
                             SignInWidget(
                               client: ref.watch(clientProvider),
-                              // Email is a development-only convenience.
-                              disableEmailSignInWidget: kReleaseMode,
+                              // Google is the only way in.
+                              disableEmailSignInWidget: true,
                               onError: (error) =>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

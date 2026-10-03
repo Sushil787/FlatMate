@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
-import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:serverpod_auth_idp_server/providers/google.dart';
 
 import 'src/generated/endpoints.dart';
@@ -27,13 +26,6 @@ void run(List<String> args) async {
       // Google is how Mates sign in. Needs the `googleClientSecret` password.
       if (pod.getPassword('googleClientSecret') != null)
         GoogleIdpConfigFromPasswords(),
-      // Email sign-in exists only so several test Mates can be created
-      // locally without Google accounts; verification codes go to the log.
-      if (pod.runMode == ServerpodRunMode.development)
-        EmailIdpConfigFromPasswords(
-          sendRegistrationVerificationCode: _sendRegistrationCode,
-          sendPasswordResetVerificationCode: _sendPasswordResetCode,
-        ),
     ],
   );
 
@@ -83,26 +75,3 @@ void run(List<String> args) async {
   await pod.start();
 }
 
-void _sendRegistrationCode(
-  Session session, {
-  required String email,
-  required UuidValue accountRequestId,
-  required String verificationCode,
-  required Transaction? transaction,
-}) {
-  // NOTE: Here you call your mail service to send the verification code to
-  // the user. For testing, we will just log the verification code.
-  session.log('[EmailIdp] Registration code ($email): $verificationCode');
-}
-
-void _sendPasswordResetCode(
-  Session session, {
-  required String email,
-  required UuidValue passwordResetRequestId,
-  required String verificationCode,
-  required Transaction? transaction,
-}) {
-  // NOTE: Here you call your mail service to send the verification code to
-  // the user. For testing, we will just log the verification code.
-  session.log('[EmailIdp] Password reset code ($email): $verificationCode');
-}

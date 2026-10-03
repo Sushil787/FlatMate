@@ -14,9 +14,8 @@ cd ../flatmates_flutter
 flutter run                                # talks to http://localhost:8080
 ```
 
-In development the sign-in screen also offers **email sign-in** so you can create several test
-mates without Google accounts; verification codes are printed in the server log. Release builds
-show Google only, and the server only enables email in development mode.
+Mates sign in with Google only, so the `googleClientSecret` setup below is needed even locally.
+On web, run `flutter run -d chrome --web-port 5000 --dart-define-from-file=google_web.json`.
 
 ## Tests
 
