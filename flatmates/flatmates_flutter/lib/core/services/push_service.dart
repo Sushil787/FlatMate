@@ -4,6 +4,7 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../firebase_options.dart';
 import '../providers/client_provider.dart';
 
 part 'push_service.g.dart';
@@ -11,8 +12,8 @@ part 'push_service.g.dart';
 @Riverpod(keepAlive: true)
 PushService pushService(Ref ref) => PushService(ref.watch(clientProvider));
 
-/// Registers the device with FCM and the server. A no-op until Firebase is
-/// configured for the app, so everything else works without it.
+/// Registers the device with FCM and the server. Failures are logged and
+/// ignored, so everything else works without push.
 class PushService {
   PushService(this._client);
 
@@ -22,7 +23,11 @@ class PushService {
   Future<void> register() async {
     if (_registered || kIsWeb) return;
     try {
-      if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      }
       final messaging = FirebaseMessaging.instance;
       await messaging.requestPermission();
       final token = await messaging.getToken();
