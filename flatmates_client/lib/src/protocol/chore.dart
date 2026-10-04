@@ -1,0 +1,177 @@
+/* AUTOMATICALLY GENERATED CODE DO NOT MODIFY */
+/*   To generate run: "serverpod generate"    */
+
+// ignore_for_file: implementation_imports
+// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: public_member_api_docs
+// ignore_for_file: type_literal_in_constant_pattern
+// ignore_for_file: use_super_parameters
+// ignore_for_file: invalid_use_of_internal_member
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_client/src/protocol/protocol.dart' as _iyp1dgna;
+import 'package:serverpod_client/serverpod_client.dart' as _isc;
+
+/// A recurring responsibility passed round-robin through [rotation].
+abstract class Chore
+    implements _isc.SerializableModel, _isc.ProtocolSerialization {
+  Chore._({
+    this.id,
+    required this.flatId,
+    required this.name,
+    required this.period,
+    required this.startsAt,
+    required this.rotation,
+    required this.rotationIndex,
+    required this.archived,
+  });
+
+  factory Chore({
+    int? id,
+    required int flatId,
+    required String name,
+    required Duration period,
+    required DateTime startsAt,
+    required List<int> rotation,
+    required int rotationIndex,
+    required bool archived,
+  }) = _ChoreImpl;
+
+  factory Chore.fromJson(Map<String, dynamic> jsonSerialization) {
+    return Chore(
+      id: jsonSerialization['id'] as int?,
+      flatId: jsonSerialization['flatId'] as int,
+      name: jsonSerialization['name'] as String,
+      period: _isc.DurationJsonExtension.fromJson(jsonSerialization['period']),
+      startsAt: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['startsAt'],
+      ),
+      rotation: _iyp1dgna.Protocol().deserialize<List<int>>(
+        jsonSerialization['rotation'],
+      ),
+      rotationIndex: jsonSerialization['rotationIndex'] as int,
+      archived: _isc.BoolJsonExtension.fromJson(jsonSerialization['archived']),
+    );
+  }
+
+  /// The database id, set if the object has been inserted into the
+  /// database or if it has been fetched from the database. Otherwise,
+  /// the id will be null.
+  int? id;
+
+  int flatId;
+
+  String name;
+
+  /// Rotation period: how long one Turn lasts.
+  Duration period;
+
+  DateTime startsAt;
+
+  /// Mate ids in order; a Mate may appear more than once.
+  List<int> rotation;
+
+  /// Index in [rotation] of the slot the latest Turn was taken from.
+  int rotationIndex;
+
+  bool archived;
+
+  /// Returns a shallow copy of this [Chore]
+  /// with some or all fields replaced by the given arguments.
+  @_isc.useResult
+  Chore copyWith({
+    int? id,
+    int? flatId,
+    String? name,
+    Duration? period,
+    DateTime? startsAt,
+    List<int>? rotation,
+    int? rotationIndex,
+    bool? archived,
+  });
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      '__className__': 'Chore',
+      if (id != null) 'id': id,
+      'flatId': flatId,
+      'name': name,
+      'period': period.toJson(),
+      'startsAt': startsAt.toJson(),
+      'rotation': rotation.toJson(),
+      'rotationIndex': rotationIndex,
+      'archived': archived,
+    };
+  }
+
+  @override
+  Map<String, dynamic> toJsonForProtocol() {
+    return {
+      '__className__': 'Chore',
+      if (id != null) 'id': id,
+      'flatId': flatId,
+      'name': name,
+      'period': period.toJson(),
+      'startsAt': startsAt.toJson(),
+      'rotation': rotation.toJson(),
+      'rotationIndex': rotationIndex,
+      'archived': archived,
+    };
+  }
+
+  @override
+  String toString() {
+    return _isc.SerializationManager.encode(this);
+  }
+}
+
+class _Undefined {}
+
+class _ChoreImpl extends Chore {
+  _ChoreImpl({
+    int? id,
+    required int flatId,
+    required String name,
+    required Duration period,
+    required DateTime startsAt,
+    required List<int> rotation,
+    required int rotationIndex,
+    required bool archived,
+  }) : super._(
+         id: id,
+         flatId: flatId,
+         name: name,
+         period: period,
+         startsAt: startsAt,
+         rotation: rotation,
+         rotationIndex: rotationIndex,
+         archived: archived,
+       );
+
+  /// Returns a shallow copy of this [Chore]
+  /// with some or all fields replaced by the given arguments.
+  @_isc.useResult
+  @override
+  Chore copyWith({
+    Object? id = _Undefined,
+    int? flatId,
+    String? name,
+    Duration? period,
+    DateTime? startsAt,
+    List<int>? rotation,
+    int? rotationIndex,
+    bool? archived,
+  }) {
+    return Chore(
+      id: id is int? ? id : this.id,
+      flatId: flatId ?? this.flatId,
+      name: name ?? this.name,
+      period: period ?? this.period,
+      startsAt: startsAt ?? this.startsAt,
+      rotation: rotation ?? this.rotation.map((e0) => e0).toList(),
+      rotationIndex: rotationIndex ?? this.rotationIndex,
+      archived: archived ?? this.archived,
+    );
+  }
+}

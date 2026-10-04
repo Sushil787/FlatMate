@@ -1,0 +1,43 @@
+googleIdp:
+  - login:
+  - loginWithCode:
+  - hasAccount:
+jwtRefresh:
+  - refreshAccessToken:
+away:
+  - list:
+  - create:
+  - cancel:
+chore:
+  - list:
+  - activeTurns:
+  - turnsBetween:
+  - create:
+  - update:
+  - archive:
+  - markDone:
+event:
+  - between:
+  - create:
+  - delete:
+flat:
+  - mine:
+  - create:
+  - join:
+  - regenerateInvite:
+  - setAwayRule:
+  - transferAdmin:
+  - removeMate:
+  - leave:
+  - changes:
+  - registerDevice:
+grocery:
+  - list:
+  - add:
+  - setBought:
+  - delete:
+notice:
+  - list:
+  - post:
+  - setPinned:
+  - delete:
