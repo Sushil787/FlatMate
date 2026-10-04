@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_idp_server/core.dart';
+// import 'package:serverpod_auth_idp_server/core.dart'; // TODO(dev): login disabled
 
 import '../flat_access.dart';
 import '../generated/protocol.dart';
@@ -10,8 +10,9 @@ import '../rotation/turn_service.dart';
 
 /// Creating, joining and running a Flat.
 class FlatEndpoint extends Endpoint {
-  @override
-  bool get requireLogin => true;
+  // TODO(dev): login disabled, restore before shipping.
+  // @override
+  // bool get requireLogin => true;
 
   /// The signed-in user's Flat, or null when they haven't joined one.
   Future<MyFlat?> mine(Session session) async {
@@ -51,7 +52,7 @@ class FlatEndpoint extends Endpoint {
         session,
         Mate(
           flatId: flat.id!,
-          authUserId: session.authenticated!.authUserId,
+          authUserId: currentUserId(session),
           displayName: displayName,
           joinedAt: now,
         ),
@@ -84,7 +85,7 @@ class FlatEndpoint extends Endpoint {
       session,
       Mate(
         flatId: flat.id!,
-        authUserId: session.authenticated!.authUserId,
+        authUserId: currentUserId(session),
         displayName: displayName,
         joinedAt: DateTime.now().toUtc(),
       ),
@@ -178,7 +179,7 @@ class FlatEndpoint extends Endpoint {
 
   /// Registers this device for push notifications.
   Future<void> registerDevice(Session session, String token) async {
-    final authUserId = session.authenticated!.authUserId;
+    final authUserId = currentUserId(session);
     final existing = await DeviceToken.db.findFirstRow(
       session,
       where: (t) => t.token.equals(token),

@@ -9,7 +9,7 @@
 # Configuration for the main API server.
 apiServer:
   port: 8080
-  publicHost: localhost
+  publicHost: 192.168.1.11
   publicPort: 8080
   publicScheme: http
 
@@ -51,6 +51,7 @@ sessionLogs:
   persistentEnabled: true
   consoleEnabled: true
   consoleLogFormat: text # Defaults to "json", options are "text" or "json"
+
 
 # futureCallExecutionEnabled: true # Defaults to true
 

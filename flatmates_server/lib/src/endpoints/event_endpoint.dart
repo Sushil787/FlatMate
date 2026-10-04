@@ -5,8 +5,9 @@ import '../generated/protocol.dart';
 
 /// Events on the Flat's shared calendar.
 class EventEndpoint extends Endpoint {
-  @override
-  bool get requireLogin => true;
+  // TODO(dev): login disabled, restore before shipping.
+  // @override
+  // bool get requireLogin => true;
 
   Future<List<FlatEvent>> between(
     Session session,

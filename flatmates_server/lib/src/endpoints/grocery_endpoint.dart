@@ -9,8 +9,9 @@ const boughtVisibleFor = Duration(hours: 24);
 /// The Flat's single shared grocery list. Changes update open apps live;
 /// nothing here sends a push.
 class GroceryEndpoint extends Endpoint {
-  @override
-  bool get requireLogin => true;
+  // TODO(dev): login disabled, restore before shipping.
+  // @override
+  // bool get requireLogin => true;
 
   /// Items still to buy, plus items bought in the last 24 hours.
   Future<List<GroceryItem>> list(Session session) async {

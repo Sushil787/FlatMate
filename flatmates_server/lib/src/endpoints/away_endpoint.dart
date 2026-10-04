@@ -6,8 +6,9 @@ import '../rotation/turn_service.dart';
 
 /// Marking yourself Away.
 class AwayEndpoint extends Endpoint {
-  @override
-  bool get requireLogin => true;
+  // TODO(dev): login disabled, restore before shipping.
+  // @override
+  // bool get requireLogin => true;
 
   /// Away periods in the Flat that haven't ended yet.
   Future<List<Away>> list(Session session) async {

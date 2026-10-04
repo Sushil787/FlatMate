@@ -6,9 +6,15 @@ import 'generated/protocol.dart';
 /// Throws a [FlatmatesException] the app can show as-is.
 Never fail(String message) => throw FlatmatesException(message: message);
 
+/// The signed-in user, or a fixed dev user while login is disabled.
+// TODO(dev): login disabled, go back to session.authenticated!.authUserId.
+UuidValue currentUserId(Session session) =>
+    session.authenticated?.authUserId ??
+    UuidValue.fromString('00000000-0000-4000-8000-000000000001');
+
 /// The signed-in user's Mate record, or null when they're not in a Flat.
 Future<Mate?> findCurrentMate(Session session) async {
-  final authUserId = session.authenticated!.authUserId;
+  final authUserId = currentUserId(session);
   return Mate.db.findFirstRow(
     session,
     where: (t) => t.authUserId.equals(authUserId) & t.leftAt.equals(null),

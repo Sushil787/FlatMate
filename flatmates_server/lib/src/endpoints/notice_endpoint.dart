@@ -6,8 +6,9 @@ import '../notify/notifier.dart';
 
 /// The Flat's notice board.
 class NoticeEndpoint extends Endpoint {
-  @override
-  bool get requireLogin => true;
+  // TODO(dev): login disabled, restore before shipping.
+  // @override
+  // bool get requireLogin => true;
 
   /// Pinned Notices first, then newest first.
   Future<List<Notice>> list(Session session) async {

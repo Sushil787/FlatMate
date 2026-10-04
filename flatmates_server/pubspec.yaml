@@ -20,6 +20,13 @@ dev_dependencies:
   test: ^1.25.5
 
 serverpod:
+  flutter_apps:
+    flatmates:
+      path: ../flatmates_flutter
+      auto_launch: true
+      device: 112bc353
+      dart-define: SERVER_URL=http://192.168.1.11:8080/
+
   scripts:
     # Starts the server and applies migrations
     start: dart bin/main.dart --apply-migrations

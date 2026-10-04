@@ -58,7 +58,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       appBar: AppBar(
         actions: [
           TextButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+            onPressed: () =>
+                ref.read(authControllerProvider.notifier).signOut(),
             child: const Text('Sign out'),
           ),
         ],
@@ -75,7 +76,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Center(
-                      child: Illustration(icon: Icons.cottage_rounded, size: 140),
+                      child: Illustration(
+                        icon: Icons.cottage_rounded,
+                        size: 140,
+                      ),
                     ),
                     const SizedBox(height: Insets.lg),
                     Text(
@@ -158,9 +162,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       child: _busy
                           ? const SizedBox.square(
                               dimension: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2.5),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                              ),
                             )
-                          : Text(_mode == _Mode.join ? 'Join flat' : 'Create flat'),
+                          : Text(
+                              _mode == _Mode.join ? 'Join flat' : 'Create flat',
+                            ),
                     ),
                   ],
                 ),
@@ -210,7 +218,10 @@ class _ModeCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: selected ? scheme.primary : scheme.onSurfaceVariant),
+              Icon(
+                icon,
+                color: selected ? scheme.primary : scheme.onSurfaceVariant,
+              ),
               const SizedBox(height: Insets.md),
               Text(title, style: text.titleMedium),
               Text(
