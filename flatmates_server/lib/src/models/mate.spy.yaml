@@ -1,0 +1,16 @@
+### A member of a Flat. A Mate with [leftAt] set has left the Flat.
+class: Mate
+table: mate
+fields:
+  flatId: int
+  authUserId: UuidValue
+  displayName: String
+  joinedAt: DateTime
+  leftAt: DateTime?
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
+indexes:
+  mate_auth_user_idx:
+    fields: authUserId
+  mate_flat_idx:
+    fields: flatId

@@ -2,3 +2,6 @@
 .agents/
 skills-lock.json
 .DS_Store
+.dart_tool/
+build/
+flatmates_flutter/device.json

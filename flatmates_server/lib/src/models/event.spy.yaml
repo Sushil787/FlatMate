@@ -1,0 +1,15 @@
+### A one-off happening on the Flat's shared calendar.
+class: FlatEvent
+table: flat_event
+fields:
+  flatId: int
+  mateId: int
+  title: String
+  note: String?
+  startsAt: DateTime
+  endsAt: DateTime?
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
+indexes:
+  flat_event_flat_idx:
+    fields: flatId, startsAt

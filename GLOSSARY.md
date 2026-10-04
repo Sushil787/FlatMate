@@ -39,19 +39,19 @@ The ordered list of Mates a Chore passes through round-robin, chosen by the Admi
 _Avoid_: Roster, Schedule, Cycle
 
 **Rotation period**:
-The fixed length of time one Mate is responsible for a Chore before it passes to the next Mate in the Rotation (e.g. 2 days, 1 week).
+The fixed time from the start of one Turn to the start of the next, in whole days (e.g. every 2 days, every week). At 1 day, Turns run back to back.
 _Avoid_: Interval, Frequency, Shift
 
 **Turn**:
-One Mate's responsibility for a Chore during one Rotation period. A Turn ends when its period ends, whether or not it was done.
+One Mate's responsibility for a Chore for one day, from local midnight to midnight. A Turn ends when its day ends, whether or not it was done.
 _Avoid_: Assignment, Occurrence, Slot
 
 **Done**:
-A Turn its Mate has marked complete before the Rotation period ended.
+A Turn its Mate has marked complete before its day ended.
 _Avoid_: Completed, Finished, Checked off
 
 **Missed**:
-A Turn whose Rotation period ended without being marked Done.
+A Turn whose day ended without being marked Done.
 _Avoid_: Overdue, Failed, Skipped
 
 ### Away
@@ -73,7 +73,7 @@ An Away rule where the Away Mate's Turn passes to the next Mate and nothing is o
 _Avoid_: Pass
 
 **Pause**:
-An Away rule where the Chore freezes while the Mate whose Turn it is is Away: a Turn not yet started waits for their return, and a Turn in progress is extended by the Away days.
+An Away rule where the Chore freezes while the Mate whose Turn it is is Away: a Turn not yet started waits for their return, and a Turn in progress is extended by the Away time. The next Turn starts one Rotation period after the paused Turn's start.
 _Avoid_: Freeze, Suspend
 
 ### Shared space

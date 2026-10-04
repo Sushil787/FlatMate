@@ -1,0 +1,13 @@
+### A text post on the Flat's notice board.
+class: Notice
+table: notice
+fields:
+  flatId: int
+  mateId: int
+  text: String
+  pinned: bool
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
+indexes:
+  notice_flat_idx:
+    fields: flatId
