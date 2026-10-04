@@ -1,11 +1,15 @@
-### A period a Mate is not around to do Chores.
+### A period of whole days a Mate is not around to do Chores.
+### Days are stored as 12:00 UTC on that date (see day.dart).
 class: Away
 table: away
 fields:
   flatId: int
   mateId: int
-  startsAt: DateTime
-  endsAt: DateTime
+  startDay: DateTime
+  ### Inclusive.
+  lastDay: DateTime
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   away_flat_idx:
     fields: flatId

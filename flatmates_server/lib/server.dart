@@ -6,6 +6,7 @@ import 'package:serverpod_auth_idp_server/providers/google.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
+import 'src/updated_at.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
 
@@ -73,5 +74,10 @@ void run(List<String> args) async {
 
   // Start the server.
   await pod.start();
+  final session = await pod.createSession();
+  try {
+    await installUpdatedAtTriggers(session);
+  } finally {
+    await session.close();
+  }
 }
-

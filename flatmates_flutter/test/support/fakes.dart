@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_flutter/core/utils/day.dart';
 import 'package:flatmates_flutter/core/services/push_service.dart';
 import 'package:flatmates_flutter/features/auth/application/auth_controller.dart';
 import 'package:flatmates_flutter/features/away/data/away_repository.dart';
@@ -58,14 +59,14 @@ class FakeBackend {
 
   /// Adds a weekly Chore whose current Turn belongs to [mateId].
   void addChore(String name, {required int mateId, int id = 1}) {
-    final now = DateTime.now().toUtc();
+    final today = Day.fromLocal(DateTime.now());
     chores.add(
       Chore(
         id: id,
         flatId: 10,
         name: name,
         period: const Duration(days: 7),
-        startsAt: now,
+        startDay: today,
         rotation: [priya, sam, alex],
         rotationIndex: 0,
         archived: false,
@@ -77,8 +78,8 @@ class FakeBackend {
         flatId: 10,
         choreId: id,
         mateId: mateId,
-        startsAt: now.subtract(const Duration(days: 1)),
-        endsAt: now.add(const Duration(days: 6)),
+        day: today,
+        lastDay: today,
         status: TurnStatus.active,
       ),
     );
@@ -113,12 +114,19 @@ class _FlatRepo implements FlatRepository {
   @override
   Future<MyFlat?> mine() async => b.myFlat;
   @override
-  Future<MyFlat> create({required String flatName, required String myName}) async =>
-      b.myFlat = b._flat(name: myName);
+  Future<MyFlat> create({
+    required String flatName,
+    required String myName,
+  }) async => b.myFlat = b._flat(name: myName);
   @override
-  Future<MyFlat> join({required String inviteCode, required String myName}) async {
+  Future<MyFlat> join({
+    required String inviteCode,
+    required String myName,
+  }) async {
     if (inviteCode.trim().toUpperCase() != 'ABC234') {
-      throw FlatmatesException(message: 'That invite code doesn\'t match any flat.');
+      throw FlatmatesException(
+        message: 'That invite code doesn\'t match any flat.',
+      );
     }
     return b.myFlat = b._flat(name: myName);
   }
@@ -145,15 +153,20 @@ class _ChoreRepo implements ChoreRepository {
   @override
   Future<List<Chore>> list() async => [...b.chores];
   @override
-  Future<List<Turn>> activeTurns() async =>
-      b.turns.where((t) => t.status == TurnStatus.active || t.status == TurnStatus.done).toList();
+  Future<List<Turn>> activeTurns() async => b.turns
+      .where(
+        (t) => t.status == TurnStatus.active || t.status == TurnStatus.done,
+      )
+      .toList();
   @override
-  Future<List<Turn>> turnsBetween(DateTime from, DateTime to) async => [...b.turns];
+  Future<List<Turn>> turnsBetween(DateTime from, DateTime to) async => [
+    ...b.turns,
+  ];
   @override
   Future<Chore> create({
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
   }) async {
     b.addChore(name, mateId: rotation.first, id: b.chores.length + 1);
@@ -186,13 +199,13 @@ class _AwayRepo implements AwayRepository {
   @override
   Future<List<Away>> list() async => [...b.aways];
   @override
-  Future<Away> create(DateTime startsAt, DateTime endsAt) async {
+  Future<Away> create(DateTime startDay, DateTime lastDay) async {
     final away = Away(
       id: b.aways.length + 1,
       flatId: 10,
       mateId: FakeBackend.priya,
-      startsAt: startsAt,
-      endsAt: endsAt,
+      startDay: startDay,
+      lastDay: lastDay,
     );
     b.aways.add(away);
     return away;
@@ -208,8 +221,9 @@ class _EventRepo implements EventRepository {
   final FakeBackend b;
 
   @override
-  Future<List<FlatEvent>> between(DateTime from, DateTime to) async =>
-      [...b.events];
+  Future<List<FlatEvent>> between(DateTime from, DateTime to) async => [
+    ...b.events,
+  ];
   @override
   Future<FlatEvent> create({
     required String title,

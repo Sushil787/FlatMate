@@ -2,6 +2,7 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/utils/day.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_runner.dart';
@@ -29,9 +30,8 @@ class _MyTurnCardState extends ConsumerState<MyTurnCard> {
     setState(() => _busy = true);
     await runAction(
       context,
-      () => ref
-          .read(choresControllerProvider.notifier)
-          .markDone(widget.turn.id!),
+      () =>
+          ref.read(choresControllerProvider.notifier).markDone(widget.turn.id!),
       success: 'Nice! ${widget.chore.name} is done.',
     );
     if (mounted) setState(() => _busy = false);
@@ -83,8 +83,8 @@ class _MyTurnCardState extends ConsumerState<MyTurnCard> {
                     const SizedBox(height: Insets.xs),
                     Text(
                       started
-                          ? 'Due ${Fmt.dateTime(turn.endsAt)}'
-                          : 'Starts ${Fmt.dateTime(turn.startsAt)}',
+                          ? 'Due by midnight, ${Fmt.day(Day.local(turn.lastDay))}'
+                          : 'On ${Fmt.days(turn.day, turn.lastDay)}',
                       style: text.bodyMedium?.copyWith(color: Colors.white70),
                     ),
                     if (covering != null) ...[

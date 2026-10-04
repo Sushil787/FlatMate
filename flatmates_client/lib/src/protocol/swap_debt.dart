@@ -20,15 +20,18 @@ abstract class SwapDebt
     required this.choreId,
     required this.debtorMateId,
     required this.creditorMateId,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory SwapDebt({
     int? id,
     required int choreId,
     required int debtorMateId,
     required int creditorMateId,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _SwapDebtImpl;
 
   factory SwapDebt.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -37,9 +40,12 @@ abstract class SwapDebt
       choreId: jsonSerialization['choreId'] as int,
       debtorMateId: jsonSerialization['debtorMateId'] as int,
       creditorMateId: jsonSerialization['creditorMateId'] as int,
-      createdAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -56,6 +62,8 @@ abstract class SwapDebt
 
   DateTime createdAt;
 
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [SwapDebt]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -65,6 +73,7 @@ abstract class SwapDebt
     int? debtorMateId,
     int? creditorMateId,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -75,6 +84,7 @@ abstract class SwapDebt
       'debtorMateId': debtorMateId,
       'creditorMateId': creditorMateId,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -87,6 +97,7 @@ abstract class SwapDebt
       'debtorMateId': debtorMateId,
       'creditorMateId': creditorMateId,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -104,13 +115,15 @@ class _SwapDebtImpl extends SwapDebt {
     required int choreId,
     required int debtorMateId,
     required int creditorMateId,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          choreId: choreId,
          debtorMateId: debtorMateId,
          creditorMateId: creditorMateId,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [SwapDebt]
@@ -123,6 +136,7 @@ class _SwapDebtImpl extends SwapDebt {
     int? debtorMateId,
     int? creditorMateId,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return SwapDebt(
       id: id is int? ? id : this.id,
@@ -130,6 +144,7 @@ class _SwapDebtImpl extends SwapDebt {
       debtorMateId: debtorMateId ?? this.debtorMateId,
       creditorMateId: creditorMateId ?? this.creditorMateId,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

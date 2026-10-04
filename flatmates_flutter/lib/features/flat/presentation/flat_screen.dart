@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/day.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
@@ -50,7 +51,7 @@ class FlatScreen extends ConsumerWidget {
                       color: context.colors.away,
                     ),
                     title: Text(
-                      '${Fmt.day(a.startsAt)} → ${Fmt.day(a.endsAt.subtract(const Duration(seconds: 1)))}',
+                      Fmt.days(a.startDay, a.lastDay),
                     ),
                     trailing: a.startsAt.isAfter(DateTime.now())
                         ? TextButton(
@@ -116,10 +117,9 @@ class FlatScreen extends ConsumerWidget {
                     color: theme.colorScheme.error,
                   ),
                   title: const Text('Leave flat'),
-                  subtitle:
-                      directory.amAdmin && directory.mates.length > 1
-                          ? const Text('Make someone else admin first.')
-                          : null,
+                  subtitle: directory.amAdmin && directory.mates.length > 1
+                      ? const Text('Make someone else admin first.')
+                      : null,
                   onTap: () => _leave(context, ref),
                 ),
                 ListTile(

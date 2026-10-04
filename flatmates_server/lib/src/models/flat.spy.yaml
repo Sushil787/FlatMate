@@ -3,11 +3,13 @@ class: Flat
 table: flat
 fields:
   name: String
+  ### IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   timezone: String
   adminMateId: int?
   inviteCode: String
   awayRule: AwayRule
-  createdAt: DateTime
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   flat_invite_code_idx:
     fields: inviteCode

@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "35913723397-rieainbepmmkpvamkm5sm78n1dtjo3fq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flatmates_flutter",
+            "certificate_hash": "ad636c33a4f3d32f565b403b5cb66941c111339c"
+          }
+        },
+        {
           "client_id": "35913723397-th9qo02p4bip6sf6kempuggt2i8drsj0.apps.googleusercontent.com",
           "client_type": 3
         }

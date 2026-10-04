@@ -195,13 +195,13 @@ class Endpoints extends _is.EndpointDispatch {
         'create': _is.MethodConnector(
           name: 'create',
           params: {
-            'startsAt': _is.ParameterDescription(
-              name: 'startsAt',
+            'startDay': _is.ParameterDescription(
+              name: 'startDay',
               type: _is.getType<DateTime>(),
               nullable: false,
             ),
-            'endsAt': _is.ParameterDescription(
-              name: 'endsAt',
+            'lastDay': _is.ParameterDescription(
+              name: 'lastDay',
               type: _is.getType<DateTime>(),
               nullable: false,
             ),
@@ -212,8 +212,8 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['away'] as _im6g9gk0.AwayEndpoint).create(
                 session,
-                params['startsAt'],
-                params['endsAt'],
+                params['startDay'],
+                params['lastDay'],
               ),
         ),
         'cancel': _is.MethodConnector(
@@ -298,8 +298,8 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<Duration>(),
               nullable: false,
             ),
-            'startsAt': _is.ParameterDescription(
-              name: 'startsAt',
+            'startDay': _is.ParameterDescription(
+              name: 'startDay',
               type: _is.getType<DateTime>(),
               nullable: false,
             ),
@@ -317,7 +317,7 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
                 params['name'],
                 params['period'],
-                params['startsAt'],
+                params['startDay'],
                 params['rotation'],
               ),
         ),

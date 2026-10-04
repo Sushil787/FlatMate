@@ -22,8 +22,10 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     this.adminMateId,
     required this.inviteCode,
     required this.awayRule,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Flat({
     int? id,
@@ -32,7 +34,8 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     int? adminMateId,
     required String inviteCode,
     required _isc380kv.AwayRule awayRule,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _FlatImpl;
 
   factory Flat.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -45,9 +48,12 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       awayRule: _isc380kv.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
-      createdAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -60,6 +66,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   String name;
 
+  /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   String timezone;
 
   int? adminMateId;
@@ -69,6 +76,8 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
   _isc380kv.AwayRule awayRule;
 
   DateTime createdAt;
+
+  DateTime updatedAt;
 
   @override
   _is.Table<int?> get table => t;
@@ -84,6 +93,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     String? inviteCode,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -96,6 +106,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'inviteCode': inviteCode,
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -110,6 +121,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'inviteCode': inviteCode,
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -151,7 +163,8 @@ class _FlatImpl extends Flat {
     int? adminMateId,
     required String inviteCode,
     required _isc380kv.AwayRule awayRule,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          name: name,
@@ -160,6 +173,7 @@ class _FlatImpl extends Flat {
          inviteCode: inviteCode,
          awayRule: awayRule,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Flat]
@@ -174,6 +188,7 @@ class _FlatImpl extends Flat {
     String? inviteCode,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Flat(
       id: id is int? ? id : this.id,
@@ -183,6 +198,7 @@ class _FlatImpl extends Flat {
       inviteCode: inviteCode ?? this.inviteCode,
       awayRule: awayRule ?? this.awayRule,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -222,6 +238,12 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
         table.createdAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class FlatTable extends _is.Table<int?> {
@@ -251,6 +273,12 @@ class FlatTable extends _is.Table<int?> {
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
     );
   }
 
@@ -258,6 +286,7 @@ class FlatTable extends _is.Table<int?> {
 
   late final _is.ColumnString name;
 
+  /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   late final _is.ColumnString timezone;
 
   late final _is.ColumnInt adminMateId;
@@ -268,6 +297,8 @@ class FlatTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime createdAt;
 
+  late final _is.ColumnDateTime updatedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -277,6 +308,7 @@ class FlatTable extends _is.Table<int?> {
     inviteCode,
     awayRule,
     createdAt,
+    updatedAt,
   ];
 }
 

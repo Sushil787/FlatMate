@@ -20,8 +20,10 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.mateId,
     required this.text,
     required this.pinned,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Notice({
     int? id,
@@ -29,7 +31,8 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required int mateId,
     required String text,
     required bool pinned,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _NoticeImpl;
 
   factory Notice.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -39,9 +42,12 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       mateId: jsonSerialization['mateId'] as int,
       text: jsonSerialization['text'] as String,
       pinned: _is.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
-      createdAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -62,6 +68,8 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   DateTime createdAt;
 
+  DateTime updatedAt;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -75,6 +83,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     String? text,
     bool? pinned,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -86,6 +95,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'text': text,
       'pinned': pinned,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -99,6 +109,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'text': text,
       'pinned': pinned,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -139,7 +150,8 @@ class _NoticeImpl extends Notice {
     required int mateId,
     required String text,
     required bool pinned,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -147,6 +159,7 @@ class _NoticeImpl extends Notice {
          text: text,
          pinned: pinned,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Notice]
@@ -160,6 +173,7 @@ class _NoticeImpl extends Notice {
     String? text,
     bool? pinned,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Notice(
       id: id is int? ? id : this.id,
@@ -168,6 +182,7 @@ class _NoticeImpl extends Notice {
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -200,6 +215,12 @@ class NoticeUpdateTable extends _is.UpdateTable<NoticeTable> {
         table.createdAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class NoticeTable extends _is.Table<int?> {
@@ -224,6 +245,12 @@ class NoticeTable extends _is.Table<int?> {
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
     );
   }
 
@@ -239,6 +266,8 @@ class NoticeTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime createdAt;
 
+  late final _is.ColumnDateTime updatedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -247,6 +276,7 @@ class NoticeTable extends _is.Table<int?> {
     text,
     pinned,
     createdAt,
+    updatedAt,
   ];
 }
 

@@ -12,23 +12,29 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 
-/// A period a Mate is not around to do Chores.
+/// A period of whole days a Mate is not around to do Chores.
+/// Days are stored as 12:00 UTC on that date (see day.dart).
 abstract class Away
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   Away._({
     this.id,
     required this.flatId,
     required this.mateId,
-    required this.startsAt,
-    required this.endsAt,
-  });
+    required this.startDay,
+    required this.lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Away({
     int? id,
     required int flatId,
     required int mateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime startDay,
+    required DateTime lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _AwayImpl;
 
   factory Away.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -36,10 +42,18 @@ abstract class Away
       id: jsonSerialization['id'] as int?,
       flatId: jsonSerialization['flatId'] as int,
       mateId: jsonSerialization['mateId'] as int,
-      startsAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
+      startDay: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['startDay'],
       ),
-      endsAt: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
+      lastDay: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['lastDay'],
+      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -52,9 +66,14 @@ abstract class Away
 
   int mateId;
 
-  DateTime startsAt;
+  DateTime startDay;
 
-  DateTime endsAt;
+  /// Inclusive.
+  DateTime lastDay;
+
+  DateTime createdAt;
+
+  DateTime updatedAt;
 
   /// Returns a shallow copy of this [Away]
   /// with some or all fields replaced by the given arguments.
@@ -63,8 +82,10 @@ abstract class Away
     int? id,
     int? flatId,
     int? mateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? startDay,
+    DateTime? lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -73,8 +94,10 @@ abstract class Away
       if (id != null) 'id': id,
       'flatId': flatId,
       'mateId': mateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'startDay': startDay.toJson(),
+      'lastDay': lastDay.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -85,8 +108,10 @@ abstract class Away
       if (id != null) 'id': id,
       'flatId': flatId,
       'mateId': mateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'startDay': startDay.toJson(),
+      'lastDay': lastDay.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -103,14 +128,18 @@ class _AwayImpl extends Away {
     int? id,
     required int flatId,
     required int mateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime startDay,
+    required DateTime lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          mateId: mateId,
-         startsAt: startsAt,
-         endsAt: endsAt,
+         startDay: startDay,
+         lastDay: lastDay,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Away]
@@ -121,15 +150,19 @@ class _AwayImpl extends Away {
     Object? id = _Undefined,
     int? flatId,
     int? mateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? startDay,
+    DateTime? lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Away(
       id: id is int? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
-      startsAt: startsAt ?? this.startsAt,
-      endsAt: endsAt ?? this.endsAt,
+      startDay: startDay ?? this.startDay,
+      lastDay: lastDay ?? this.lastDay,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

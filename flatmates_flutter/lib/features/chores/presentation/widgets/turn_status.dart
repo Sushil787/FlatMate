@@ -1,6 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/day.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/status_pill.dart';

@@ -20,21 +20,26 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.flatId,
     required this.name,
     required this.period,
-    required this.startsAt,
+    required this.startDay,
     required this.rotation,
     required this.rotationIndex,
     required this.archived,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Chore({
     int? id,
     required int flatId,
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
     required int rotationIndex,
     required bool archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _ChoreImpl;
 
   factory Chore.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,14 +48,20 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
       flatId: jsonSerialization['flatId'] as int,
       name: jsonSerialization['name'] as String,
       period: _is.DurationJsonExtension.fromJson(jsonSerialization['period']),
-      startsAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
+      startDay: _is.DateTimeJsonExtension.fromJson(
+        jsonSerialization['startDay'],
       ),
       rotation: _ikjds9rx.Protocol().deserialize<List<int>>(
         jsonSerialization['rotation'],
       ),
       rotationIndex: jsonSerialization['rotationIndex'] as int,
       archived: _is.BoolJsonExtension.fromJson(jsonSerialization['archived']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -65,10 +76,11 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   String name;
 
-  /// Rotation period: how long one Turn lasts.
+  /// Rotation period: time from one Turn's start to the next, whole days.
   Duration period;
 
-  DateTime startsAt;
+  /// The day of the first Turn (12:00 UTC on that date, see day.dart).
+  DateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
   List<int> rotation;
@@ -77,6 +89,10 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   int rotationIndex;
 
   bool archived;
+
+  DateTime createdAt;
+
+  DateTime updatedAt;
 
   @override
   _is.Table<int?> get table => t;
@@ -89,10 +105,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
     int? flatId,
     String? name,
     Duration? period,
-    DateTime? startsAt,
+    DateTime? startDay,
     List<int>? rotation,
     int? rotationIndex,
     bool? archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -102,10 +120,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'flatId': flatId,
       'name': name,
       'period': period.toJson(),
-      'startsAt': startsAt.toJson(),
+      'startDay': startDay.toJson(),
       'rotation': rotation.toJson(),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -117,10 +137,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'flatId': flatId,
       'name': name,
       'period': period.toJson(),
-      'startsAt': startsAt.toJson(),
+      'startDay': startDay.toJson(),
       'rotation': rotation.toJson(),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -160,19 +182,23 @@ class _ChoreImpl extends Chore {
     required int flatId,
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
     required int rotationIndex,
     required bool archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          name: name,
          period: period,
-         startsAt: startsAt,
+         startDay: startDay,
          rotation: rotation,
          rotationIndex: rotationIndex,
          archived: archived,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Chore]
@@ -184,20 +210,24 @@ class _ChoreImpl extends Chore {
     int? flatId,
     String? name,
     Duration? period,
-    DateTime? startsAt,
+    DateTime? startDay,
     List<int>? rotation,
     int? rotationIndex,
     bool? archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Chore(
       id: id is int? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       period: period ?? this.period,
-      startsAt: startsAt ?? this.startsAt,
+      startDay: startDay ?? this.startDay,
       rotation: rotation ?? this.rotation.map((e0) => e0).toList(),
       rotationIndex: rotationIndex ?? this.rotationIndex,
       archived: archived ?? this.archived,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -220,9 +250,9 @@ class ChoreUpdateTable extends _is.UpdateTable<ChoreTable> {
     value,
   );
 
-  _is.ColumnValue<DateTime, DateTime> startsAt(DateTime value) =>
+  _is.ColumnValue<DateTime, DateTime> startDay(DateTime value) =>
       _is.ColumnValue(
-        table.startsAt,
+        table.startDay,
         value,
       );
 
@@ -241,6 +271,18 @@ class ChoreUpdateTable extends _is.UpdateTable<ChoreTable> {
     table.archived,
     value,
   );
+
+  _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
+      _is.ColumnValue(
+        table.createdAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class ChoreTable extends _is.Table<int?> {
@@ -258,8 +300,8 @@ class ChoreTable extends _is.Table<int?> {
       'period',
       this,
     );
-    startsAt = _is.ColumnDateTime(
-      'startsAt',
+    startDay = _is.ColumnDateTime(
+      'startDay',
       this,
     );
     rotation = _is.ColumnSerializable<List<int>>(
@@ -274,6 +316,16 @@ class ChoreTable extends _is.Table<int?> {
       'archived',
       this,
     );
+    createdAt = _is.ColumnDateTime(
+      'createdAt',
+      this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final ChoreUpdateTable updateTable;
@@ -282,10 +334,11 @@ class ChoreTable extends _is.Table<int?> {
 
   late final _is.ColumnString name;
 
-  /// Rotation period: how long one Turn lasts.
+  /// Rotation period: time from one Turn's start to the next, whole days.
   late final _is.ColumnDuration period;
 
-  late final _is.ColumnDateTime startsAt;
+  /// The day of the first Turn (12:00 UTC on that date, see day.dart).
+  late final _is.ColumnDateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
   late final _is.ColumnSerializable<List<int>> rotation;
@@ -295,16 +348,22 @@ class ChoreTable extends _is.Table<int?> {
 
   late final _is.ColumnBool archived;
 
+  late final _is.ColumnDateTime createdAt;
+
+  late final _is.ColumnDateTime updatedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
     flatId,
     name,
     period,
-    startsAt,
+    startDay,
     rotation,
     rotationIndex,
     archived,
+    createdAt,
+    updatedAt,
   ];
 }
 

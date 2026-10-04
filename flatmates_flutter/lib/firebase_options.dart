@@ -59,25 +59,28 @@ class DefaultFirebaseOptions {
     projectId: 'flatmates-hackathon-1003',
     storageBucket: 'flatmates-hackathon-1003.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBBVODPxCodxDdHU_OorPf5Onfi9HueDG8',
     appId: '1:35913723397:ios:7cf4de7e91a78d1512b66c',
     messagingSenderId: '35913723397',
     projectId: 'flatmates-hackathon-1003',
     storageBucket: 'flatmates-hackathon-1003.firebasestorage.app',
-    iosClientId: '35913723397-unkreaqsinok6o9rr5bcka85442uun6j.apps.googleusercontent.com',
+    androidClientId:
+        '35913723397-bkiq465dbs6u8a5kja1m6bj0h6ocdk8u.apps.googleusercontent.com',
+    iosClientId:
+        '35913723397-unkreaqsinok6o9rr5bcka85442uun6j.apps.googleusercontent.com',
     iosBundleId: 'com.example.flatmatesFlutter',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBBVODPxCodxDdHU_OorPf5Onfi9HueDG8',
     appId: '1:35913723397:ios:7cf4de7e91a78d1512b66c',
     messagingSenderId: '35913723397',
     projectId: 'flatmates-hackathon-1003',
     storageBucket: 'flatmates-hackathon-1003.firebasestorage.app',
-    iosClientId: '35913723397-unkreaqsinok6o9rr5bcka85442uun6j.apps.googleusercontent.com',
+    androidClientId:
+        '35913723397-bkiq465dbs6u8a5kja1m6bj0h6ocdk8u.apps.googleusercontent.com',
+    iosClientId:
+        '35913723397-unkreaqsinok6o9rr5bcka85442uun6j.apps.googleusercontent.com',
     iosBundleId: 'com.example.flatmatesFlutter',
   );
-
 }

@@ -21,8 +21,10 @@ abstract class Notice
     required this.mateId,
     required this.text,
     required this.pinned,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Notice({
     int? id,
@@ -30,7 +32,8 @@ abstract class Notice
     required int mateId,
     required String text,
     required bool pinned,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _NoticeImpl;
 
   factory Notice.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -40,9 +43,12 @@ abstract class Notice
       mateId: jsonSerialization['mateId'] as int,
       text: jsonSerialization['text'] as String,
       pinned: _isc.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
-      createdAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -61,6 +67,8 @@ abstract class Notice
 
   DateTime createdAt;
 
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [Notice]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -71,6 +79,7 @@ abstract class Notice
     String? text,
     bool? pinned,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -82,6 +91,7 @@ abstract class Notice
       'text': text,
       'pinned': pinned,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -95,6 +105,7 @@ abstract class Notice
       'text': text,
       'pinned': pinned,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -113,7 +124,8 @@ class _NoticeImpl extends Notice {
     required int mateId,
     required String text,
     required bool pinned,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -121,6 +133,7 @@ class _NoticeImpl extends Notice {
          text: text,
          pinned: pinned,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Notice]
@@ -134,6 +147,7 @@ class _NoticeImpl extends Notice {
     String? text,
     bool? pinned,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Notice(
       id: id is int? ? id : this.id,
@@ -142,6 +156,7 @@ class _NoticeImpl extends Notice {
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

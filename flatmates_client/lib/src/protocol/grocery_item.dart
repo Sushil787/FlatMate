@@ -23,8 +23,10 @@ abstract class GroceryItem
     required this.addedByMateId,
     this.boughtByMateId,
     this.boughtAt,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory GroceryItem({
     int? id,
@@ -34,7 +36,8 @@ abstract class GroceryItem
     required int addedByMateId,
     int? boughtByMateId,
     DateTime? boughtAt,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _GroceryItemImpl;
 
   factory GroceryItem.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -48,9 +51,12 @@ abstract class GroceryItem
       boughtAt: jsonSerialization['boughtAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['boughtAt']),
-      createdAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -73,6 +79,8 @@ abstract class GroceryItem
 
   DateTime createdAt;
 
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [GroceryItem]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -85,6 +93,7 @@ abstract class GroceryItem
     int? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -98,6 +107,7 @@ abstract class GroceryItem
       if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -113,6 +123,7 @@ abstract class GroceryItem
       if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -133,7 +144,8 @@ class _GroceryItemImpl extends GroceryItem {
     required int addedByMateId,
     int? boughtByMateId,
     DateTime? boughtAt,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -143,6 +155,7 @@ class _GroceryItemImpl extends GroceryItem {
          boughtByMateId: boughtByMateId,
          boughtAt: boughtAt,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [GroceryItem]
@@ -158,6 +171,7 @@ class _GroceryItemImpl extends GroceryItem {
     Object? boughtByMateId = _Undefined,
     Object? boughtAt = _Undefined,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return GroceryItem(
       id: id is int? ? id : this.id,
@@ -170,6 +184,7 @@ class _GroceryItemImpl extends GroceryItem {
           : this.boughtByMateId,
       boughtAt: boughtAt is DateTime? ? boughtAt : this.boughtAt,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 
-enum PeriodUnit { hours, days, weeks }
+enum PeriodUnit { days, weeks }
 
 /// Picks a Rotation period as a number and a unit, e.g. "2 weeks".
 class PeriodField extends StatelessWidget {
@@ -15,14 +15,10 @@ class PeriodField extends StatelessWidget {
     if (d.inDays >= 7 && d.inDays % 7 == 0) {
       return (d.inDays ~/ 7, PeriodUnit.weeks);
     }
-    if (d.inHours >= 24 && d.inHours % 24 == 0) {
-      return (d.inDays, PeriodUnit.days);
-    }
-    return (d.inHours, PeriodUnit.hours);
+    return (d.inDays, PeriodUnit.days);
   }
 
   static Duration join(int amount, PeriodUnit unit) => switch (unit) {
-    PeriodUnit.hours => Duration(hours: amount),
     PeriodUnit.days => Duration(days: amount),
     PeriodUnit.weeks => Duration(days: 7 * amount),
   };
@@ -33,7 +29,6 @@ class PeriodField extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final unitLabel = switch (unit) {
-      PeriodUnit.hours => amount == 1 ? 'hour' : 'hours',
       PeriodUnit.days => amount == 1 ? 'day' : 'days',
       PeriodUnit.weeks => amount == 1 ? 'week' : 'weeks',
     };
@@ -75,7 +70,6 @@ class PeriodField extends StatelessWidget {
         SegmentedButton<PeriodUnit>(
           showSelectedIcon: false,
           segments: const [
-            ButtonSegment(value: PeriodUnit.hours, label: Text('Hours')),
             ButtonSegment(value: PeriodUnit.days, label: Text('Days')),
             ButtonSegment(value: PeriodUnit.weeks, label: Text('Weeks')),
           ],

@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/utils/day.dart';
 import '../../away/application/aways_controller.dart';
 import '../../chores/application/chores_controller.dart';
 import '../../chores/data/chore_repository.dart';
@@ -21,7 +22,9 @@ Future<List<CalendarEntry>> calendarMonth(Ref ref, DateTime month) async {
   final to = DateTime(month.year, month.month + 1).add(const Duration(days: 7));
 
   final (turns, events) = await (
-    ref.watch(choreRepositoryProvider).turnsBetween(from, to),
+    ref
+        .watch(choreRepositoryProvider)
+        .turnsBetween(Day.fromLocal(from), Day.fromLocal(to)),
     ref.watch(eventRepositoryProvider).between(from, to),
   ).wait;
   final chores = await ref.watch(choresControllerProvider.future);

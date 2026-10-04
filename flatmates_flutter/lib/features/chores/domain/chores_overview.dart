@@ -1,5 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 
+import '../../../core/utils/day.dart';
+
 /// The Flat's Chores with their open Turns.
 class ChoresOverview {
   ChoresOverview({required this.chores, required List<Turn> activeTurns})

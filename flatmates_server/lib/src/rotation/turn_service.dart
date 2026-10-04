@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 
+import '../day.dart';
 import '../flat_access.dart';
 import '../generated/future_calls.dart';
 import '../generated/protocol.dart';
@@ -32,10 +33,9 @@ class TurnService {
     );
     return PlannerState(
       rotation: chore.rotation,
-      period: chore.period,
       awayRule: flat.awayRule,
       activeMateIds: mates.map((m) => m.id!).toSet(),
-      aways: [for (final a in aways) AwaySpan(a.mateId, a.startsAt, a.endsAt)],
+      aways: [for (final a in aways) AwaySpan(a.mateId, a.startDay, a.lastDay)],
       debts: [
         for (final d in debts) Debt(d.debtorMateId, d.creditorMateId),
       ],
@@ -43,20 +43,28 @@ class TurnService {
   }
 
   /// Creates the Chore's first Turn. Called when the Admin creates a Chore.
-  static Future<void> startChore(Session session, Flat flat, Chore chore) async {
-    final now = DateTime.now().toUtc();
-    final start = chore.startsAt.isBefore(now) ? now : chore.startsAt;
-    await _createNextTurn(session, flat, chore, start);
+  static Future<void> startChore(
+    Session session,
+    Flat flat,
+    Chore chore,
+  ) async {
+    // A start day already over rolls forward to the next day in the rhythm.
+    final today = Day.today(flat.timezone);
+    var day = chore.startDay;
+    while (day.isBefore(today)) {
+      day = day.add(chore.period);
+    }
+    await _createNextTurn(session, flat, chore, day);
   }
 
   static Future<Turn?> _createNextTurn(
     Session session,
     Flat flat,
     Chore chore,
-    DateTime startAt,
+    DateTime day,
   ) async {
     final state = await plannerState(session, flat, chore);
-    final plan = planNextTurn(state, chore.rotationIndex, startAt);
+    final plan = planNextTurn(state, chore.rotationIndex, day);
     if (plan == null) {
       session.log('Chore ${chore.name} has nobody left in its rotation.');
       return null;
@@ -89,7 +97,6 @@ class TurnService {
             choreId: chore.id!,
             debtorMateId: created.debtorMateId,
             creditorMateId: created.creditorMateId,
-            createdAt: DateTime.now().toUtc(),
           ),
           transaction: tx,
         );
@@ -102,21 +109,22 @@ class TurnService {
           choreId: chore.id!,
           mateId: plan.mateId,
           coveringForMateId: plan.coveringForMateId,
-          startsAt: plan.startsAt,
-          endsAt: plan.endsAt,
+          day: plan.day,
+          lastDay: plan.lastDay,
           status: TurnStatus.active,
         ),
         transaction: tx,
       );
     });
 
-    await _schedule(session, turn);
+    await _schedule(session, flat, turn);
     await broadcast(session, flat.id!, FlatChangeKind.chores);
     return turn;
   }
 
-  /// Projects upcoming Turns for every Chore in the Flat up to [until],
-  /// starting after each Chore's latest real Turn. Projected Turns have no id.
+  /// Projects upcoming Turns for every Chore in the Flat up to the day
+  /// [until], starting after each Chore's latest real Turn. Projected Turns
+  /// have no id.
   static Future<List<Turn>> projectTurns(
     Session session,
     Flat flat,
@@ -136,9 +144,9 @@ class TurnService {
       if (latest == null) continue;
       final state = await plannerState(session, flat, chore);
       var index = chore.rotationIndex;
-      var start = latest.endsAt;
-      for (var i = 0; i < 200 && start.isBefore(until); i++) {
-        final plan = planNextTurn(state, index, start);
+      var day = nextTurnDay(latest.day, latest.lastDay, chore.period);
+      for (var i = 0; i < 200 && !day.isAfter(until); i++) {
+        final plan = planNextTurn(state, index, day);
         if (plan == null) break;
         projected.add(
           Turn(
@@ -146,13 +154,13 @@ class TurnService {
             choreId: chore.id!,
             mateId: plan.mateId,
             coveringForMateId: plan.coveringForMateId,
-            startsAt: plan.startsAt,
-            endsAt: plan.endsAt,
+            day: plan.day,
+            lastDay: plan.lastDay,
             status: TurnStatus.active,
           ),
         );
         index = plan.rotationIndex;
-        start = plan.endsAt;
+        day = nextTurnDay(plan.day, plan.lastDay, chore.period);
       }
     }
     return projected;
@@ -163,28 +171,36 @@ class TurnService {
 
   static String _id(int turnId, String what) => 'turn-$turnId-$what';
 
+  /// When the Turn starts and ends: the Flat's local midnights.
+  static ({DateTime start, DateTime end}) instants(Flat flat, Turn turn) => (
+    start: Day.start(flat.timezone, turn.day),
+    end: Day.end(flat.timezone, turn.lastDay),
+  );
+
   /// Schedules the Turn's start, reminder and end. A Turn that has already
   /// started is announced right away unless [announce] is false.
   static Future<void> _schedule(
     Session session,
+    Flat flat,
     Turn turn, {
     bool announce = true,
   }) async {
     final calls = session.serverpod.futureCalls;
     final now = DateTime.now().toUtc();
+    final (:start, :end) = instants(flat, turn);
     await _cancel(session, turn.id!);
 
-    if (turn.startsAt.isAfter(now)) {
+    if (start.isAfter(now)) {
       await calls
-          .callAtTime(turn.startsAt, identifier: _id(turn.id!, 'start'))
+          .callAtTime(start, identifier: _id(turn.id!, 'start'))
           .turnCalls
           .started(turn.id!);
     } else if (announce) {
       await onTurnStarted(session, turn.id!);
     }
 
-    final remindAt = turn.endsAt.subtract(reminderLead);
-    if (remindAt.isAfter(now) && remindAt.isAfter(turn.startsAt)) {
+    final remindAt = end.subtract(reminderLead);
+    if (remindAt.isAfter(now) && remindAt.isAfter(start)) {
       await calls
           .callAtTime(remindAt, identifier: _id(turn.id!, 'reminder'))
           .turnCalls
@@ -192,7 +208,7 @@ class TurnService {
     }
 
     await calls
-        .callAtTime(turn.endsAt, identifier: _id(turn.id!, 'end'))
+        .callAtTime(end, identifier: _id(turn.id!, 'end'))
         .turnCalls
         .ended(turn.id!);
   }
@@ -211,7 +227,9 @@ class TurnService {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null || turn.status != TurnStatus.active) return;
     final chore = await Chore.db.findById(session, turn.choreId);
-    if (chore == null) return;
+    final flat = await Flat.db.findById(session, turn.flatId);
+    if (chore == null || flat == null) return;
+    final due = _dueIn(instants(flat, turn).end);
 
     final coveringFor = turn.coveringForMateId;
     if (coveringFor == null) {
@@ -219,7 +237,7 @@ class TurnService {
         session,
         [turn.mateId],
         title: 'Your turn: ${chore.name}',
-        body: 'Due ${_dueIn(turn.endsAt)}.',
+        body: 'Due $due.',
       );
     } else {
       final other = await Mate.db.findById(session, coveringFor);
@@ -227,8 +245,9 @@ class TurnService {
         session,
         [turn.mateId],
         title: 'You\'re covering: ${chore.name}',
-        body: 'Doing ${other?.displayName ?? 'a mate'}\'s turn, '
-            'due ${_dueIn(turn.endsAt)}.',
+        body:
+            'Doing ${other?.displayName ?? 'a mate'}\'s turn, '
+            'due $due.',
       );
     }
   }
@@ -237,20 +256,25 @@ class TurnService {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null || turn.status != TurnStatus.active) return;
     final chore = await Chore.db.findById(session, turn.choreId);
-    if (chore == null) return;
+    final flat = await Flat.db.findById(session, turn.flatId);
+    if (chore == null || flat == null) return;
     await Notifier.toMates(
       session,
       [turn.mateId],
       title: '${chore.name} is due soon',
-      body: 'Mark it done, it\'s due ${_dueIn(turn.endsAt)}.',
+      body: 'Mark it done, it\'s due ${_dueIn(instants(flat, turn).end)}.',
     );
   }
 
   static Future<void> onTurnEnded(Session session, int turnId) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null) return;
+    final chore = await Chore.db.findById(session, turn.choreId);
+    final flat = await Flat.db.findById(session, turn.flatId);
+    if (chore == null || flat == null) return;
     // The Turn was extended (Pause) after this call was scheduled.
-    if (turn.endsAt.isAfter(DateTime.now().toUtc().add(_slack))) return;
+    final end = instants(flat, turn).end;
+    if (end.isAfter(DateTime.now().toUtc().add(_slack))) return;
 
     // Only the Chore's latest Turn hands over; guards against a re-run.
     final newer = await Turn.db.count(
@@ -258,10 +282,6 @@ class TurnService {
       where: (t) => t.choreId.equals(turn.choreId) & (t.id > turnId),
     );
     if (newer > 0) return;
-
-    final chore = await Chore.db.findById(session, turn.choreId);
-    final flat = await Flat.db.findById(session, turn.flatId);
-    if (chore == null || flat == null) return;
 
     if (turn.status == TurnStatus.active) {
       turn.status = TurnStatus.missed;
@@ -276,7 +296,12 @@ class TurnService {
     }
 
     if (!chore.archived) {
-      await _createNextTurn(session, flat, chore, turn.endsAt);
+      await _createNextTurn(
+        session,
+        flat,
+        chore,
+        nextTurnDay(turn.day, turn.lastDay, chore.period),
+      );
     } else {
       await broadcast(session, flat.id!, FlatChangeKind.chores);
     }
@@ -287,13 +312,20 @@ class TurnService {
   // ---------------------------------------------------------------------------
   // Actions
 
-  static Future<Turn> markDone(Session session, Mate me, int turnId) async {
+  static Future<Turn> markDone(
+    Session session,
+    Flat flat,
+    Mate me,
+    int turnId,
+  ) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null || turn.flatId != me.flatId) fail('Turn not found.');
     if (turn.mateId != me.id) fail('This is not your turn.');
     if (turn.status != TurnStatus.active) fail('This turn is already over.');
+    if (turn.day.isAfter(Day.today(flat.timezone))) {
+      fail('This turn hasn\'t started yet.');
+    }
     final now = DateTime.now().toUtc();
-    if (turn.startsAt.isAfter(now)) fail('This turn hasn\'t started yet.');
 
     turn.status = TurnStatus.done;
     turn.doneAt = now;
@@ -320,9 +352,10 @@ class TurnService {
       where: (t) =>
           t.mateId.equals(away.mateId) &
           t.status.equals(TurnStatus.active) &
-          (t.startsAt < away.endsAt) &
-          (t.endsAt > away.startsAt),
+          (t.day <= away.lastDay) &
+          (t.lastDay >= away.startDay),
     );
+    final today = Day.today(flat.timezone);
 
     for (final turn in turns) {
       final chore = await Chore.db.findById(session, turn.choreId);
@@ -334,8 +367,8 @@ class TurnService {
           state,
           chore.rotationIndex,
           away.mateId,
-          turn.startsAt,
-          turn.endsAt,
+          turn.day,
+          turn.lastDay,
         );
         if (cover != null) {
           await _reassign(
@@ -354,14 +387,15 @@ class TurnService {
       final span = pauseSpan(
         state,
         turn.mateId,
-        turn.startsAt,
-        chore.period,
+        turn.day,
+        turn.lastDay,
+        canMoveStart: turn.day.isAfter(today),
       );
       turn
-        ..startsAt = span.start
-        ..endsAt = span.end;
+        ..day = span.day
+        ..lastDay = span.lastDay;
       await Turn.db.updateRow(session, turn);
-      await _schedule(session, turn, announce: false);
+      await _schedule(session, flat, turn, announce: false);
     }
     if (turns.isNotEmpty) {
       await broadcast(session, flat.id!, FlatChangeKind.chores);
@@ -386,7 +420,6 @@ class TurnService {
             choreId: chore.id!,
             debtorMateId: awayMateId,
             creditorMateId: cover.mateId,
-            createdAt: DateTime.now().toUtc(),
           ),
           transaction: tx,
         );
@@ -398,7 +431,7 @@ class TurnService {
       turn.mateId = cover.mateId;
       await Turn.db.updateRow(session, turn, transaction: tx);
     });
-    await _schedule(session, turn);
+    await _schedule(session, flat, turn);
   }
 
   /// Hands a leaving Mate's open Turns to the next Mate and drops their debts.
@@ -421,8 +454,8 @@ class TurnService {
         state,
         chore.rotationIndex,
         mate.id!,
-        turn.startsAt,
-        turn.endsAt,
+        turn.day,
+        turn.lastDay,
       );
       if (cover == null) {
         await _cancel(session, turn.id!);

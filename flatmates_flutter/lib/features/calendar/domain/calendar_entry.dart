@@ -1,5 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 
+import '../../../core/utils/day.dart';
+
 /// Something shown on the calendar.
 sealed class CalendarEntry {
   const CalendarEntry();

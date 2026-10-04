@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/providers/client_provider.dart';
@@ -6,7 +7,8 @@ import '../../../core/providers/client_provider.dart';
 part 'flat_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-FlatRepository flatRepository(Ref ref) => FlatRepository(ref.watch(clientProvider));
+FlatRepository flatRepository(Ref ref) =>
+    FlatRepository(ref.watch(clientProvider));
 
 /// Flat membership and settings on the server.
 class FlatRepository {
@@ -16,8 +18,14 @@ class FlatRepository {
 
   Future<MyFlat?> mine() => _client.flat.mine();
 
-  Future<MyFlat> create({required String flatName, required String myName}) =>
-      _client.flat.create(flatName, myName, DateTime.now().timeZoneName);
+  Future<MyFlat> create({
+    required String flatName,
+    required String myName,
+  }) async {
+    // The Flat's timezone decides when its days start and end.
+    final tz = await FlutterTimezone.getLocalTimezone();
+    return _client.flat.create(flatName, myName, tz.identifier);
+  }
 
   Future<MyFlat> join({required String inviteCode, required String myName}) =>
       _client.flat.join(inviteCode, myName);

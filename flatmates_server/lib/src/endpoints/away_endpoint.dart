@@ -1,49 +1,48 @@
 import 'package:serverpod/serverpod.dart';
 
+import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
 import '../rotation/turn_service.dart';
 
 /// Marking yourself Away.
 class AwayEndpoint extends Endpoint {
-  // TODO(dev): login disabled, restore before shipping.
-  // @override
-  // bool get requireLogin => true;
+  @override
+  bool get requireLogin => true;
 
   /// Away periods in the Flat that haven't ended yet.
   Future<List<Away>> list(Session session) async {
     final (:me, :flat) = await requireMate(session);
-    final now = DateTime.now().toUtc();
+    final today = Day.today(flat.timezone);
     return Away.db.find(
       session,
-      where: (t) => t.flatId.equals(flat.id!) & (t.endsAt > now),
-      orderBy: (t) => t.startsAt,
+      where: (t) => t.flatId.equals(flat.id!) & (t.lastDay >= today),
+      orderBy: (t) => t.startDay,
     );
   }
 
-  /// Marks the caller Away. Away can't start in the past.
+  /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
+  /// Away can't start in the past.
   Future<Away> create(
     Session session,
-    DateTime startsAt,
-    DateTime endsAt,
+    DateTime startDay,
+    DateTime lastDay,
   ) async {
     final (:me, :flat) = await requireMate(session);
-    final now = DateTime.now().toUtc();
-    startsAt = startsAt.toUtc();
-    endsAt = endsAt.toUtc();
-    // A minute of grace so "starting now" from the app isn't rejected.
-    if (startsAt.isBefore(now.subtract(const Duration(minutes: 1)))) {
+    startDay = Day.from(startDay);
+    lastDay = Day.from(lastDay);
+    if (startDay.isBefore(Day.today(flat.timezone))) {
       fail('Away can\'t start in the past.');
     }
-    if (!endsAt.isAfter(startsAt)) fail('Away must end after it starts.');
+    if (lastDay.isBefore(startDay)) fail('Away must end after it starts.');
 
     final away = await Away.db.insertRow(
       session,
       Away(
         flatId: flat.id!,
         mateId: me.id!,
-        startsAt: startsAt,
-        endsAt: endsAt,
+        startDay: startDay,
+        lastDay: lastDay,
       ),
     );
     await TurnService.applyAway(session, flat, away);
@@ -57,7 +56,7 @@ class AwayEndpoint extends Endpoint {
     final (:me, :flat) = await requireMate(session);
     final away = await Away.db.findById(session, awayId);
     if (away == null || away.mateId != me.id) fail('Away not found.');
-    if (!away.startsAt.isAfter(DateTime.now().toUtc())) {
+    if (!away.startDay.isAfter(Day.today(flat.timezone))) {
       fail('This away has already started.');
     }
     await Away.db.deleteRow(session, away);

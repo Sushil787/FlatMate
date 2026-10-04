@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:serverpod/serverpod.dart';
-// import 'package:serverpod_auth_idp_server/core.dart'; // TODO(dev): login disabled
 
+import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
 import '../notify/notifier.dart';
@@ -10,9 +10,8 @@ import '../rotation/turn_service.dart';
 
 /// Creating, joining and running a Flat.
 class FlatEndpoint extends Endpoint {
-  // TODO(dev): login disabled, restore before shipping.
-  // @override
-  // bool get requireLogin => true;
+  @override
+  bool get requireLogin => true;
 
   /// The signed-in user's Flat, or null when they haven't joined one.
   Future<MyFlat?> mine(Session session) async {
@@ -32,6 +31,7 @@ class FlatEndpoint extends Endpoint {
       fail('Leave your current flat first.');
     }
     name = _required(name, 'Flat name');
+    if (!Day.isKnown(timezone)) fail('Unknown timezone: $timezone.');
     displayName = _required(displayName, 'Your name');
     final now = DateTime.now().toUtc();
     final inviteCode = await _newInviteCode(session);
@@ -44,7 +44,6 @@ class FlatEndpoint extends Endpoint {
           timezone: timezone,
           inviteCode: inviteCode,
           awayRule: AwayRule.swap,
-          createdAt: now,
         ),
         transaction: tx,
       );
@@ -150,8 +149,10 @@ class FlatEndpoint extends Endpoint {
       fail('That mate isn\'t in your flat.');
     }
     if (mate.id == flat.adminMateId) {
-      final others = (await activeMates(session, flat.id!))
-          .where((m) => m.id != mate.id);
+      final others = (await activeMates(
+        session,
+        flat.id!,
+      )).where((m) => m.id != mate.id);
       if (others.isNotEmpty) {
         fail('Hand the admin role to another mate before leaving.');
       }
@@ -184,16 +185,14 @@ class FlatEndpoint extends Endpoint {
       session,
       where: (t) => t.token.equals(token),
     );
-    final now = DateTime.now().toUtc();
     if (existing == null) {
       await DeviceToken.db.insertRow(
         session,
-        DeviceToken(authUserId: authUserId, token: token, updatedAt: now),
+        DeviceToken(authUserId: authUserId, token: token),
       );
     } else {
-      existing
-        ..authUserId = authUserId
-        ..updatedAt = now;
+      // Saved even when unchanged, so updatedAt shows the token is still live.
+      existing.authUserId = authUserId;
       await DeviceToken.db.updateRow(session, existing);
     }
   }

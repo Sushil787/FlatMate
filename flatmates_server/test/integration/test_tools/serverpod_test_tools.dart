@@ -427,8 +427,8 @@ class _AwayEndpoint {
 
   _ida.Future<_icx3t1f1.Away> create(
     _ist.TestSessionBuilder sessionBuilder,
-    DateTime startsAt,
-    DateTime endsAt,
+    DateTime startDay,
+    DateTime lastDay,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -442,8 +442,8 @@ class _AwayEndpoint {
           endpointPath: 'away',
           methodName: 'create',
           parameters: _ist.testObjectToJson({
-            'startsAt': startsAt,
-            'endsAt': endsAt,
+            'startDay': startDay,
+            'lastDay': lastDay,
           }),
           serializationManager: _serializationManager,
         );
@@ -601,7 +601,7 @@ class _ChoreEndpoint {
     _ist.TestSessionBuilder sessionBuilder,
     String name,
     Duration period,
-    DateTime startsAt,
+    DateTime startDay,
     List<int> rotation,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -618,7 +618,7 @@ class _ChoreEndpoint {
           parameters: _ist.testObjectToJson({
             'name': name,
             'period': period,
-            'startsAt': startsAt,
+            'startDay': startDay,
             'rotation': rotation,
           }),
           serializationManager: _serializationManager,

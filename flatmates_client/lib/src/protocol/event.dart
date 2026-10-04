@@ -23,7 +23,10 @@ abstract class FlatEvent
     this.note,
     required this.startsAt,
     this.endsAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory FlatEvent({
     int? id,
@@ -33,6 +36,8 @@ abstract class FlatEvent
     String? note,
     required DateTime startsAt,
     DateTime? endsAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _FlatEventImpl;
 
   factory FlatEvent.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -48,6 +53,12 @@ abstract class FlatEvent
       endsAt: jsonSerialization['endsAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -68,6 +79,10 @@ abstract class FlatEvent
 
   DateTime? endsAt;
 
+  DateTime createdAt;
+
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [FlatEvent]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -79,6 +94,8 @@ abstract class FlatEvent
     String? note,
     DateTime? startsAt,
     DateTime? endsAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -91,6 +108,8 @@ abstract class FlatEvent
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
       if (endsAt != null) 'endsAt': endsAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -105,6 +124,8 @@ abstract class FlatEvent
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
       if (endsAt != null) 'endsAt': endsAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -125,6 +146,8 @@ class _FlatEventImpl extends FlatEvent {
     String? note,
     required DateTime startsAt,
     DateTime? endsAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -133,6 +156,8 @@ class _FlatEventImpl extends FlatEvent {
          note: note,
          startsAt: startsAt,
          endsAt: endsAt,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [FlatEvent]
@@ -147,6 +172,8 @@ class _FlatEventImpl extends FlatEvent {
     Object? note = _Undefined,
     DateTime? startsAt,
     Object? endsAt = _Undefined,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return FlatEvent(
       id: id is int? ? id : this.id,
@@ -156,6 +183,8 @@ class _FlatEventImpl extends FlatEvent {
       note: note is String? ? note : this.note,
       startsAt: startsAt ?? this.startsAt,
       endsAt: endsAt is DateTime? ? endsAt : this.endsAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

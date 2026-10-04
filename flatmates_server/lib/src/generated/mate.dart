@@ -21,7 +21,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.displayName,
     required this.joinedAt,
     this.leftAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Mate({
     int? id,
@@ -30,6 +33,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _MateImpl;
 
   factory Mate.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -46,6 +51,12 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       leftAt: jsonSerialization['leftAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['leftAt']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -66,6 +77,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   DateTime? leftAt;
 
+  DateTime createdAt;
+
+  DateTime updatedAt;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -79,6 +94,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     String? displayName,
     DateTime? joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -90,6 +107,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -103,6 +122,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -144,6 +165,8 @@ class _MateImpl extends Mate {
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -151,6 +174,8 @@ class _MateImpl extends Mate {
          displayName: displayName,
          joinedAt: joinedAt,
          leftAt: leftAt,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Mate]
@@ -164,6 +189,8 @@ class _MateImpl extends Mate {
     String? displayName,
     DateTime? joinedAt,
     Object? leftAt = _Undefined,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Mate(
       id: id is int? ? id : this.id,
@@ -172,6 +199,8 @@ class _MateImpl extends Mate {
       displayName: displayName ?? this.displayName,
       joinedAt: joinedAt ?? this.joinedAt,
       leftAt: leftAt is DateTime? ? leftAt : this.leftAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -207,6 +236,18 @@ class MateUpdateTable extends _is.UpdateTable<MateTable> {
         table.leftAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
+      _is.ColumnValue(
+        table.createdAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class MateTable extends _is.Table<int?> {
@@ -232,6 +273,16 @@ class MateTable extends _is.Table<int?> {
       'leftAt',
       this,
     );
+    createdAt = _is.ColumnDateTime(
+      'createdAt',
+      this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final MateUpdateTable updateTable;
@@ -246,6 +297,10 @@ class MateTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime leftAt;
 
+  late final _is.ColumnDateTime createdAt;
+
+  late final _is.ColumnDateTime updatedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -254,6 +309,8 @@ class MateTable extends _is.Table<int?> {
     displayName,
     joinedAt,
     leftAt,
+    createdAt,
+    updatedAt,
   ];
 }
 

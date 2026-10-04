@@ -6,9 +6,8 @@ import '../notify/notifier.dart';
 
 /// The Flat's notice board.
 class NoticeEndpoint extends Endpoint {
-  // TODO(dev): login disabled, restore before shipping.
-  // @override
-  // bool get requireLogin => true;
+  @override
+  bool get requireLogin => true;
 
   /// Pinned Notices first, then newest first.
   Future<List<Notice>> list(Session session) async {
@@ -34,7 +33,6 @@ class NoticeEndpoint extends Endpoint {
         mateId: me.id!,
         text: text.trim(),
         pinned: false,
-        createdAt: DateTime.now().toUtc(),
       ),
     );
     await Notifier.toFlat(

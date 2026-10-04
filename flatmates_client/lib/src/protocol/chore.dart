@@ -21,21 +21,26 @@ abstract class Chore
     required this.flatId,
     required this.name,
     required this.period,
-    required this.startsAt,
+    required this.startDay,
     required this.rotation,
     required this.rotationIndex,
     required this.archived,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Chore({
     int? id,
     required int flatId,
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
     required int rotationIndex,
     required bool archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _ChoreImpl;
 
   factory Chore.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,14 +49,20 @@ abstract class Chore
       flatId: jsonSerialization['flatId'] as int,
       name: jsonSerialization['name'] as String,
       period: _isc.DurationJsonExtension.fromJson(jsonSerialization['period']),
-      startsAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
+      startDay: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['startDay'],
       ),
       rotation: _iyp1dgna.Protocol().deserialize<List<int>>(
         jsonSerialization['rotation'],
       ),
       rotationIndex: jsonSerialization['rotationIndex'] as int,
       archived: _isc.BoolJsonExtension.fromJson(jsonSerialization['archived']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -64,10 +75,11 @@ abstract class Chore
 
   String name;
 
-  /// Rotation period: how long one Turn lasts.
+  /// Rotation period: time from one Turn's start to the next, whole days.
   Duration period;
 
-  DateTime startsAt;
+  /// The day of the first Turn (12:00 UTC on that date, see day.dart).
+  DateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
   List<int> rotation;
@@ -77,6 +89,10 @@ abstract class Chore
 
   bool archived;
 
+  DateTime createdAt;
+
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [Chore]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -85,10 +101,12 @@ abstract class Chore
     int? flatId,
     String? name,
     Duration? period,
-    DateTime? startsAt,
+    DateTime? startDay,
     List<int>? rotation,
     int? rotationIndex,
     bool? archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -98,10 +116,12 @@ abstract class Chore
       'flatId': flatId,
       'name': name,
       'period': period.toJson(),
-      'startsAt': startsAt.toJson(),
+      'startDay': startDay.toJson(),
       'rotation': rotation.toJson(),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -113,10 +133,12 @@ abstract class Chore
       'flatId': flatId,
       'name': name,
       'period': period.toJson(),
-      'startsAt': startsAt.toJson(),
+      'startDay': startDay.toJson(),
       'rotation': rotation.toJson(),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -134,19 +156,23 @@ class _ChoreImpl extends Chore {
     required int flatId,
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
     required int rotationIndex,
     required bool archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          name: name,
          period: period,
-         startsAt: startsAt,
+         startDay: startDay,
          rotation: rotation,
          rotationIndex: rotationIndex,
          archived: archived,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Chore]
@@ -158,20 +184,24 @@ class _ChoreImpl extends Chore {
     int? flatId,
     String? name,
     Duration? period,
-    DateTime? startsAt,
+    DateTime? startDay,
     List<int>? rotation,
     int? rotationIndex,
     bool? archived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Chore(
       id: id is int? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       period: period ?? this.period,
-      startsAt: startsAt ?? this.startsAt,
+      startDay: startDay ?? this.startDay,
       rotation: rotation ?? this.rotation.map((e0) => e0).toList(),
       rotationIndex: rotationIndex ?? this.rotationIndex,
       archived: archived ?? this.archived,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

@@ -4,14 +4,17 @@ table: chore
 fields:
   flatId: int
   name: String
-  ### Rotation period: how long one Turn lasts.
+  ### Rotation period: time from one Turn's start to the next, whole days.
   period: Duration
-  startsAt: DateTime
+  ### The day of the first Turn (12:00 UTC on that date, see day.dart).
+  startDay: DateTime
   ### Mate ids in order; a Mate may appear more than once.
   rotation: List<int>
   ### Index in [rotation] of the slot the latest Turn was taken from.
   rotationIndex: int
   archived: bool
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   chore_flat_idx:
     fields: flatId

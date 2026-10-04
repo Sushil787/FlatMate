@@ -13,7 +13,7 @@
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'turn_status.dart' as _i5yk6qf9;
 
-/// One Mate's responsibility for a Chore during one Rotation period.
+/// One Mate's responsibility for a Chore for one day.
 abstract class Turn
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   Turn._({
@@ -22,11 +22,14 @@ abstract class Turn
     required this.choreId,
     required this.mateId,
     this.coveringForMateId,
-    required this.startsAt,
-    required this.endsAt,
+    required this.day,
+    required this.lastDay,
     required this.status,
     this.doneAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Turn({
     int? id,
@@ -34,10 +37,12 @@ abstract class Turn
     required int choreId,
     required int mateId,
     int? coveringForMateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime day,
+    required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _TurnImpl;
 
   factory Turn.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -47,16 +52,22 @@ abstract class Turn
       choreId: jsonSerialization['choreId'] as int,
       mateId: jsonSerialization['mateId'] as int,
       coveringForMateId: jsonSerialization['coveringForMateId'] as int?,
-      startsAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
+      day: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
+      lastDay: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['lastDay'],
       ),
-      endsAt: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
       status: _i5yk6qf9.TurnStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
       doneAt: jsonSerialization['doneAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['doneAt']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -74,13 +85,19 @@ abstract class Turn
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
   int? coveringForMateId;
 
-  DateTime startsAt;
+  /// The Turn's day (12:00 UTC on that date, see day.dart).
+  DateTime day;
 
-  DateTime endsAt;
+  /// Inclusive; later than [day] only when Pause extended the Turn.
+  DateTime lastDay;
 
   _i5yk6qf9.TurnStatus status;
 
   DateTime? doneAt;
+
+  DateTime createdAt;
+
+  DateTime updatedAt;
 
   /// Returns a shallow copy of this [Turn]
   /// with some or all fields replaced by the given arguments.
@@ -91,10 +108,12 @@ abstract class Turn
     int? choreId,
     int? mateId,
     int? coveringForMateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? day,
+    DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -105,10 +124,12 @@ abstract class Turn
       'choreId': choreId,
       'mateId': mateId,
       if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'day': day.toJson(),
+      'lastDay': lastDay.toJson(),
       'status': status.toJson(),
       if (doneAt != null) 'doneAt': doneAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -121,10 +142,12 @@ abstract class Turn
       'choreId': choreId,
       'mateId': mateId,
       if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'day': day.toJson(),
+      'lastDay': lastDay.toJson(),
       'status': status.toJson(),
       if (doneAt != null) 'doneAt': doneAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -143,20 +166,24 @@ class _TurnImpl extends Turn {
     required int choreId,
     required int mateId,
     int? coveringForMateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime day,
+    required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          choreId: choreId,
          mateId: mateId,
          coveringForMateId: coveringForMateId,
-         startsAt: startsAt,
-         endsAt: endsAt,
+         day: day,
+         lastDay: lastDay,
          status: status,
          doneAt: doneAt,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Turn]
@@ -169,10 +196,12 @@ class _TurnImpl extends Turn {
     int? choreId,
     int? mateId,
     Object? coveringForMateId = _Undefined,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? day,
+    DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
     Object? doneAt = _Undefined,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Turn(
       id: id is int? ? id : this.id,
@@ -182,10 +211,12 @@ class _TurnImpl extends Turn {
       coveringForMateId: coveringForMateId is int?
           ? coveringForMateId
           : this.coveringForMateId,
-      startsAt: startsAt ?? this.startsAt,
-      endsAt: endsAt ?? this.endsAt,
+      day: day ?? this.day,
+      lastDay: lastDay ?? this.lastDay,
       status: status ?? this.status,
       doneAt: doneAt is DateTime? ? doneAt : this.doneAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

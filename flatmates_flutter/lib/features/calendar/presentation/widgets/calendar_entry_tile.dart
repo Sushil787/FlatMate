@@ -2,6 +2,7 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/utils/day.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/action_runner.dart';
@@ -13,12 +14,11 @@ import '../../application/calendar_providers.dart';
 import '../../domain/calendar_entry.dart';
 
 /// Colour that marks each kind of entry on the calendar.
-Color entryColor(BuildContext context, CalendarEntry entry) =>
-    switch (entry) {
-      TurnEntry() => Theme.of(context).colorScheme.primary,
-      AwayEntry() => context.colors.away,
-      EventEntry() => context.colors.event,
-    };
+Color entryColor(BuildContext context, CalendarEntry entry) => switch (entry) {
+  TurnEntry() => Theme.of(context).colorScheme.primary,
+  AwayEntry() => context.colors.away,
+  EventEntry() => context.colors.event,
+};
 
 /// One entry in the selected day's list, with a coloured accent bar.
 class CalendarEntryTile extends ConsumerWidget {
@@ -32,63 +32,68 @@ class CalendarEntryTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final accent = entryColor(context, entry);
 
-    final (IconData icon, String title, String subtitle, int? mateId, Widget? action) =
-        switch (entry) {
-          TurnEntry(:final turn, :final choreName, :final isPlanned) => (
-            Icons.cleaning_services_rounded,
-            '$choreName · ${directory.nameOf(turn.mateId)}',
-            [
-              '${Fmt.dateTime(turn.startsAt)} → ${Fmt.dateTime(turn.endsAt)}',
-              if (turn.coveringForMateId != null)
-                'Covering for ${directory.realNameOf(turn.coveringForMateId)}',
-              if (isPlanned) 'Planned',
-              if (turn.status == TurnStatus.done) 'Done',
-              if (turn.status == TurnStatus.missed) 'Missed',
-            ].join(' · '),
-            turn.mateId,
-            null,
-          ),
-          AwayEntry(:final away) => (
-            Icons.flight_takeoff_rounded,
-            '${directory.nameOf(away.mateId)} away',
-            '${Fmt.day(away.startsAt)} → ${Fmt.day(away.endsAt.subtract(const Duration(seconds: 1)))}',
-            away.mateId,
-            directory.isMe(away.mateId) && away.startsAt.isAfter(DateTime.now())
-                ? TextButton(
-                    onPressed: () => runAction(
-                      context,
-                      () => ref
-                          .read(awaysControllerProvider.notifier)
-                          .cancel(away.id!),
-                      success: 'Away cancelled',
-                    ),
-                    child: const Text('Cancel'),
-                  )
-                : null,
-          ),
-          EventEntry(:final event) => (
-            Icons.celebration_rounded,
-            event.title,
-            [
-              Fmt.time(event.startsAt),
-              'added by ${directory.nameOf(event.mateId)}',
-              ?event.note,
-            ].join(' · '),
-            null,
-            directory.isMe(event.mateId) || directory.amAdmin
-                ? IconButton(
-                    tooltip: 'Delete event',
-                    icon: const Icon(Icons.delete_outline_rounded),
-                    onPressed: () => runAction(
-                      context,
-                      () => ref
-                          .read(eventsControllerProvider.notifier)
-                          .delete(event.id!),
-                    ),
-                  )
-                : null,
-          ),
-        };
+    final (
+      IconData icon,
+      String title,
+      String subtitle,
+      int? mateId,
+      Widget? action,
+    ) = switch (entry) {
+      TurnEntry(:final turn, :final choreName, :final isPlanned) => (
+        Icons.cleaning_services_rounded,
+        '$choreName · ${directory.nameOf(turn.mateId)}',
+        [
+          Fmt.days(turn.day, turn.lastDay),
+          if (turn.coveringForMateId != null)
+            'Covering for ${directory.realNameOf(turn.coveringForMateId)}',
+          if (isPlanned) 'Planned',
+          if (turn.status == TurnStatus.done) 'Done',
+          if (turn.status == TurnStatus.missed) 'Missed',
+        ].join(' · '),
+        turn.mateId,
+        null,
+      ),
+      AwayEntry(:final away) => (
+        Icons.flight_takeoff_rounded,
+        '${directory.nameOf(away.mateId)} away',
+        Fmt.days(away.startDay, away.lastDay),
+        away.mateId,
+        directory.isMe(away.mateId) && away.startsAt.isAfter(DateTime.now())
+            ? TextButton(
+                onPressed: () => runAction(
+                  context,
+                  () => ref
+                      .read(awaysControllerProvider.notifier)
+                      .cancel(away.id!),
+                  success: 'Away cancelled',
+                ),
+                child: const Text('Cancel'),
+              )
+            : null,
+      ),
+      EventEntry(:final event) => (
+        Icons.celebration_rounded,
+        event.title,
+        [
+          Fmt.time(event.startsAt),
+          'added by ${directory.nameOf(event.mateId)}',
+          ?event.note,
+        ].join(' · '),
+        null,
+        directory.isMe(event.mateId) || directory.amAdmin
+            ? IconButton(
+                tooltip: 'Delete event',
+                icon: const Icon(Icons.delete_outline_rounded),
+                onPressed: () => runAction(
+                  context,
+                  () => ref
+                      .read(eventsControllerProvider.notifier)
+                      .delete(event.id!),
+                ),
+              )
+            : null,
+      ),
+    };
 
     return Card(
       clipBehavior: Clip.antiAlias,

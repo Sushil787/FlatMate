@@ -1,4 +1,4 @@
-### One Mate's responsibility for a Chore during one Rotation period.
+### One Mate's responsibility for a Chore for one day.
 class: Turn
 table: turn
 fields:
@@ -7,12 +7,16 @@ fields:
   mateId: int
   ### Set when [mateId] is doing this Turn on someone else's behalf (Swap).
   coveringForMateId: int?
-  startsAt: DateTime
-  endsAt: DateTime
+  ### The Turn's day (12:00 UTC on that date, see day.dart).
+  day: DateTime
+  ### Inclusive; later than [day] only when Pause extended the Turn.
+  lastDay: DateTime
   status: TurnStatus
   doneAt: DateTime?
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   turn_chore_idx:
     fields: choreId
-  turn_flat_time_idx:
-    fields: flatId, startsAt
+  turn_flat_day_idx:
+    fields: flatId, day

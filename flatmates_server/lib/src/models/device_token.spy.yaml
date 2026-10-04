@@ -4,7 +4,8 @@ table: device_token
 fields:
   authUserId: UuidValue
   token: String
-  updatedAt: DateTime
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   device_token_token_idx:
     fields: token

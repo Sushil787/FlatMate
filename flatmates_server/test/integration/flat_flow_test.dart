@@ -1,9 +1,14 @@
+import 'package:flatmates_server/src/day.dart';
 import 'package:flatmates_server/src/generated/protocol.dart';
+import 'package:flatmates_server/src/rotation/turn_service.dart';
+import 'package:flatmates_server/src/updated_at.dart';
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
 
 const week = Duration(days: 7);
+const tz = 'Asia/Kathmandu';
+DateTime today([int plus = 0]) => Day.add(Day.today(tz), plus);
 
 void main() {
   withServerpod('Given a flat with three mates', (sessionBuilder, endpoints) {
@@ -19,20 +24,27 @@ void main() {
     late int priyaId, samId, alexId;
 
     setUp(() async {
-      flat = await endpoints.flat.create(priya, 'Elm St', 'Priya', 'UTC');
+      flat = await endpoints.flat.create(priya, 'Elm St', 'Priya', tz);
       priyaId = flat.me.id!;
-      samId = (await endpoints.flat.join(sam, flat.flat.inviteCode, 'Sam'))
-          .me
-          .id!;
-      alexId = (await endpoints.flat.join(alex, flat.flat.inviteCode, 'Alex'))
-          .me
-          .id!;
+      samId = (await endpoints.flat.join(
+        sam,
+        flat.flat.inviteCode,
+        'Sam',
+      )).me.id!;
+      alexId = (await endpoints.flat.join(
+        alex,
+        flat.flat.inviteCode,
+        'Alex',
+      )).me.id!;
     });
 
-    /// Ends the Turn now, as the scheduled end call would.
+    /// Ends the Turn now, as the scheduled end call would, by moving it to
+    /// yesterday.
     Future<void> endTurn(Turn turn) async {
       final session = sessionBuilder.build();
-      turn.endsAt = DateTime.now().toUtc().subtract(const Duration(seconds: 10));
+      turn
+        ..day = today(-1)
+        ..lastDay = today(-1);
       await Turn.db.updateRow(session, turn);
       await endpoints.futureCalls.turnCalls.ended(sessionBuilder, turn.id!);
     }
@@ -59,7 +71,7 @@ void main() {
 
     test('only the admin can create chores', () async {
       await expectLater(
-        endpoints.chore.create(sam, 'Bins', week, DateTime.now(), [samId]),
+        endpoints.chore.create(sam, 'Bins', week, today(), [samId]),
         throwsA(isA<FlatmatesException>()),
       );
     });
@@ -69,14 +81,16 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [priyaId, samId, alexId],
       );
       var turn = await onlyActiveTurn();
       expect(turn.mateId, priyaId);
 
       await endpoints.chore.markDone(priya, turn.id!);
-      await endTurn((await Turn.db.findById(sessionBuilder.build(), turn.id!))!);
+      await endTurn(
+        (await Turn.db.findById(sessionBuilder.build(), turn.id!))!,
+      );
 
       turn = await onlyActiveTurn();
       expect(turn.mateId, samId);
@@ -92,7 +106,7 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [priyaId, samId],
       );
       final turn = await onlyActiveTurn();
@@ -107,15 +121,10 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [samId, alexId, priyaId],
       );
-      final now = DateTime.now().toUtc();
-      await endpoints.away.create(
-        sam,
-        now.add(const Duration(days: 1)),
-        now.add(const Duration(days: 2)),
-      );
+      await endpoints.away.create(sam, today(), today(1));
 
       var turn = await onlyActiveTurn();
       expect(turn.mateId, alexId);
@@ -125,8 +134,8 @@ void main() {
       final session = sessionBuilder.build();
       final away = (await Away.db.find(session)).single;
       away
-        ..startsAt = now.subtract(const Duration(days: 3))
-        ..endsAt = now.subtract(const Duration(days: 2));
+        ..startDay = today(-3)
+        ..lastDay = today(-2);
       await Away.db.updateRow(session, away);
 
       await endTurn(turn);
@@ -142,18 +151,22 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [samId, alexId, priyaId],
       );
-      final now = DateTime.now().toUtc();
-      await endpoints.away.create(sam, now, now.add(const Duration(days: 1)));
+      await endpoints.away.create(sam, today(), today());
 
       var turn = await onlyActiveTurn();
       expect(turn.mateId, alexId);
       expect(turn.coveringForMateId, isNull);
 
+      // Turns last a day and start one Rotation period apart.
+      expect(turn.day, today());
+      expect(turn.lastDay, today());
       await endTurn(turn);
-      expect((await onlyActiveTurn()).mateId, priyaId);
+      final next = await onlyActiveTurn();
+      expect(next.mateId, priyaId);
+      expect(next.day, today(-1 + 7));
     });
 
     test('Pause: Away in the middle of a turn extends it', () async {
@@ -162,22 +175,20 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [samId, alexId],
       );
-      final before = await onlyActiveTurn();
-      final start = DateTime.now().toUtc().add(const Duration(days: 2));
-      await endpoints.away.create(sam, start, start.add(const Duration(days: 3)));
+      await endpoints.away.create(sam, today(), today(2));
 
       final after = await onlyActiveTurn();
       expect(after.mateId, samId);
-      expect(after.endsAt.difference(before.endsAt), const Duration(days: 3));
+      expect(after.day, today());
+      expect(after.lastDay, today(3));
     });
 
     test('Away can\'t be backdated', () async {
-      final now = DateTime.now().toUtc();
       await expectLater(
-        endpoints.away.create(sam, now.subtract(const Duration(days: 2)), now),
+        endpoints.away.create(sam, today(-2), today()),
         throwsA(isA<FlatmatesException>()),
       );
     });
@@ -187,14 +198,13 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [priyaId, samId, alexId],
       );
-      final now = DateTime.now().toUtc();
       final turns = await endpoints.chore.turnsBetween(
         priya,
-        now,
-        now.add(const Duration(days: 27)),
+        today(),
+        today(27),
       );
       expect(turns.map((t) => t.mateId), [priyaId, samId, alexId, priyaId]);
       expect(turns.first.id, isNotNull);
@@ -217,11 +227,45 @@ void main() {
         priya,
         'Bins',
         week,
-        DateTime.now(),
+        today(),
         [samId, alexId, priyaId],
       );
       await endpoints.flat.leave(sam);
       expect((await onlyActiveTurn()).mateId, alexId);
+    });
+
+    test('a chore\'s first turn can\'t be in the past', () async {
+      await expectLater(
+        endpoints.chore.create(priya, 'Bins', week, today(-1), [priyaId]),
+        throwsA(isA<FlatmatesException>()),
+      );
+    });
+
+    test('a turn ends at midnight in the flat\'s timezone', () async {
+      await endpoints.chore.create(priya, 'Bins', week, today(), [priyaId]);
+      final turn = await onlyActiveTurn();
+      final (:start, :end) = TurnService.instants(flat.flat, turn);
+      // Kathmandu is UTC+05:45, so local midnight is 18:15 UTC.
+      expect((start.hour, start.minute), (18, 15));
+      expect(end.difference(start), const Duration(days: 1));
+    });
+
+    test('updatedAt is set by the database on every update', () async {
+      final session = sessionBuilder.build();
+      await installUpdatedAtTriggers(session);
+      final notice = await Notice.db.insertRow(
+        session,
+        Notice(
+          flatId: flat.flat.id!,
+          mateId: priyaId,
+          text: 'Hi',
+          pinned: false,
+          updatedAt: DateTime.utc(2000),
+        ),
+      );
+      await Notice.db.updateRow(session, notice..text = 'Hello');
+      final saved = await Notice.db.findById(session, notice.id!);
+      expect(saved!.updatedAt.isAfter(DateTime.utc(2001)), isTrue);
     });
 
     test('grocery items can be bought and notices pinned', () async {

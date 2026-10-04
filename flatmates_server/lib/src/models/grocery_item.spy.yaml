@@ -8,7 +8,8 @@ fields:
   addedByMateId: int
   boughtByMateId: int?
   boughtAt: DateTime?
-  createdAt: DateTime
+  createdAt: DateTime, default=now
+  updatedAt: DateTime, default=now
 indexes:
   grocery_item_flat_idx:
     fields: flatId

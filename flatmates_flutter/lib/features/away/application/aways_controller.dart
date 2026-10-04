@@ -20,9 +20,10 @@ class AwaysController extends _$AwaysController {
 
   Future<void> refresh() async => state = await AsyncValue.guard(_repo.list);
 
-  /// Marks the user Away. Their Turns may move, so Chores refresh too.
-  Future<void> markAway(DateTime startsAt, DateTime endsAt) async {
-    await _repo.create(startsAt, endsAt);
+  /// Marks the user Away for the days [startDay]..[lastDay] (see day.dart).
+  /// Their Turns may move, so Chores refresh too.
+  Future<void> markAway(DateTime startDay, DateTime lastDay) async {
+    await _repo.create(startDay, lastDay);
     await Future.wait([
       refresh(),
       ref.read(choresControllerProvider.notifier).refresh(),

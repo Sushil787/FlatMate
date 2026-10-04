@@ -142,16 +142,17 @@ class EndpointAway extends _isc.EndpointRef {
         {},
       );
 
-  /// Marks the caller Away. Away can't start in the past.
+  /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
+  /// Away can't start in the past.
   _ida.Future<_irs4lusq.Away> create(
-    DateTime startsAt,
-    DateTime endsAt,
+    DateTime startDay,
+    DateTime lastDay,
   ) => caller.callServerEndpoint<_irs4lusq.Away>(
     'away',
     'create',
     {
-      'startsAt': startsAt,
-      'endsAt': endsAt,
+      'startDay': startDay,
+      'lastDay': lastDay,
     },
   );
 
@@ -187,8 +188,8 @@ class EndpointChore extends _isc.EndpointRef {
         {},
       );
 
-  /// Turns overlapping [from, to): real ones, plus projected future ones
-  /// (which have no id).
+  /// Turns on the days [from]..[to] (inclusive): real ones, plus projected
+  /// future ones (which have no id).
   _ida.Future<List<_i4k8bhoi.Turn>> turnsBetween(
     DateTime from,
     DateTime to,
@@ -204,7 +205,7 @@ class EndpointChore extends _isc.EndpointRef {
   _ida.Future<_ipou5iyr.Chore> create(
     String name,
     Duration period,
-    DateTime startsAt,
+    DateTime startDay,
     List<int> rotation,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
@@ -212,7 +213,7 @@ class EndpointChore extends _isc.EndpointRef {
     {
       'name': name,
       'period': period,
-      'startsAt': startsAt,
+      'startDay': startDay,
       'rotation': rotation,
     },
   );

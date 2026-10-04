@@ -12,22 +12,28 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// A period a Mate is not around to do Chores.
+/// A period of whole days a Mate is not around to do Chores.
+/// Days are stored as 12:00 UTC on that date (see day.dart).
 abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Away._({
     this.id,
     required this.flatId,
     required this.mateId,
-    required this.startsAt,
-    required this.endsAt,
-  });
+    required this.startDay,
+    required this.lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Away({
     int? id,
     required int flatId,
     required int mateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime startDay,
+    required DateTime lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _AwayImpl;
 
   factory Away.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -35,10 +41,16 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
       id: jsonSerialization['id'] as int?,
       flatId: jsonSerialization['flatId'] as int,
       mateId: jsonSerialization['mateId'] as int,
-      startsAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
+      startDay: _is.DateTimeJsonExtension.fromJson(
+        jsonSerialization['startDay'],
       ),
-      endsAt: _is.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
+      lastDay: _is.DateTimeJsonExtension.fromJson(jsonSerialization['lastDay']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -53,9 +65,14 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   int mateId;
 
-  DateTime startsAt;
+  DateTime startDay;
 
-  DateTime endsAt;
+  /// Inclusive.
+  DateTime lastDay;
+
+  DateTime createdAt;
+
+  DateTime updatedAt;
 
   @override
   _is.Table<int?> get table => t;
@@ -67,8 +84,10 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
     int? id,
     int? flatId,
     int? mateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? startDay,
+    DateTime? lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -77,8 +96,10 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
       if (id != null) 'id': id,
       'flatId': flatId,
       'mateId': mateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'startDay': startDay.toJson(),
+      'lastDay': lastDay.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -89,8 +110,10 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
       if (id != null) 'id': id,
       'flatId': flatId,
       'mateId': mateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'startDay': startDay.toJson(),
+      'lastDay': lastDay.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -129,14 +152,18 @@ class _AwayImpl extends Away {
     int? id,
     required int flatId,
     required int mateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime startDay,
+    required DateTime lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          mateId: mateId,
-         startsAt: startsAt,
-         endsAt: endsAt,
+         startDay: startDay,
+         lastDay: lastDay,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Away]
@@ -147,15 +174,19 @@ class _AwayImpl extends Away {
     Object? id = _Undefined,
     int? flatId,
     int? mateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? startDay,
+    DateTime? lastDay,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Away(
       id: id is int? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
-      startsAt: startsAt ?? this.startsAt,
-      endsAt: endsAt ?? this.endsAt,
+      startDay: startDay ?? this.startDay,
+      lastDay: lastDay ?? this.lastDay,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -173,16 +204,29 @@ class AwayUpdateTable extends _is.UpdateTable<AwayTable> {
     value,
   );
 
-  _is.ColumnValue<DateTime, DateTime> startsAt(DateTime value) =>
+  _is.ColumnValue<DateTime, DateTime> startDay(DateTime value) =>
       _is.ColumnValue(
-        table.startsAt,
+        table.startDay,
         value,
       );
 
-  _is.ColumnValue<DateTime, DateTime> endsAt(DateTime value) => _is.ColumnValue(
-    table.endsAt,
-    value,
-  );
+  _is.ColumnValue<DateTime, DateTime> lastDay(DateTime value) =>
+      _is.ColumnValue(
+        table.lastDay,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
+      _is.ColumnValue(
+        table.createdAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class AwayTable extends _is.Table<int?> {
@@ -196,13 +240,23 @@ class AwayTable extends _is.Table<int?> {
       'mateId',
       this,
     );
-    startsAt = _is.ColumnDateTime(
-      'startsAt',
+    startDay = _is.ColumnDateTime(
+      'startDay',
       this,
     );
-    endsAt = _is.ColumnDateTime(
-      'endsAt',
+    lastDay = _is.ColumnDateTime(
+      'lastDay',
       this,
+    );
+    createdAt = _is.ColumnDateTime(
+      'createdAt',
+      this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
     );
   }
 
@@ -212,17 +266,24 @@ class AwayTable extends _is.Table<int?> {
 
   late final _is.ColumnInt mateId;
 
-  late final _is.ColumnDateTime startsAt;
+  late final _is.ColumnDateTime startDay;
 
-  late final _is.ColumnDateTime endsAt;
+  /// Inclusive.
+  late final _is.ColumnDateTime lastDay;
+
+  late final _is.ColumnDateTime createdAt;
+
+  late final _is.ColumnDateTime updatedAt;
 
   @override
   List<_is.Column> get columns => [
     id,
     flatId,
     mateId,
-    startsAt,
-    endsAt,
+    startDay,
+    lastDay,
+    createdAt,
+    updatedAt,
   ];
 }
 

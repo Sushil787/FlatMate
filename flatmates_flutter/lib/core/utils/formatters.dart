@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import 'day.dart';
+
 /// Human-friendly date, time and duration text.
 abstract final class Fmt {
   static String dateTime(DateTime t) =>
@@ -7,20 +9,24 @@ abstract final class Fmt {
 
   static String day(DateTime t) => DateFormat('EEE d MMM').format(t.toLocal());
 
+  /// A range of stored days (see day.dart): "Sun 18 Oct" or
+  /// "Sun 18 Oct → Tue 20 Oct".
+  static String days(DateTime first, DateTime last) {
+    final a = day(Day.local(first));
+    return first == last ? a : '$a → ${day(Day.local(last))}';
+  }
+
   static String time(DateTime t) => DateFormat('HH:mm').format(t.toLocal());
 
   static String monthYear(DateTime t) => DateFormat('MMMM y').format(t);
 
-  /// "1 week", "3 days", "12 hours".
+  /// "1 week", "3 days".
   static String period(Duration d) {
     if (d.inDays >= 7 && d.inDays % 7 == 0) {
       final w = d.inDays ~/ 7;
       return w == 1 ? '1 week' : '$w weeks';
     }
-    if (d.inHours >= 24 && d.inHours % 24 == 0) {
-      return d.inDays == 1 ? '1 day' : '${d.inDays} days';
-    }
-    return d.inHours == 1 ? '1 hour' : '${d.inHours} hours';
+    return d.inDays == 1 ? '1 day' : '${d.inDays} days';
   }
 
   /// "2d 4h", "3h", "45m": time left until [t].

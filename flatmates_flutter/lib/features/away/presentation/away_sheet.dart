@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/day.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
@@ -43,11 +44,8 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
 
   Future<void> _save() async {
     final range = _range!;
-    final now = DateTime.now();
-    // Whole days: from the first day (or now, if that's today) to the end
-    // of the last day.
-    final start = range.start.isBefore(now) ? now : range.start;
-    final end = DateTime(range.end.year, range.end.month, range.end.day + 1);
+    final start = Day.fromLocal(range.start);
+    final end = Day.fromLocal(range.end);
     setState(() => _busy = true);
     final ok = await runAction(
       context,

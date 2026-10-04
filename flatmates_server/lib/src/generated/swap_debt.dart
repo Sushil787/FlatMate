@@ -20,15 +20,18 @@ abstract class SwapDebt
     required this.choreId,
     required this.debtorMateId,
     required this.creditorMateId,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory SwapDebt({
     int? id,
     required int choreId,
     required int debtorMateId,
     required int creditorMateId,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _SwapDebtImpl;
 
   factory SwapDebt.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -37,9 +40,12 @@ abstract class SwapDebt
       choreId: jsonSerialization['choreId'] as int,
       debtorMateId: jsonSerialization['debtorMateId'] as int,
       creditorMateId: jsonSerialization['creditorMateId'] as int,
-      createdAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -58,6 +64,8 @@ abstract class SwapDebt
 
   DateTime createdAt;
 
+  DateTime updatedAt;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -70,6 +78,7 @@ abstract class SwapDebt
     int? debtorMateId,
     int? creditorMateId,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -80,6 +89,7 @@ abstract class SwapDebt
       'debtorMateId': debtorMateId,
       'creditorMateId': creditorMateId,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -92,6 +102,7 @@ abstract class SwapDebt
       'debtorMateId': debtorMateId,
       'creditorMateId': creditorMateId,
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -131,13 +142,15 @@ class _SwapDebtImpl extends SwapDebt {
     required int choreId,
     required int debtorMateId,
     required int creditorMateId,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          choreId: choreId,
          debtorMateId: debtorMateId,
          creditorMateId: creditorMateId,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [SwapDebt]
@@ -150,6 +163,7 @@ class _SwapDebtImpl extends SwapDebt {
     int? debtorMateId,
     int? creditorMateId,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return SwapDebt(
       id: id is int? ? id : this.id,
@@ -157,6 +171,7 @@ class _SwapDebtImpl extends SwapDebt {
       debtorMateId: debtorMateId ?? this.debtorMateId,
       creditorMateId: creditorMateId ?? this.creditorMateId,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -184,6 +199,12 @@ class SwapDebtUpdateTable extends _is.UpdateTable<SwapDebtTable> {
         table.createdAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
+        value,
+      );
 }
 
 class SwapDebtTable extends _is.Table<int?> {
@@ -204,6 +225,12 @@ class SwapDebtTable extends _is.Table<int?> {
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
     );
   }
 
@@ -217,6 +244,8 @@ class SwapDebtTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime createdAt;
 
+  late final _is.ColumnDateTime updatedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -224,6 +253,7 @@ class SwapDebtTable extends _is.Table<int?> {
     debtorMateId,
     creditorMateId,
     createdAt,
+    updatedAt,
   ];
 }
 

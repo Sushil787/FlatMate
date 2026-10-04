@@ -3,6 +3,7 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/day.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
 import '../../../core/utils/formatters.dart';
@@ -28,7 +29,7 @@ class ChoreEditorScreen extends ConsumerStatefulWidget {
 class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
   final _name = TextEditingController();
   Duration _period = const Duration(days: 7);
-  DateTime _startsAt = DateTime.now();
+  DateTime _startsAt = DateUtils.dateOnly(DateTime.now());
   List<int> _rotation = [];
   Chore? _chore;
   bool _busy = false;
@@ -49,7 +50,9 @@ class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
       _rotation = [...chore.rotation];
     } else {
       // Default: everyone, in the order they joined.
-      _rotation = [for (final m in ref.read(mateDirectoryProvider).mates) m.id!];
+      _rotation = [
+        for (final m in ref.read(mateDirectoryProvider).mates) m.id!,
+      ];
     }
   }
 
@@ -63,24 +66,11 @@ class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
     final date = await showDatePicker(
       context: context,
       initialDate: _startsAt,
-      firstDate: DateTime.now().subtract(const Duration(days: 1)),
+      firstDate: DateUtils.dateOnly(DateTime.now()),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (date == null || !mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_startsAt),
-    );
-    if (time == null) return;
-    setState(() {
-      _startsAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
+    // A Turn is a whole local day, so the date is local midnight.
+    if (date != null && mounted) setState(() => _startsAt = date);
   }
 
   Future<void> _save() async {
@@ -92,7 +82,7 @@ class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
           ? controller.create(
               name: _name.text,
               period: _period,
-              startsAt: _startsAt,
+              startDay: Day.fromLocal(_startsAt),
               rotation: _rotation,
             )
           : controller.save(
@@ -170,16 +160,25 @@ class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
             ),
           ),
           const SectionHeader(
-            'Each turn lasts',
+            'Repeats every',
             padding: EdgeInsets.fromLTRB(0, Insets.xl, 0, Insets.sm),
           ),
           PeriodField(
             value: _period,
             onChanged: (p) => setState(() => _period = p),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: Insets.sm),
+            child: Text(
+              'Each turn lasts one day.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
           if (_isNew) ...[
             const SectionHeader(
-              'First turn starts',
+              'First turn on',
               padding: EdgeInsets.fromLTRB(0, Insets.xl, 0, Insets.sm),
             ),
             Material(
@@ -187,7 +186,7 @@ class _ChoreEditorScreenState extends ConsumerState<ChoreEditorScreen> {
               borderRadius: BorderRadius.circular(Radii.md),
               child: ListTile(
                 leading: const Icon(Icons.event_rounded),
-                title: Text(Fmt.dateTime(_startsAt)),
+                title: Text(Fmt.day(_startsAt)),
                 trailing: const Icon(Icons.edit_calendar_rounded),
                 onTap: _pickStart,
               ),

@@ -23,8 +23,10 @@ abstract class Flat
     this.adminMateId,
     required this.inviteCode,
     required this.awayRule,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Flat({
     int? id,
@@ -33,7 +35,8 @@ abstract class Flat
     int? adminMateId,
     required String inviteCode,
     required _isc380kv.AwayRule awayRule,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _FlatImpl;
 
   factory Flat.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -46,9 +49,12 @@ abstract class Flat
       awayRule: _isc380kv.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
-      createdAt: _isc.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -59,6 +65,7 @@ abstract class Flat
 
   String name;
 
+  /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   String timezone;
 
   int? adminMateId;
@@ -68,6 +75,8 @@ abstract class Flat
   _isc380kv.AwayRule awayRule;
 
   DateTime createdAt;
+
+  DateTime updatedAt;
 
   /// Returns a shallow copy of this [Flat]
   /// with some or all fields replaced by the given arguments.
@@ -80,6 +89,7 @@ abstract class Flat
     String? inviteCode,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -92,6 +102,7 @@ abstract class Flat
       'inviteCode': inviteCode,
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -106,6 +117,7 @@ abstract class Flat
       'inviteCode': inviteCode,
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -125,7 +137,8 @@ class _FlatImpl extends Flat {
     int? adminMateId,
     required String inviteCode,
     required _isc380kv.AwayRule awayRule,
-    required DateTime createdAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          name: name,
@@ -134,6 +147,7 @@ class _FlatImpl extends Flat {
          inviteCode: inviteCode,
          awayRule: awayRule,
          createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Flat]
@@ -148,6 +162,7 @@ class _FlatImpl extends Flat {
     String? inviteCode,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Flat(
       id: id is int? ? id : this.id,
@@ -157,6 +172,7 @@ class _FlatImpl extends Flat {
       inviteCode: inviteCode ?? this.inviteCode,
       awayRule: awayRule ?? this.awayRule,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

@@ -13,7 +13,7 @@
 import 'package:serverpod/serverpod.dart' as _is;
 import 'turn_status.dart' as _i5yk6qf9;
 
-/// One Mate's responsibility for a Chore during one Rotation period.
+/// One Mate's responsibility for a Chore for one day.
 abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Turn._({
     this.id,
@@ -21,11 +21,14 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.choreId,
     required this.mateId,
     this.coveringForMateId,
-    required this.startsAt,
-    required this.endsAt,
+    required this.day,
+    required this.lastDay,
     required this.status,
     this.doneAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Turn({
     int? id,
@@ -33,10 +36,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required int choreId,
     required int mateId,
     int? coveringForMateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime day,
+    required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _TurnImpl;
 
   factory Turn.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -46,16 +51,20 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
       choreId: jsonSerialization['choreId'] as int,
       mateId: jsonSerialization['mateId'] as int,
       coveringForMateId: jsonSerialization['coveringForMateId'] as int?,
-      startsAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['startsAt'],
-      ),
-      endsAt: _is.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
+      day: _is.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
+      lastDay: _is.DateTimeJsonExtension.fromJson(jsonSerialization['lastDay']),
       status: _i5yk6qf9.TurnStatus.fromJson(
         (jsonSerialization['status'] as String),
       ),
       doneAt: jsonSerialization['doneAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['doneAt']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -75,13 +84,19 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
   int? coveringForMateId;
 
-  DateTime startsAt;
+  /// The Turn's day (12:00 UTC on that date, see day.dart).
+  DateTime day;
 
-  DateTime endsAt;
+  /// Inclusive; later than [day] only when Pause extended the Turn.
+  DateTime lastDay;
 
   _i5yk6qf9.TurnStatus status;
 
   DateTime? doneAt;
+
+  DateTime createdAt;
+
+  DateTime updatedAt;
 
   @override
   _is.Table<int?> get table => t;
@@ -95,10 +110,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
     int? choreId,
     int? mateId,
     int? coveringForMateId,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? day,
+    DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -109,10 +126,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'choreId': choreId,
       'mateId': mateId,
       if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'day': day.toJson(),
+      'lastDay': lastDay.toJson(),
       'status': status.toJson(),
       if (doneAt != null) 'doneAt': doneAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -125,10 +144,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'choreId': choreId,
       'mateId': mateId,
       if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
-      'startsAt': startsAt.toJson(),
-      'endsAt': endsAt.toJson(),
+      'day': day.toJson(),
+      'lastDay': lastDay.toJson(),
       'status': status.toJson(),
       if (doneAt != null) 'doneAt': doneAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -169,20 +190,24 @@ class _TurnImpl extends Turn {
     required int choreId,
     required int mateId,
     int? coveringForMateId,
-    required DateTime startsAt,
-    required DateTime endsAt,
+    required DateTime day,
+    required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
     DateTime? doneAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
          choreId: choreId,
          mateId: mateId,
          coveringForMateId: coveringForMateId,
-         startsAt: startsAt,
-         endsAt: endsAt,
+         day: day,
+         lastDay: lastDay,
          status: status,
          doneAt: doneAt,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Turn]
@@ -195,10 +220,12 @@ class _TurnImpl extends Turn {
     int? choreId,
     int? mateId,
     Object? coveringForMateId = _Undefined,
-    DateTime? startsAt,
-    DateTime? endsAt,
+    DateTime? day,
+    DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
     Object? doneAt = _Undefined,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Turn(
       id: id is int? ? id : this.id,
@@ -208,10 +235,12 @@ class _TurnImpl extends Turn {
       coveringForMateId: coveringForMateId is int?
           ? coveringForMateId
           : this.coveringForMateId,
-      startsAt: startsAt ?? this.startsAt,
-      endsAt: endsAt ?? this.endsAt,
+      day: day ?? this.day,
+      lastDay: lastDay ?? this.lastDay,
       status: status ?? this.status,
       doneAt: doneAt is DateTime? ? doneAt : this.doneAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
@@ -239,16 +268,16 @@ class TurnUpdateTable extends _is.UpdateTable<TurnTable> {
     value,
   );
 
-  _is.ColumnValue<DateTime, DateTime> startsAt(DateTime value) =>
-      _is.ColumnValue(
-        table.startsAt,
-        value,
-      );
-
-  _is.ColumnValue<DateTime, DateTime> endsAt(DateTime value) => _is.ColumnValue(
-    table.endsAt,
+  _is.ColumnValue<DateTime, DateTime> day(DateTime value) => _is.ColumnValue(
+    table.day,
     value,
   );
+
+  _is.ColumnValue<DateTime, DateTime> lastDay(DateTime value) =>
+      _is.ColumnValue(
+        table.lastDay,
+        value,
+      );
 
   _is.ColumnValue<_i5yk6qf9.TurnStatus, _i5yk6qf9.TurnStatus> status(
     _i5yk6qf9.TurnStatus value,
@@ -260,6 +289,18 @@ class TurnUpdateTable extends _is.UpdateTable<TurnTable> {
   _is.ColumnValue<DateTime, DateTime> doneAt(DateTime? value) =>
       _is.ColumnValue(
         table.doneAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
+      _is.ColumnValue(
+        table.createdAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
+      _is.ColumnValue(
+        table.updatedAt,
         value,
       );
 }
@@ -283,12 +324,12 @@ class TurnTable extends _is.Table<int?> {
       'coveringForMateId',
       this,
     );
-    startsAt = _is.ColumnDateTime(
-      'startsAt',
+    day = _is.ColumnDateTime(
+      'day',
       this,
     );
-    endsAt = _is.ColumnDateTime(
-      'endsAt',
+    lastDay = _is.ColumnDateTime(
+      'lastDay',
       this,
     );
     status = _is.ColumnEnum(
@@ -299,6 +340,16 @@ class TurnTable extends _is.Table<int?> {
     doneAt = _is.ColumnDateTime(
       'doneAt',
       this,
+    );
+    createdAt = _is.ColumnDateTime(
+      'createdAt',
+      this,
+      hasDefault: true,
+    );
+    updatedAt = _is.ColumnDateTime(
+      'updatedAt',
+      this,
+      hasDefault: true,
     );
   }
 
@@ -313,13 +364,19 @@ class TurnTable extends _is.Table<int?> {
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
   late final _is.ColumnInt coveringForMateId;
 
-  late final _is.ColumnDateTime startsAt;
+  /// The Turn's day (12:00 UTC on that date, see day.dart).
+  late final _is.ColumnDateTime day;
 
-  late final _is.ColumnDateTime endsAt;
+  /// Inclusive; later than [day] only when Pause extended the Turn.
+  late final _is.ColumnDateTime lastDay;
 
   late final _is.ColumnEnum<_i5yk6qf9.TurnStatus> status;
 
   late final _is.ColumnDateTime doneAt;
+
+  late final _is.ColumnDateTime createdAt;
+
+  late final _is.ColumnDateTime updatedAt;
 
   @override
   List<_is.Column> get columns => [
@@ -328,10 +385,12 @@ class TurnTable extends _is.Table<int?> {
     choreId,
     mateId,
     coveringForMateId,
-    startsAt,
-    endsAt,
+    day,
+    lastDay,
     status,
     doneAt,
+    createdAt,
+    updatedAt,
   ];
 }
 

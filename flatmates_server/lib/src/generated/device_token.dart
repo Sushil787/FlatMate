@@ -19,14 +19,17 @@ abstract class DeviceToken
     this.id,
     required this.authUserId,
     required this.token,
-    required this.updatedAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory DeviceToken({
     int? id,
     required _is.UuidValue authUserId,
     required String token,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _DeviceTokenImpl;
 
   factory DeviceToken.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -36,9 +39,12 @@ abstract class DeviceToken
         jsonSerialization['authUserId'],
       ),
       token: jsonSerialization['token'] as String,
-      updatedAt: _is.DateTimeJsonExtension.fromJson(
-        jsonSerialization['updatedAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -53,6 +59,8 @@ abstract class DeviceToken
 
   String token;
 
+  DateTime createdAt;
+
   DateTime updatedAt;
 
   @override
@@ -65,6 +73,7 @@ abstract class DeviceToken
     int? id,
     _is.UuidValue? authUserId,
     String? token,
+    DateTime? createdAt,
     DateTime? updatedAt,
   });
   @override
@@ -74,6 +83,7 @@ abstract class DeviceToken
       if (id != null) 'id': id,
       'authUserId': authUserId.toJson(),
       'token': token,
+      'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
   }
@@ -85,6 +95,7 @@ abstract class DeviceToken
       if (id != null) 'id': id,
       'authUserId': authUserId.toJson(),
       'token': token,
+      'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
   }
@@ -124,11 +135,13 @@ class _DeviceTokenImpl extends DeviceToken {
     int? id,
     required _is.UuidValue authUserId,
     required String token,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          authUserId: authUserId,
          token: token,
+         createdAt: createdAt,
          updatedAt: updatedAt,
        );
 
@@ -140,12 +153,14 @@ class _DeviceTokenImpl extends DeviceToken {
     Object? id = _Undefined,
     _is.UuidValue? authUserId,
     String? token,
+    DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return DeviceToken(
       id: id is int? ? id : this.id,
       authUserId: authUserId ?? this.authUserId,
       token: token ?? this.token,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -166,6 +181,12 @@ class DeviceTokenUpdateTable extends _is.UpdateTable<DeviceTokenTable> {
     value,
   );
 
+  _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
+      _is.ColumnValue(
+        table.createdAt,
+        value,
+      );
+
   _is.ColumnValue<DateTime, DateTime> updatedAt(DateTime value) =>
       _is.ColumnValue(
         table.updatedAt,
@@ -184,9 +205,15 @@ class DeviceTokenTable extends _is.Table<int?> {
       'token',
       this,
     );
+    createdAt = _is.ColumnDateTime(
+      'createdAt',
+      this,
+      hasDefault: true,
+    );
     updatedAt = _is.ColumnDateTime(
       'updatedAt',
       this,
+      hasDefault: true,
     );
   }
 
@@ -196,6 +223,8 @@ class DeviceTokenTable extends _is.Table<int?> {
 
   late final _is.ColumnString token;
 
+  late final _is.ColumnDateTime createdAt;
+
   late final _is.ColumnDateTime updatedAt;
 
   @override
@@ -203,6 +232,7 @@ class DeviceTokenTable extends _is.Table<int?> {
     id,
     authUserId,
     token,
+    createdAt,
     updatedAt,
   ];
 }

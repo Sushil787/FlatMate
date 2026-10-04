@@ -34,13 +34,13 @@ class ChoresController extends _$ChoresController {
   Future<void> create({
     required String name,
     required Duration period,
-    required DateTime startsAt,
+    required DateTime startDay,
     required List<int> rotation,
   }) async {
     await _repo.create(
       name: name,
       period: period,
-      startsAt: startsAt,
+      startDay: startDay,
       rotation: rotation,
     );
     await refresh();

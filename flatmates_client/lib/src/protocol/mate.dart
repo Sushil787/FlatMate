@@ -22,7 +22,10 @@ abstract class Mate
     required this.displayName,
     required this.joinedAt,
     this.leftAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory Mate({
     int? id,
@@ -31,6 +34,8 @@ abstract class Mate
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _MateImpl;
 
   factory Mate.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -47,6 +52,12 @@ abstract class Mate
       leftAt: jsonSerialization['leftAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['leftAt']),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      updatedAt: jsonSerialization['updatedAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
     );
   }
 
@@ -65,6 +76,10 @@ abstract class Mate
 
   DateTime? leftAt;
 
+  DateTime createdAt;
+
+  DateTime updatedAt;
+
   /// Returns a shallow copy of this [Mate]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -75,6 +90,8 @@ abstract class Mate
     String? displayName,
     DateTime? joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -86,6 +103,8 @@ abstract class Mate
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -99,6 +118,8 @@ abstract class Mate
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'createdAt': createdAt.toJson(),
+      'updatedAt': updatedAt.toJson(),
     };
   }
 
@@ -118,6 +139,8 @@ class _MateImpl extends Mate {
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) : super._(
          id: id,
          flatId: flatId,
@@ -125,6 +148,8 @@ class _MateImpl extends Mate {
          displayName: displayName,
          joinedAt: joinedAt,
          leftAt: leftAt,
+         createdAt: createdAt,
+         updatedAt: updatedAt,
        );
 
   /// Returns a shallow copy of this [Mate]
@@ -138,6 +163,8 @@ class _MateImpl extends Mate {
     String? displayName,
     DateTime? joinedAt,
     Object? leftAt = _Undefined,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return Mate(
       id: id is int? ? id : this.id,
@@ -146,6 +173,8 @@ class _MateImpl extends Mate {
       displayName: displayName ?? this.displayName,
       joinedAt: joinedAt ?? this.joinedAt,
       leftAt: leftAt is DateTime? ? leftAt : this.leftAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
