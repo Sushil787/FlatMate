@@ -7,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/action_runner.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../../core/widgets/mate_avatar.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../flat/application/mate_directory.dart';
@@ -15,10 +16,14 @@ import '../domain/chores_overview.dart';
 import 'widgets/chore_tile.dart';
 import 'widgets/my_turn_card.dart';
 
-/// Home tab: the user's own Turns up top, then everyone's Chores.
+/// The user's own Turns up top, then everyone's Chores.
 @RoutePage()
-class ChoresScreen extends ConsumerWidget {
+class ChoresScreen extends ConsumerWidget implements AutoRouteWrapper {
   const ChoresScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      MagnetScreen(section: FridgeSection.chores, child: this);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,6 +31,8 @@ class ChoresScreen extends ConsumerWidget {
     final chores = ref.watch(choresControllerProvider);
 
     return Scaffold(
+      // Opened from the fridge, so it needs a way back.
+      appBar: AppBar(title: const Text('Chores')),
       floatingActionButton: directory.amAdmin
           ? FloatingActionButton.extended(
               onPressed: () => context.router.push(ChoreEditorRoute()),

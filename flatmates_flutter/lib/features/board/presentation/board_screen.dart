@@ -6,14 +6,19 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../../core/widgets/section_header.dart';
 import '../application/notices_controller.dart';
 import 'widgets/notice_card.dart';
 
 /// The Flat's notice board. Posting pings everyone.
 @RoutePage()
-class BoardScreen extends ConsumerStatefulWidget {
+class BoardScreen extends ConsumerStatefulWidget implements AutoRouteWrapper {
   const BoardScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      MagnetScreen(section: FridgeSection.notices, child: this);
 
   @override
   ConsumerState<BoardScreen> createState() => _BoardScreenState();

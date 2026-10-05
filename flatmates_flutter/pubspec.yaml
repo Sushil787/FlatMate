@@ -41,6 +41,9 @@ dependencies:
   auto_route: ^11.2.0
   riverpod_annotation: ^4.0.7
   flutter_timezone: ^5.1.1
+  device_preview: ^3.0.0
+  heroine: ^0.7.2
+  motor: ^1.1.0
 
 dev_dependencies:
   auto_route_generator: ^10.0.0
@@ -86,6 +89,14 @@ flutter:
           weight: 700
         - asset: assets/fonts/PlusJakartaSans-800.ttf
           weight: 800
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-500.ttf
+          weight: 500
+        - asset: assets/fonts/Fredoka-600.ttf
+          weight: 600
+        - asset: assets/fonts/Fredoka-700.ttf
+          weight: 700
 dependency_overrides:
   flutter_secure_storage: ^10.0.0
 

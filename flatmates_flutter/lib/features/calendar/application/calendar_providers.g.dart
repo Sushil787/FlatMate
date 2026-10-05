@@ -73,7 +73,7 @@ final class CalendarMonthProvider
   }
 }
 
-String _$calendarMonthHash() => r'bf48bc6a3b49bcc43735f204c5b79693ab4a299b';
+String _$calendarMonthHash() => r'20036276551014039887a23bcbe6d2ee6d06a355';
 
 /// Every calendar entry around the month containing [month]: real and
 /// planned Turns, Events and Away periods.

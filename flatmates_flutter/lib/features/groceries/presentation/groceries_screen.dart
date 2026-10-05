@@ -6,14 +6,20 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../../core/widgets/section_header.dart';
 import '../application/groceries_controller.dart';
 import 'widgets/grocery_tile.dart';
 
 /// The Flat's one shared grocery list. Updates live; never pushes.
 @RoutePage()
-class GroceriesScreen extends ConsumerStatefulWidget {
+class GroceriesScreen extends ConsumerStatefulWidget
+    implements AutoRouteWrapper {
   const GroceriesScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      MagnetScreen(section: FridgeSection.groceries, child: this);
 
   @override
   ConsumerState<GroceriesScreen> createState() => _GroceriesScreenState();

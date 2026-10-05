@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../away/presentation/away_sheet.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_entry.dart';
@@ -16,8 +17,13 @@ import 'widgets/new_event_sheet.dart';
 /// One calendar for the Flat: Turns (including planned ones), Away periods
 /// and Events.
 @RoutePage()
-class CalendarScreen extends ConsumerStatefulWidget {
+class CalendarScreen extends ConsumerStatefulWidget
+    implements AutoRouteWrapper {
   const CalendarScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      MagnetScreen(section: FridgeSection.calendar, child: this);
 
   @override
   ConsumerState<CalendarScreen> createState() => _CalendarScreenState();

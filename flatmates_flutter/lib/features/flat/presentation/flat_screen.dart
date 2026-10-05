@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/action_runner.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../away/application/aways_controller.dart';
@@ -20,8 +21,12 @@ import 'widgets/mate_tile.dart';
 
 /// The Flat: invite code, Away, Mates, Admin settings and account.
 @RoutePage()
-class FlatScreen extends ConsumerWidget {
+class FlatScreen extends ConsumerWidget implements AutoRouteWrapper {
   const FlatScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      MagnetScreen(section: FridgeSection.flat, child: this);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

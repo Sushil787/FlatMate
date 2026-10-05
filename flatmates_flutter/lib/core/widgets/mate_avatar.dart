@@ -10,14 +10,18 @@ class MateAvatar extends StatelessWidget {
     required this.name,
     this.size = 40,
     this.ring = false,
+    this.ringColor,
   });
 
   final int? mateId;
   final String name;
   final double size;
 
-  /// Draws a surface-coloured ring, for avatars that overlap.
+  /// Draws a ring, for avatars that overlap.
   final bool ring;
+
+  /// Colour of the ring; the surface colour by default.
+  final Color? ringColor;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +39,10 @@ class MateAvatar extends StatelessWidget {
           colors: [color, Color.lerp(color, Colors.black, 0.18)!],
         ),
         border: ring
-            ? Border.all(color: Theme.of(context).colorScheme.surface, width: 2)
+            ? Border.all(
+                color: ringColor ?? Theme.of(context).colorScheme.surface,
+                width: 2,
+              )
             : null,
       ),
       child: Text(
@@ -57,11 +64,15 @@ class AvatarStack extends StatelessWidget {
     required this.mates,
     this.size = 28,
     this.max = 5,
+    this.ringColor,
   });
 
   final List<({int id, String name})> mates;
   final double size;
   final int max;
+
+  /// Colour of the rings between avatars; match what they sit on.
+  final Color? ringColor;
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +93,7 @@ class AvatarStack extends StatelessWidget {
                 name: shown[i].name,
                 size: size,
                 ring: true,
+                ringColor: ringColor,
               ),
             ),
           if (extra > 0)
@@ -95,7 +107,7 @@ class AvatarStack extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Theme.of(context).colorScheme.surfaceContainerHigh,
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: ringColor ?? Theme.of(context).colorScheme.surface,
                     width: 2,
                   ),
                 ),

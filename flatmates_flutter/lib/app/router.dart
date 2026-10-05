@@ -23,17 +23,24 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SplashRoute.page, initial: true),
       AutoRoute(page: SignInRoute.page),
       AutoRoute(page: OnboardingRoute.page),
-      AutoRoute(
-        page: HomeRoute.page,
-        guards: ready,
-        children: [
-          AutoRoute(page: ChoresRoute.page, initial: true),
-          AutoRoute(page: CalendarRoute.page),
-          AutoRoute(page: BoardRoute.page),
-          AutoRoute(page: GroceriesRoute.page),
-          AutoRoute(page: FlatRoute.page),
-        ],
-      ),
+      AutoRoute(page: HomeRoute.page, guards: ready),
+      // Each section opens from its fridge magnet; the magnet's Heroine
+      // flight is the whole transition. The fridge stays painted while the
+      // route animates, so that runs as long as the flight's spring.
+      for (final page in [
+        ChoresRoute.page,
+        CalendarRoute.page,
+        BoardRoute.page,
+        GroceriesRoute.page,
+        FlatRoute.page,
+      ])
+        CustomRoute<void>(
+          page: page,
+          guards: ready,
+          transitionsBuilder: TransitionsBuilders.noTransition,
+          duration: const Duration(milliseconds: 600),
+          reverseDuration: const Duration(milliseconds: 600),
+        ),
       AutoRoute(page: ChoreEditorRoute.page, guards: ready),
     ];
   }

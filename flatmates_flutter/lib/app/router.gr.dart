@@ -28,7 +28,7 @@ import 'package:flatmates_flutter/features/flat/presentation/onboarding_screen.d
     as _i8;
 import 'package:flatmates_flutter/features/groceries/presentation/groceries_screen.dart'
     as _i6;
-import 'package:flatmates_flutter/features/home/presentation/home_shell.dart'
+import 'package:flatmates_flutter/features/home/presentation/home_screen.dart'
     as _i7;
 import 'package:flutter/material.dart' as _i12;
 
@@ -43,7 +43,7 @@ class BoardRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i1.BoardScreen();
+      return _i11.WrappedRoute(child: const _i1.BoardScreen());
     },
   );
 }
@@ -59,7 +59,7 @@ class CalendarRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i2.CalendarScreen();
+      return _i11.WrappedRoute(child: const _i2.CalendarScreen());
     },
   );
 }
@@ -124,7 +124,7 @@ class ChoresRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i4.ChoresScreen();
+      return _i11.WrappedRoute(child: const _i4.ChoresScreen());
     },
   );
 }
@@ -140,7 +140,7 @@ class FlatRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i5.FlatScreen();
+      return _i11.WrappedRoute(child: const _i5.FlatScreen());
     },
   );
 }
@@ -156,13 +156,13 @@ class GroceriesRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i6.GroceriesScreen();
+      return _i11.WrappedRoute(child: const _i6.GroceriesScreen());
     },
   );
 }
 
 /// generated route for
-/// [_i7.HomeShell]
+/// [_i7.HomeScreen]
 class HomeRoute extends _i11.PageRouteInfo<void> {
   const HomeRoute({List<_i11.PageRouteInfo>? children})
     : super(HomeRoute.name, initialChildren: children);
@@ -172,7 +172,7 @@ class HomeRoute extends _i11.PageRouteInfo<void> {
   static _i11.PageInfo page = _i11.PageInfo(
     name,
     builder: (data) {
-      return const _i7.HomeShell();
+      return const _i7.HomeScreen();
     },
   );
 }

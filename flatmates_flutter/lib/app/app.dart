@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:heroine/heroine.dart';
 
+import '../core/providers/theme_mode_provider.dart';
 import '../core/theme/app_theme.dart';
 import 'router.dart';
 import 'router.gr.dart';
@@ -45,8 +47,21 @@ class _FlatmatesAppState extends ConsumerState<FlatmatesApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      routerConfig: _router.config(),
+      themeMode: ref.watch(themeModeControllerProvider),
+      routerConfig: _router.config(
+        navigatorObservers: () => [HeroineController()],
+      ),
+      // Respect the phone's text size, but only up to 1.1x: bigger breaks
+      // the layouts.
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        return MediaQuery(
+          data: media.copyWith(
+            textScaler: media.textScaler.clamp(maxScaleFactor: 1.1),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }

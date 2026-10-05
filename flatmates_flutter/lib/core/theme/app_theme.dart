@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 import 'app_spacing.dart';
+import 'fridge_colors.dart';
 
 /// Flatmates' light and dark themes.
 abstract final class AppTheme {
@@ -31,6 +32,7 @@ abstract final class AppTheme {
       outlineVariant: const Color(0xFFE2E4DE),
     ),
     AppColors.light,
+    FridgeColors.light,
   );
 
   static final dark = _build(
@@ -60,12 +62,20 @@ abstract final class AppTheme {
       outlineVariant: const Color(0xFF2A3230),
     ),
     AppColors.dark,
+    FridgeColors.dark,
   );
 
   /// Bundled in assets/fonts (SIL Open Font License).
   static const fontFamily = 'PlusJakartaSans';
 
-  static ThemeData _build(ColorScheme scheme, AppColors colors) {
+  /// The rounded display face printed on fridge magnets.
+  static const magnetFont = 'Fredoka';
+
+  static ThemeData _build(
+    ColorScheme scheme,
+    AppColors colors,
+    FridgeColors fridge,
+  ) {
     final base = ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
@@ -112,7 +122,7 @@ abstract final class AppTheme {
     return base.copyWith(
       textTheme: text,
       scaffoldBackgroundColor: scheme.surface,
-      extensions: [colors],
+      extensions: [colors, fridge],
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,

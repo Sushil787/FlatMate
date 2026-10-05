@@ -36,7 +36,7 @@ final class ChoresControllerProvider
   ChoresController create() => ChoresController();
 }
 
-String _$choresControllerHash() => r'5bbd77f3c0d670ddcdb4727b145f8ab1b3e77e40';
+String _$choresControllerHash() => r'4394a7014e2072536ab50749ad7371ab645bdb51';
 
 /// The Flat's Chores and their open Turns.
 

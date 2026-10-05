@@ -36,7 +36,7 @@ final class AwaysControllerProvider
   AwaysController create() => AwaysController();
 }
 
-String _$awaysControllerHash() => r'c68d1ec6d369b3ece9e9c7fad253336f2b3e6819';
+String _$awaysControllerHash() => r'8437cafcafe0fd7801fb82f6d662396143555381';
 
 /// Away periods in the Flat that haven't ended yet.
 
