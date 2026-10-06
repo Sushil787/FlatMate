@@ -223,12 +223,23 @@ class TurnService {
   // ---------------------------------------------------------------------------
   // Scheduled handlers
 
-  static Future<void> onTurnStarted(Session session, int turnId) async {
+  /// The Turn with its Chore and Flat, or null if any is gone.
+  static Future<({Turn turn, Chore chore, Flat flat})?> _load(
+    Session session,
+    int turnId,
+  ) async {
     final turn = await Turn.db.findById(session, turnId);
-    if (turn == null || turn.status != TurnStatus.active) return;
+    if (turn == null) return null;
     final chore = await Chore.db.findById(session, turn.choreId);
     final flat = await Flat.db.findById(session, turn.flatId);
-    if (chore == null || flat == null) return;
+    if (chore == null || flat == null) return null;
+    return (turn: turn, chore: chore, flat: flat);
+  }
+
+  static Future<void> onTurnStarted(Session session, int turnId) async {
+    final loaded = await _load(session, turnId);
+    if (loaded == null || loaded.turn.status != TurnStatus.active) return;
+    final (:turn, :chore, :flat) = loaded;
     final due = _dueIn(instants(flat, turn).end);
 
     final coveringFor = turn.coveringForMateId;
@@ -253,11 +264,9 @@ class TurnService {
   }
 
   static Future<void> onTurnReminder(Session session, int turnId) async {
-    final turn = await Turn.db.findById(session, turnId);
-    if (turn == null || turn.status != TurnStatus.active) return;
-    final chore = await Chore.db.findById(session, turn.choreId);
-    final flat = await Flat.db.findById(session, turn.flatId);
-    if (chore == null || flat == null) return;
+    final loaded = await _load(session, turnId);
+    if (loaded == null || loaded.turn.status != TurnStatus.active) return;
+    final (:turn, :chore, :flat) = loaded;
     await Notifier.toMates(
       session,
       [turn.mateId],
@@ -267,11 +276,9 @@ class TurnService {
   }
 
   static Future<void> onTurnEnded(Session session, int turnId) async {
-    final turn = await Turn.db.findById(session, turnId);
-    if (turn == null) return;
-    final chore = await Chore.db.findById(session, turn.choreId);
-    final flat = await Flat.db.findById(session, turn.flatId);
-    if (chore == null || flat == null) return;
+    final loaded = await _load(session, turnId);
+    if (loaded == null) return;
+    final (:turn, :chore, :flat) = loaded;
     // The Turn was extended (Pause) after this call was scheduled.
     final end = instants(flat, turn).end;
     if (end.isAfter(DateTime.now().toUtc().add(_slack))) return;

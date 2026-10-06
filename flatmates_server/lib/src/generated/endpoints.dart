@@ -444,11 +444,6 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<DateTime>(),
               nullable: false,
             ),
-            'endsAt': _is.ParameterDescription(
-              name: 'endsAt',
-              type: _is.getType<DateTime?>(),
-              nullable: true,
-            ),
           },
           call:
               (
@@ -459,7 +454,6 @@ class Endpoints extends _is.EndpointDispatch {
                 params['title'],
                 params['note'],
                 params['startsAt'],
-                params['endsAt'],
               ),
         ),
         'delete': _is.MethodConnector(

@@ -22,7 +22,6 @@ abstract class FlatEvent
     required this.title,
     this.note,
     required this.startsAt,
-    this.endsAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -35,7 +34,6 @@ abstract class FlatEvent
     required String title,
     String? note,
     required DateTime startsAt,
-    DateTime? endsAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _FlatEventImpl;
@@ -50,9 +48,6 @@ abstract class FlatEvent
       startsAt: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['startsAt'],
       ),
-      endsAt: jsonSerialization['endsAt'] == null
-          ? null
-          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -79,8 +74,6 @@ abstract class FlatEvent
 
   DateTime startsAt;
 
-  DateTime? endsAt;
-
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -98,7 +91,6 @@ abstract class FlatEvent
     String? title,
     String? note,
     DateTime? startsAt,
-    DateTime? endsAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -112,7 +104,6 @@ abstract class FlatEvent
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
-      if (endsAt != null) 'endsAt': endsAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -128,7 +119,6 @@ abstract class FlatEvent
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
-      if (endsAt != null) 'endsAt': endsAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -172,7 +162,6 @@ class _FlatEventImpl extends FlatEvent {
     required String title,
     String? note,
     required DateTime startsAt,
-    DateTime? endsAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -182,7 +171,6 @@ class _FlatEventImpl extends FlatEvent {
          title: title,
          note: note,
          startsAt: startsAt,
-         endsAt: endsAt,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -198,7 +186,6 @@ class _FlatEventImpl extends FlatEvent {
     String? title,
     Object? note = _Undefined,
     DateTime? startsAt,
-    Object? endsAt = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -209,7 +196,6 @@ class _FlatEventImpl extends FlatEvent {
       title: title ?? this.title,
       note: note is String? ? note : this.note,
       startsAt: startsAt ?? this.startsAt,
-      endsAt: endsAt is DateTime? ? endsAt : this.endsAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -242,12 +228,6 @@ class FlatEventUpdateTable extends _is.UpdateTable<FlatEventTable> {
   _is.ColumnValue<DateTime, DateTime> startsAt(DateTime value) =>
       _is.ColumnValue(
         table.startsAt,
-        value,
-      );
-
-  _is.ColumnValue<DateTime, DateTime> endsAt(DateTime? value) =>
-      _is.ColumnValue(
-        table.endsAt,
         value,
       );
 
@@ -287,10 +267,6 @@ class FlatEventTable extends _is.Table<int?> {
       'startsAt',
       this,
     );
-    endsAt = _is.ColumnDateTime(
-      'endsAt',
-      this,
-    );
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
@@ -315,8 +291,6 @@ class FlatEventTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime startsAt;
 
-  late final _is.ColumnDateTime endsAt;
-
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -329,7 +303,6 @@ class FlatEventTable extends _is.Table<int?> {
     title,
     note,
     startsAt,
-    endsAt,
     createdAt,
     updatedAt,
   ];

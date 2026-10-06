@@ -12,12 +12,7 @@ class ChoresOverview {
 
   Turn? turnFor(Chore chore) => _turnByChore[chore.id];
 
-  Chore? choreById(int id) {
-    for (final c in chores) {
-      if (c.id == id) return c;
-    }
-    return null;
-  }
+  Chore? choreById(int id) => chores.where((c) => c.id == id).firstOrNull;
 
   /// [mateId]'s open, not-yet-done Turns, soonest due first.
   List<(Chore, Turn)> openTurnsOf(int mateId) {

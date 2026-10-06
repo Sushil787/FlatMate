@@ -274,7 +274,6 @@ class EndpointEvent extends _isc.EndpointRef {
     String title,
     String? note,
     DateTime startsAt,
-    DateTime? endsAt,
   ) => caller.callServerEndpoint<_igj22k42.FlatEvent>(
     'event',
     'create',
@@ -282,7 +281,6 @@ class EndpointEvent extends _isc.EndpointRef {
       'title': title,
       'note': note,
       'startsAt': startsAt,
-      'endsAt': endsAt,
     },
   );
 

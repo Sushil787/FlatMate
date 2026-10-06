@@ -788,7 +788,6 @@ class _EventEndpoint {
     String title,
     String? note,
     DateTime startsAt,
-    DateTime? endsAt,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -805,7 +804,6 @@ class _EventEndpoint {
             'title': title,
             'note': note,
             'startsAt': startsAt,
-            'endsAt': endsAt,
           }),
           serializationManager: _serializationManager,
         );

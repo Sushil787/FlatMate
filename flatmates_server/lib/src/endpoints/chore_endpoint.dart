@@ -96,7 +96,7 @@ class ChoreEndpoint extends Endpoint {
     final chore = await _find(session, flat, choreId);
     await _validate(session, flat, name, period, rotation);
 
-    if (!_sameList(chore.rotation, rotation)) {
+    if (chore.rotation.join(',') != rotation.join(',')) {
       // Continue after whoever owns the current slot, if they're still in.
       final ownerSlot =
           chore.rotationIndex >= 0 &&
@@ -159,7 +159,3 @@ class ChoreEndpoint extends Endpoint {
     }
   }
 }
-
-bool _sameList(List<int> a, List<int> b) =>
-    a.length == b.length &&
-    Iterable<int>.generate(a.length).every((i) => a[i] == b[i]);

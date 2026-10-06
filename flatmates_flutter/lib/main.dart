@@ -1,4 +1,3 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +9,6 @@ import 'app/app.dart';
 import 'core/providers/client_provider.dart';
 
 Future<void> main() async {
-  // Debug and profile builds can run on simulated devices: pick one in the
-  // device_preview tab in DevTools. Off in release builds.
-  DevicePreview.enable(padding: const EdgeInsets.all(16));
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set SERVER_URL with --dart-define to point at a deployed server;

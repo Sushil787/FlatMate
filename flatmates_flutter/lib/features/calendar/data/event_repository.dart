@@ -20,7 +20,7 @@ class EventRepository {
     required String title,
     String? note,
     required DateTime startsAt,
-  }) => _client.event.create(title, note, startsAt, null);
+  }) => _client.event.create(title, note, startsAt);
 
   Future<void> delete(int eventId) => _client.event.delete(eventId);
 }

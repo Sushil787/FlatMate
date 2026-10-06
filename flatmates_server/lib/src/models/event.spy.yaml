@@ -7,7 +7,6 @@ fields:
   title: String
   note: String?
   startsAt: DateTime
-  endsAt: DateTime?
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

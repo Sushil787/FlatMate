@@ -27,13 +27,9 @@ class EventEndpoint extends Endpoint {
     String title,
     String? note,
     DateTime startsAt,
-    DateTime? endsAt,
   ) async {
     final (:me, :flat) = await requireMate(session);
     if (title.trim().isEmpty) fail('Give the event a title.');
-    if (endsAt != null && !endsAt.isAfter(startsAt)) {
-      fail('The event must end after it starts.');
-    }
     final event = await FlatEvent.db.insertRow(
       session,
       FlatEvent(
@@ -42,7 +38,6 @@ class EventEndpoint extends Endpoint {
         title: title.trim(),
         note: (note?.trim().isEmpty ?? true) ? null : note!.trim(),
         startsAt: startsAt.toUtc(),
-        endsAt: endsAt?.toUtc(),
       ),
     );
     await broadcast(session, flat.id!, FlatChangeKind.events);

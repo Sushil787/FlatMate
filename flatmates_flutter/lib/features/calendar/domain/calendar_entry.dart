@@ -59,7 +59,7 @@ class EventEntry extends CalendarEntry {
   @override
   DateTime get start => event.startsAt.toLocal();
   @override
-  DateTime get end => (event.endsAt ?? event.startsAt).toLocal();
+  DateTime get end => event.startsAt.toLocal();
 
   @override
   bool isOn(DateTime day) => _sameDay(start, day);
