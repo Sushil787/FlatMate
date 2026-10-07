@@ -1,54 +1,59 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/fridge_colors.dart';
 import 'magnet.dart';
+import 'magnet_screen.dart';
+import 'note.dart';
 
-/// The Grocery items still needed, as a short tick list.
+/// The Grocery items still needed, as a tick list on a shopping pad.
 class GroceryMagnet extends StatelessWidget {
   const GroceryMagnet({
     super.key,
     required this.items,
     this.maxShown = 5,
-    this.color,
     this.tilt = 0,
     this.onTap,
-    this.heroTag,
   });
 
   final List<({String name, String? note})> items;
   final int maxShown;
-  final Color? color;
   final double tilt;
   final VoidCallback? onTap;
-  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
     final shown = items.take(maxShown).toList();
     final extra = items.length - shown.length;
-    return Magnet(
-      color: color ?? context.fridge.groceries,
+    return Note(
+      section: FridgeSection.groceries,
       tilt: tilt,
       onTap: onTap,
-      heroTag: heroTag,
+      pins: const [(0.75, CarrotMagnet())],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Groceries', style: MagnetText.title.copyWith(fontSize: 24)),
+          // Shrinks rather than wraps on a narrow phone.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              'Groceries',
+              style: NoteText.title.copyWith(fontSize: 24),
+            ),
+          ),
           const SizedBox(height: 8),
           if (items.isEmpty)
-            const Text('Nothing needed', style: MagnetText.small),
+            const Text('Nothing needed', style: NoteText.small),
           for (var i = 0; i < shown.length; i++) ...[
             if (i > 0) const SizedBox(height: 4),
             Row(
               children: [
                 Container(
-                  width: 12,
-                  height: 12,
+                  width: 14,
+                  height: 14,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: NoteText.ink, width: 1.5),
+                    borderRadius: BorderRadius.circular(3),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -60,7 +65,7 @@ class GroceryMagnet extends StatelessWidget {
                         if (shown[i].note != null)
                           TextSpan(
                             text: '  ${shown[i].note}',
-                            style: MagnetText.small,
+                            style: NoteText.small,
                           ),
                       ],
                     ),
@@ -73,7 +78,7 @@ class GroceryMagnet extends StatelessWidget {
           ],
           if (extra > 0) ...[
             const SizedBox(height: 4),
-            Text('+$extra more', style: MagnetText.small),
+            Text('+$extra more', style: NoteText.small),
           ],
         ],
       ),

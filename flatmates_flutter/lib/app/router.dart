@@ -24,7 +24,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SignInRoute.page),
       AutoRoute(page: OnboardingRoute.page),
       AutoRoute(page: HomeRoute.page, guards: ready),
-      // Each section opens from its fridge magnet; the magnet's Heroine
+      // Each section opens from its note on the fridge; the note's Heroine
       // flight is the whole transition. The fridge stays painted while the
       // route animates, so that runs as long as the flight's spring.
       for (final page in [

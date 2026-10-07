@@ -1,35 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:heroine/heroine.dart';
 
-import '../../theme/fridge_colors.dart';
-import 'magnet.dart';
+import 'note.dart';
 
-/// The magnets on the fridge, each opening into its own screen. Doubles
-/// as the hero tag that links a magnet to its screen.
+/// The notes on the fridge, each opening into its own screen. Doubles
+/// as the hero tag that links a note to its screen.
 enum FridgeSection {
-  chores,
-  calendar,
-  notices,
-  groceries,
-  flat;
+  chores(Color(0xFFFDFDFB), PaperEdge.cut),
+  calendar(Color(0xFFFAF7F0), PaperEdge.punched),
+  notices(Color(0xFFFBF6EA), PaperEdge.punched),
+  groceries(Color(0xFFFCEFA8), PaperEdge.torn),
+  flat(Color(0xFFFDFDFB), PaperEdge.cut);
 
-  Color colorIn(FridgeColors f) => switch (this) {
-    chores => f.chores,
-    calendar => f.calendar,
-    notices => f.notices,
-    groceries => f.groceries,
-    flat => f.flat,
-  };
+  const FridgeSection(this.paper, this.edge);
 
-  /// The magnet's outline, so the flight starts from the same shape.
-  ShapeBorder get shape => switch (this) {
-    notices => const BubbleBorder(),
-    flat => const CircleBorder(),
-    _ => Magnet.defaultShape,
-  };
+  /// The colour of the paper the section's note is written on.
+  final Color paper;
+  final PaperEdge edge;
 }
 
-/// A screen that its [section]'s magnet grows into when tapped, and
+/// A screen that its [section]'s note grows into when tapped, and
 /// shrinks back into on the way out.
 class MagnetScreen extends StatelessWidget {
   const MagnetScreen({super.key, required this.section, required this.child});
@@ -41,27 +31,34 @@ class MagnetScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Heroine(
       tag: section,
-      motion: Magnet.morph,
-      flightShuttleBuilder: _MagnetToScreen(
-        color: section.colorIn(context.fridge),
-        shape: section.shape,
+      motion: Note.morph,
+      flightShuttleBuilder: _NoteToScreen(
+        paper: section.paper,
+        shape: PaperBorder(section.edge),
+        background: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: child,
     );
   }
 }
 
-/// The magnet's plastic stretches to fill the screen, losing its corners;
-/// its print fades out and the screen fades in on it. Both are laid out at
-/// their own size and scaled to the flight, so neither has to squeeze.
-class _MagnetToScreen extends HeroineShuttleBuilder {
-  const _MagnetToScreen({required this.color, required this.shape});
+/// The note's paper stretches to fill the screen, squaring off and taking
+/// on the screen's colour; its writing fades out and the screen fades in
+/// on it. Both are laid out at their own size and scaled to the flight, so
+/// neither has to squeeze.
+class _NoteToScreen extends HeroineShuttleBuilder {
+  const _NoteToScreen({
+    required this.paper,
+    required this.shape,
+    required this.background,
+  });
 
-  final Color color;
+  final Color paper;
   final ShapeBorder shape;
+  final Color background;
 
   @override
-  List<Object?> get props => [color, shape];
+  List<Object?> get props => [paper, shape, background];
 
   @override
   Widget call(
@@ -74,10 +71,9 @@ class _MagnetToScreen extends HeroineShuttleBuilder {
     final push = flightDirection == HeroFlightDirection.push;
     final screen =
         ((push ? toHeroContext : fromHeroContext).widget as Heroine).child;
-    final magnetHero = push ? fromHeroContext : toHeroContext;
-    final magnet = (magnetHero.widget as Heroine).child;
-    final magnetWidth =
-        (magnetHero.findRenderObject()! as RenderBox).size.width;
+    final noteHero = push ? fromHeroContext : toHeroContext;
+    final note = (noteHero.widget as Heroine).child;
+    final noteWidth = (noteHero.findRenderObject()! as RenderBox).size.width;
     final full = MediaQuery.sizeOf(flightContext);
     const fadeOut = Interval(0, 0.3);
     const fadeIn = Interval(0.35, 1);
@@ -88,7 +84,11 @@ class _MagnetToScreen extends HeroineShuttleBuilder {
         final t = animation.value;
         final now = ShapeBorder.lerp(shape, const RoundedRectangleBorder(), t)!;
         return CustomPaint(
-          painter: MagnetPainter(shape: now, color: color, lift: 1 - t),
+          painter: PaperPainter(
+            shape: now,
+            color: Color.lerp(paper, background, t)!,
+            lift: 1 - t,
+          ),
           child: ClipPath(
             clipper: ShapeBorderClipper(shape: now),
             // The flight's overlay has no Material for the print's text.
@@ -97,14 +97,14 @@ class _MagnetToScreen extends HeroineShuttleBuilder {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // The magnet's print, stretching and fading as it grows.
+                  // The note's writing, stretching and fading as it grows.
                   Opacity(
                     opacity: 1 - fadeOut.transform(t),
                     child: FittedBox(
                       fit: BoxFit.fill,
                       // Only the width: its content may have changed since it was
                       // last laid out (a new notice, say).
-                      child: SizedBox(width: magnetWidth, child: magnet),
+                      child: SizedBox(width: noteWidth, child: note),
                     ),
                   ),
                   Opacity(

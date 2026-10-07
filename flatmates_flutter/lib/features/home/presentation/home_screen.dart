@@ -13,7 +13,6 @@ import '../../../core/widgets/fridge/flat_magnet.dart';
 import '../../../core/widgets/fridge/fridge_door.dart';
 import '../../../core/widgets/fridge/grocery_magnet.dart';
 import '../../../core/widgets/fridge/kitchen.dart';
-import '../../../core/widgets/fridge/magnet_screen.dart';
 import '../../../core/widgets/fridge/notice_magnet.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../calendar/domain/calendar_entry.dart';
@@ -23,7 +22,7 @@ import '../../board/application/notices_controller.dart';
 import '../../groceries/application/groceries_controller.dart';
 import '../application/flat_sync.dart';
 
-/// The Flat's fridge: a magnet per section, each opening into its screen.
+/// The Flat's fridge: a note per section, each opening into its screen.
 /// Keeps the Flat's data live while mounted.
 @RoutePage()
 class HomeScreen extends ConsumerStatefulWidget {
@@ -82,7 +81,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 : directory.nameOf(topNotice.mateId),
             pinned: topNotice?.pinned ?? false,
             tilt: -3,
-            heroTag: FridgeSection.notices,
             onTap: () => open(const BoardRoute()),
           ),
           chores: ChoresMagnet(
@@ -90,21 +88,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             dueAt: myTurn?.$2.endsAt,
             rotation: [...?myTurn?.$1.rotation.map(mate)],
             tilt: 2,
-            heroTag: FridgeSection.chores,
             onTap: () => open(const ChoresRoute()),
           ),
           calendar: CalendarMagnet(
             today: now,
             marks: _weekMarks(calendar, today: now, me: me),
             tilt: -1,
-            heroTag: FridgeSection.calendar,
             onTap: () => open(const CalendarRoute()),
           ),
           flat: FlatMagnet(
             flatName: directory.flat.name,
             mates: [for (final m in directory.mates) mate(m.id!)],
             tilt: 4,
-            heroTag: FridgeSection.flat,
             onTap: () => open(const FlatRoute()),
           ),
           groceries: GroceryMagnet(
@@ -113,7 +108,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (g.boughtAt == null) (name: g.name, note: g.note),
             ],
             tilt: -1.5,
-            heroTag: FridgeSection.groceries,
             onTap: () => open(const GroceriesRoute()),
           ),
         ),

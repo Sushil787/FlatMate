@@ -53,13 +53,5 @@ flutter:
           weight: 700
         - asset: assets/fonts/PlusJakartaSans-800.ttf
           weight: 800
-    - family: Fredoka
-      fonts:
-        - asset: assets/fonts/Fredoka-500.ttf
-          weight: 500
-        - asset: assets/fonts/Fredoka-600.ttf
-          weight: 600
-        - asset: assets/fonts/Fredoka-700.ttf
-          weight: 700
 dependency_overrides:
   flutter_secure_storage: ^10.0.0

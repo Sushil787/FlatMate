@@ -68,9 +68,6 @@ abstract final class AppTheme {
   /// Bundled in assets/fonts (SIL Open Font License).
   static const fontFamily = 'PlusJakartaSans';
 
-  /// The rounded display face printed on fridge magnets.
-  static const magnetFont = 'Fredoka';
-
   static ThemeData _build(
     ColorScheme scheme,
     AppColors colors,

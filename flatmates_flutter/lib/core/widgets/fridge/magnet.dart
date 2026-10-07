@@ -1,202 +1,166 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:heroine/heroine.dart';
-import 'package:motor/motor.dart';
 
-import '../../theme/app_theme.dart';
-
-/// Text printed straight on a magnet's plastic. Sizes stay on the 4px grid.
-abstract final class MagnetText {
-  static const title = TextStyle(
-    fontFamily: AppTheme.magnetFont,
-    fontWeight: FontWeight.w700,
-    fontSize: 20,
-    height: 1.2,
-    letterSpacing: 0.2,
-    color: Colors.white,
-  );
-
-  static const body = TextStyle(
-    fontFamily: AppTheme.magnetFont,
-    fontWeight: FontWeight.w500,
-    fontSize: 16,
-    height: 1.25,
-    color: Colors.white,
-  );
-
-  static const small = TextStyle(
-    fontFamily: AppTheme.fontFamily,
-    fontWeight: FontWeight.w700,
-    fontSize: 12,
-    height: 1.33,
-    color: Color(0xD9FFFFFF),
-  );
-
-  static const eyebrow = TextStyle(
-    fontFamily: AppTheme.fontFamily,
-    fontWeight: FontWeight.w800,
-    fontSize: 12,
-    height: 1.33,
-    letterSpacing: 1.2,
-    color: Color(0xBFFFFFFF),
-  );
-}
-
-/// A chunky plastic fridge magnet: a coloured [shape] with a glossy top
-/// edge, a shaded bottom edge and 4px of thickness underneath. It lifts
-/// off the door while pressed.
-class Magnet extends StatefulWidget {
+/// A small, glossy plastic fridge magnet, the kind that holds a [Note]
+/// up. Its [shape] is painted at [size].
+class Magnet extends StatelessWidget {
   const Magnet({
     super.key,
     required this.color,
-    required this.child,
-    this.shape = defaultShape,
-    this.tilt = 0,
-    this.padding = const EdgeInsets.fromLTRB(12, 12, 12, 16),
-    this.onTap,
-    this.heroTag,
+    this.shape = const CircleBorder(),
+    this.size = const Size.square(24),
+    this.smiley = false,
   });
 
-  static const defaultShape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20)),
-  );
-
-  /// The spring a magnet morphs into its screen (and back) with.
-  static const morph = CupertinoMotion.snappy();
+  /// A round magnet with a smiling face.
+  const Magnet.smiley({super.key, required this.color})
+    : shape = const CircleBorder(),
+      size = const Size.square(28),
+      smiley = true;
 
   final Color color;
   final ShapeBorder shape;
-
-  /// Rotation in degrees; magnets are never stuck on perfectly straight.
-  final double tilt;
-  final EdgeInsetsGeometry padding;
-  final VoidCallback? onTap;
-
-  /// Shared with the [MagnetScreen] this magnet opens into.
-  final Object? heroTag;
-  final Widget child;
+  final Size size;
+  final bool smiley;
 
   @override
-  State<Magnet> createState() => _MagnetState();
+  Widget build(BuildContext context) => CustomPaint(
+    size: size,
+    painter: MagnetPainter(shape: shape, color: color, smiley: smiley),
+  );
 }
 
-class _MagnetState extends State<Magnet> {
-  var _lifted = false;
+/// A carrot, point down: the groceries magnet.
+class CarrotMagnet extends StatelessWidget {
+  const CarrotMagnet({super.key});
 
-  void _lift(bool v) {
-    if (widget.onTap != null && v != _lifted) setState(() => _lifted = v);
-  }
+  static const _leaf = Color(0xFF16A34A);
+  static const _carrot = Color(0xFFF97316);
 
   @override
   Widget build(BuildContext context) {
-    Widget body = SingleMotionBuilder(
-      motion: const CupertinoMotion.snappy(),
-      value: _lifted ? 1 : 0,
-      builder: (context, lift, child) => Transform.scale(
-        scale: 1 + 0.04 * lift,
-        child: CustomPaint(
-          painter: MagnetPainter(
-            shape: widget.shape,
-            color: widget.color,
-            lift: lift,
+    return SizedBox(
+      width: 24,
+      height: 40,
+      child: Stack(
+        children: [
+          for (final angle in [-0.5, 0.0, 0.5])
+            Positioned(
+              left: 9,
+              top: 0,
+              child: Transform.rotate(
+                angle: angle,
+                alignment: Alignment.bottomCenter,
+                child: const Magnet(
+                  color: _leaf,
+                  shape: StadiumBorder(),
+                  size: Size(6, 14),
+                ),
+              ),
+            ),
+          const Positioned(
+            top: 10,
+            child: Magnet(
+              color: _carrot,
+              shape: CarrotBorder(),
+              size: Size(24, 30),
+            ),
           ),
-          child: child,
-        ),
-      ),
-      child: Padding(
-        padding: widget.padding,
-        child: DefaultTextStyle.merge(
-          style: MagnetText.body,
-          child: IconTheme.merge(
-            data: const IconThemeData(color: Colors.white, size: 20),
-            child: widget.child,
-          ),
-        ),
-      ),
-    );
-    if (widget.heroTag != null) {
-      // No shuttle here: the screen it opens into flies both ways.
-      body = Heroine(tag: widget.heroTag!, motion: Magnet.morph, child: body);
-    }
-    return Transform.rotate(
-      angle: widget.tilt * math.pi / 180,
-      child: Semantics(
-        button: widget.onTap != null,
-        child: GestureDetector(
-          onTap: widget.onTap,
-          onTapDown: (_) => _lift(true),
-          onTapUp: (_) => _lift(false),
-          onTapCancel: () => _lift(false),
-          child: body,
-        ),
+        ],
       ),
     );
   }
 }
 
-/// Paints the magnet's plastic body for any [shape].
+/// Paints a magnet's plastic body for any [shape]: a shadow on the door,
+/// a few pixels of thickness, and a glossy, domed face.
 class MagnetPainter extends CustomPainter {
   const MagnetPainter({
     required this.shape,
     required this.color,
-    this.lift = 0,
+    this.smiley = false,
   });
 
   final ShapeBorder shape;
   final Color color;
 
-  /// How far it's lifted off the door, 0 (stuck on) to 1 (held).
-  final double lift;
+  /// Prints a smiling face on it, sized to fit a round magnet.
+  final bool smiley;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final face = shape.getOuterPath(rect);
-    // Drop shadow on the door, further away while lifted.
     canvas.drawPath(
-      face.shift(Offset(0, 8 + 4 * lift)),
+      face.shift(const Offset(1, 4)),
       Paint()
-        ..color = Colors.black.withValues(alpha: 0.3 - 0.08 * lift)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 + 4 * lift),
+        ..color = Colors.black.withValues(alpha: 0.35)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
     );
     // The side of the plastic.
     canvas.drawPath(
-      face.shift(const Offset(0, 4)),
+      face.shift(const Offset(0, 2)),
       Paint()..color = Color.lerp(color, Colors.black, 0.45)!,
     );
-    // The face, a touch lighter at the top.
+    // The face, domed: lit from the top left.
     canvas.drawPath(
       face,
       Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color.lerp(color, Colors.white, 0.1)!, color],
+        ..shader = RadialGradient(
+          center: const Alignment(-0.35, -0.5),
+          radius: 0.95,
+          colors: [
+            Color.lerp(color, Colors.white, 0.45)!,
+            color,
+            Color.lerp(color, Colors.black, 0.15)!,
+          ],
+          stops: const [0, 0.5, 1],
         ).createShader(rect),
     );
-    // Gloss along the top edge, shade along the bottom edge.
+    // A glint along the top edge.
     canvas.drawPath(
       Path.combine(
         PathOperation.difference,
         face,
-        face.shift(const Offset(0, 4)),
+        face.shift(const Offset(0, 1.5)),
       ),
-      Paint()..color = Colors.white.withValues(alpha: 0.28),
+      Paint()..color = Colors.white.withValues(alpha: 0.5),
     );
-    canvas.drawPath(
-      Path.combine(
-        PathOperation.difference,
-        face,
-        face.shift(const Offset(0, -4)),
-      ),
-      Paint()..color = Colors.black.withValues(alpha: 0.22),
-    );
+    if (smiley) {
+      final w = size.width;
+      final print = Color.lerp(color, Colors.black, 0.7)!;
+      for (final x in [0.36, 0.64]) {
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: Offset(w * x, size.height * 0.42),
+            width: w * 0.12,
+            height: w * 0.16,
+          ),
+          Paint()..color = print,
+        );
+      }
+      canvas.drawArc(
+        Rect.fromCenter(
+          center: Offset(w / 2, size.height * 0.5),
+          width: w * 0.48,
+          height: w * 0.4,
+        ),
+        math.pi * 0.2,
+        math.pi * 0.6,
+        false,
+        Paint()
+          ..color = print
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w * 0.08
+          ..strokeCap = StrokeCap.round,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(MagnetPainter old) =>
-      old.shape != shape || old.color != color || old.lift != lift;
+      old.shape != shape || old.color != color || old.smiley != smiley;
 }
 
 /// A speech bubble with a small tail at the bottom left, for notices.
@@ -237,6 +201,47 @@ class BubbleBorder extends ShapeBorder {
       ..lineTo(x, rect.bottom + tail.height)
       ..close();
     return Path.combine(PathOperation.union, body, tip);
+  }
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => this;
+}
+
+/// A carrot: round shoulders tapering to a point at the bottom.
+class CarrotBorder extends ShapeBorder {
+  const CarrotBorder();
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final shoulder = rect.top + rect.width * 0.3;
+    final tip = rect.bottomCenter;
+    return Path()
+      ..moveTo(rect.left, shoulder)
+      ..quadraticBezierTo(rect.left, rect.top, rect.center.dx, rect.top)
+      ..quadraticBezierTo(rect.right, rect.top, rect.right, shoulder)
+      ..quadraticBezierTo(
+        rect.right - rect.width * 0.15,
+        rect.bottom - rect.height * 0.3,
+        tip.dx,
+        tip.dy,
+      )
+      ..quadraticBezierTo(
+        rect.left + rect.width * 0.15,
+        rect.bottom - rect.height * 0.3,
+        rect.left,
+        shoulder,
+      )
+      ..close();
   }
 
   @override
