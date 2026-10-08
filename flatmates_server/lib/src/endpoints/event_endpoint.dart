@@ -2,12 +2,14 @@ import 'package:serverpod/serverpod.dart';
 
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/notifier.dart';
 
 /// Events on the Flat's shared calendar.
 class EventEndpoint extends Endpoint {
   @override
   bool get requireLogin => true;
 
+  /// Events overlapping [from]..[to].
   Future<List<FlatEvent>> between(
     Session session,
     DateTime from,
@@ -17,7 +19,9 @@ class EventEndpoint extends Endpoint {
     return FlatEvent.db.find(
       session,
       where: (t) =>
-          t.flatId.equals(flat.id!) & (t.startsAt < to) & (t.startsAt >= from),
+          t.flatId.equals(flat.id!) &
+          (t.startsAt < to) &
+          ((t.endsAt > from) | (t.endsAt.equals(null) & (t.startsAt >= from))),
       orderBy: (t) => t.startsAt,
     );
   }
@@ -26,10 +30,16 @@ class EventEndpoint extends Endpoint {
     Session session,
     String title,
     String? note,
-    DateTime startsAt,
-  ) async {
+    DateTime startsAt, {
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
+  }) async {
     final (:me, :flat) = await requireMate(session);
     if (title.trim().isEmpty) fail('Give the event a title.');
+    if (endsAt != null && !endsAt.isAfter(startsAt)) {
+      fail('An event has to end after it starts.');
+    }
     final event = await FlatEvent.db.insertRow(
       session,
       FlatEvent(
@@ -38,8 +48,19 @@ class EventEndpoint extends Endpoint {
         title: title.trim(),
         note: (note?.trim().isEmpty ?? true) ? null : note!.trim(),
         startsAt: startsAt.toUtc(),
+        endsAt: endsAt?.toUtc(),
+        allDay: allDay,
       ),
     );
+    if (tellFlat) {
+      await Notifier.toFlat(
+        session,
+        flat.id!,
+        title: '${me.displayName} added an Event',
+        body: event.title,
+        exceptMateId: me.id,
+      );
+    }
     await broadcast(session, flat.id!, FlatChangeKind.events);
     return event;
   }

@@ -1,5 +1,6 @@
 import 'package:flatmates_server/src/day.dart';
 import 'package:flatmates_server/src/generated/protocol.dart';
+import 'package:flatmates_server/src/notify/notifier.dart';
 import 'package:flatmates_server/src/rotation/turn_service.dart';
 import 'package:flatmates_server/src/updated_at.dart';
 import 'package:test/test.dart';
@@ -69,12 +70,80 @@ void main() {
       );
     });
 
+    test(
+      'an Invite works for 7 days, then until the Admin makes a new one',
+      () async {
+        final mine = await endpoints.flat.mine(priya);
+        expect(
+          mine!.flat.inviteExpiresAt.difference(DateTime.now().toUtc()).inDays,
+          6, // 6 days and 23-ish hours left
+        );
+
+        final session = sessionBuilder.build();
+        await Flat.db.updateRow(
+          session,
+          mine.flat..inviteExpiresAt = DateTime.now().toUtc(),
+        );
+        final stranger = as('00000000-0000-4000-8000-000000000009');
+        await expectLater(
+          endpoints.flat.join(stranger, mine.flat.inviteCode, 'Jo'),
+          throwsA(
+            isA<FlatmatesException>().having(
+              (e) => e.message,
+              'message',
+              contains('expired'),
+            ),
+          ),
+        );
+
+        final code = await endpoints.flat.regenerateInvite(priya);
+        expect(
+          (await endpoints.flat.join(stranger, code, 'Jo')).me.displayName,
+          'Jo',
+        );
+      },
+    );
+
     test('only the admin can create chores', () async {
       await expectLater(
         endpoints.chore.create(sam, 'Bins', week, today(), [samId]),
         throwsA(isA<FlatmatesException>()),
       );
     });
+
+    test(
+      'a Turn whose day is over hands over even if its end call never ran',
+      () async {
+        await endpoints.chore.create(
+          priya,
+          'Dishes',
+          const Duration(days: 1),
+          today(),
+          [priyaId, samId],
+        );
+        final first = await onlyActiveTurn();
+        // A day passes, but the scheduled end call doesn't fire (a restart, a
+        // sleeping server).
+        final session = sessionBuilder.build();
+        await Turn.db.updateRow(
+          session,
+          first
+            ..day = today(-1)
+            ..lastDay = today(-1),
+        );
+
+        // Just asking for the Turns catches up: yesterday's is Missed and
+        // today's has started.
+        final now = await onlyActiveTurn();
+        expect(now.day, today());
+        expect(now.mateId, samId);
+        final old = await Turn.db.findById(session, first.id!);
+        expect(old!.status, TurnStatus.missed);
+
+        // Asking again changes nothing.
+        expect((await onlyActiveTurn()).id, now.id);
+      },
+    );
 
     test('turns pass round-robin and a missed turn is marked', () async {
       await endpoints.chore.create(
@@ -279,6 +348,185 @@ void main() {
       await endpoints.notice.setPinned(priya, a.id!, true);
       final notices = await endpoints.notice.list(sam);
       expect(notices.map((n) => n.text), ['Party Saturday', 'Wifi is down']);
+    });
+
+    test('mates say Got it on a notice, but not on their own', () async {
+      final notice = await endpoints.notice.post(sam, 'Boiler check Friday');
+      await endpoints.notice.gotIt(alex, notice.id!);
+      await endpoints.notice.gotIt(alex, notice.id!);
+      expect((await endpoints.notice.list(priya)).single.gotItMateIds, [
+        alexId,
+      ]);
+      await expectLater(
+        endpoints.notice.gotIt(sam, notice.id!),
+        throwsA(isA<FlatmatesException>()),
+      );
+      await endpoints.notice.delete(sam, notice.id!);
+      expect(await NoticeGotIt.db.count(sessionBuilder.build()), 0);
+    });
+
+    test('mates get free colours and can\'t take a taken one', () async {
+      final mates = (await endpoints.flat.mine(priya))!.mates;
+      expect(mates.map((m) => m.color), [
+        MateColor.tomato,
+        MateColor.sky,
+        MateColor.plum,
+      ]);
+      await expectLater(
+        endpoints.flat.setMyColor(sam, MateColor.tomato),
+        throwsA(isA<FlatmatesException>()),
+      );
+      expect(
+        (await endpoints.flat.setMyColor(sam, MateColor.leaf)).color,
+        MateColor.leaf,
+      );
+    });
+
+    test('a notification switched off is not sent', () async {
+      await endpoints.flat.setNotifications(
+        sam,
+        turnStarts: false,
+        reminder: true,
+        missed: true,
+        notice: true,
+        addedToRotation: true,
+      );
+      final sent = await Notifier.toMates(
+        sessionBuilder.build(),
+        [samId, alexId],
+        title: 'Your Turn: Bins',
+        body: '',
+        kind: NotifyKind.turnStarts,
+      );
+      expect(sent.map((m) => m.id), [alexId]);
+    });
+
+    test('a Done can be undone only by its mate, on its day', () async {
+      await endpoints.chore.create(priya, 'Bins', week, today(), [priyaId]);
+      final turn = await onlyActiveTurn();
+      await endpoints.chore.markDone(priya, turn.id!);
+      await expectLater(
+        endpoints.chore.undoDone(sam, turn.id!),
+        throwsA(isA<FlatmatesException>()),
+      );
+      final undone = await endpoints.chore.undoDone(priya, turn.id!);
+      expect((undone.status, undone.doneAt), (TurnStatus.active, null));
+
+      await endpoints.chore.markDone(priya, turn.id!);
+      final session = sessionBuilder.build();
+      final done = (await Turn.db.findById(session, turn.id!))!
+        ..day = today(-1)
+        ..lastDay = today(-1);
+      await Turn.db.updateRow(session, done);
+      await expectLater(
+        endpoints.chore.undoDone(priya, turn.id!),
+        throwsA(isA<FlatmatesException>()),
+      );
+    });
+
+    test('the admin renames the flat and mates rename themselves', () async {
+      await expectLater(
+        endpoints.flat.rename(sam, 'Oak'),
+        throwsA(isA<FlatmatesException>()),
+      );
+      expect((await endpoints.flat.rename(priya, '  Oak  ')).name, 'Oak');
+      expect(
+        (await endpoints.flat.setMyName(sam, 'Samuel')).displayName,
+        'Samuel',
+      );
+      await expectLater(
+        endpoints.flat.setMyName(sam, '  '),
+        throwsA(isA<FlatmatesException>()),
+      );
+      await expectLater(
+        endpoints.flat.setMyName(sam, 'x' * 41),
+        throwsA(isA<FlatmatesException>()),
+      );
+    });
+
+    test('swap debts are listed for the flat', () async {
+      await endpoints.chore.create(
+        priya,
+        'Bins',
+        week,
+        today(),
+        [samId, alexId, priyaId],
+      );
+      await endpoints.away.create(sam, today(), today());
+      final debts = await endpoints.chore.swapDebts(priya);
+      expect(
+        debts.map((d) => (d.debtorMateId, d.creditorMateId)),
+        [(samId, alexId)],
+      );
+    });
+
+    test('events overlapping the range are listed', () async {
+      final start = DateTime.utc(2030, 1, 1);
+      await endpoints.event.create(
+        sam,
+        'Guests',
+        null,
+        start,
+        allDay: true,
+        endsAt: start.add(const Duration(days: 3)),
+        tellFlat: true,
+      );
+      await endpoints.event.create(
+        alex,
+        'Plumber',
+        null,
+        start,
+        allDay: false,
+        tellFlat: false,
+      );
+      final events = await endpoints.event.between(
+        priya,
+        start.add(const Duration(days: 1)),
+        start.add(const Duration(days: 2)),
+      );
+      expect(events.map((e) => (e.title, e.allDay)), [('Guests', true)]);
+      await expectLater(
+        endpoints.event.create(
+          sam,
+          'Oops',
+          null,
+          start,
+          allDay: false,
+          endsAt: start,
+          tellFlat: false,
+        ),
+        throwsA(isA<FlatmatesException>()),
+      );
+    });
+
+    test('the Away preview shows covers and paused turns', () async {
+      await endpoints.chore.create(
+        priya,
+        'Bins',
+        week,
+        today(),
+        [samId, alexId, priyaId],
+      );
+      final bins = (await onlyActiveTurn()).choreId;
+
+      // Sam's open Turn today, covered by Alex under Swap.
+      var effects = await endpoints.away.preview(sam, today(), today(1));
+      expect(
+        effects.map((e) => (e.choreId, e.day, e.coverMateId, e.newDay)),
+        [(bins, today(), alexId, null)],
+      );
+
+      // Alex's projected Turn next week waits under Pause.
+      await endpoints.flat.setAwayRule(priya, AwayRule.pause);
+      effects = await endpoints.away.preview(alex, today(7), today(8));
+      expect(
+        effects.map((e) => (e.day, e.awayRule, e.coverMateId, e.newDay)),
+        [(today(7), AwayRule.pause, null, today(9))],
+      );
+
+      // Nothing was saved.
+      expect(await endpoints.away.list(priya), isEmpty);
+      expect((await onlyActiveTurn()).mateId, samId);
     });
   });
 }

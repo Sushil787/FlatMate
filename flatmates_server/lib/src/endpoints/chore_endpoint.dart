@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/notifier.dart';
 import '../rotation/turn_service.dart';
 
 /// Chores, their Rotations and Turns.
@@ -22,6 +23,7 @@ class ChoreEndpoint extends Endpoint {
   /// Every open Turn in the Flat: in progress, or waiting to start.
   Future<List<Turn>> activeTurns(Session session) async {
     final (:me, :flat) = await requireMate(session);
+    await TurnService.catchUp(session, flat);
     return Turn.db.find(
       session,
       where: (t) =>
@@ -38,6 +40,7 @@ class ChoreEndpoint extends Endpoint {
     DateTime to,
   ) async {
     final (:me, :flat) = await requireMate(session);
+    await TurnService.catchUp(session, flat);
     from = Day.from(from);
     to = Day.from(to);
     final real = await Turn.db.find(
@@ -79,6 +82,7 @@ class ChoreEndpoint extends Endpoint {
       ),
     );
     await TurnService.startChore(session, flat, chore);
+    await _notifyAdded(session, me, chore, rotation);
     await broadcast(session, flat.id!, FlatChangeKind.chores);
     return chore;
   }
@@ -95,6 +99,7 @@ class ChoreEndpoint extends Endpoint {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
     await _validate(session, flat, name, period, rotation);
+    final added = rotation.toSet().difference(chore.rotation.toSet());
 
     if (chore.rotation.join(',') != rotation.join(',')) {
       // Continue after whoever owns the current slot, if they're still in.
@@ -112,6 +117,7 @@ class ChoreEndpoint extends Endpoint {
       ..period = period
       ..rotation = rotation;
     await Chore.db.updateRow(session, chore);
+    await _notifyAdded(session, me, chore, added);
     await broadcast(session, flat.id!, FlatChangeKind.chores);
     return chore;
   }
@@ -127,8 +133,43 @@ class ChoreEndpoint extends Endpoint {
 
   Future<Turn> markDone(Session session, int turnId) async {
     final (:me, :flat) = await requireMate(session);
+    await TurnService.catchUp(session, flat);
     return TurnService.markDone(session, flat, me, turnId);
   }
+
+  Future<Turn> undoDone(Session session, int turnId) async {
+    final (:me, :flat) = await requireMate(session);
+    await TurnService.catchUp(session, flat);
+    return TurnService.undoDone(session, flat, me, turnId);
+  }
+
+  /// Turns owed back under the Swap rule, across the Flat's Chores.
+  Future<List<SwapDebt>> swapDebts(Session session) async {
+    final (:me, :flat) = await requireMate(session);
+    final chores = await Chore.db.find(
+      session,
+      where: (t) => t.flatId.equals(flat.id!),
+    );
+    return SwapDebt.db.find(
+      session,
+      where: (t) => t.choreId.inSet(chores.map((c) => c.id!).toSet()),
+      orderBy: (t) => t.createdAt,
+    );
+  }
+
+  /// Tells Mates newly put into the Chore's Rotation, except the Admin.
+  Future<void> _notifyAdded(
+    Session session,
+    Mate me,
+    Chore chore,
+    Iterable<int> mateIds,
+  ) => Notifier.toMates(
+    session,
+    mateIds.where((id) => id != me.id),
+    title: 'You\'ve been added to a Rotation',
+    body: '${me.displayName} added you to ${chore.name}.',
+    kind: NotifyKind.addedToRotation,
+  );
 
   Future<Chore> _find(Session session, Flat flat, int choreId) async {
     final chore = await Chore.db.findById(session, choreId);

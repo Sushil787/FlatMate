@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Event</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A00}a:hover{color:#2A3D00}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#55584F;color:#16181A;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden">
+<div style="padding:0 24px 24px;color:#FFFFFF;font:700 30px 'Bricolage Grotesque',sans-serif;opacity:.5">October</div>
+<div style="background:#FFFFFF;border-radius:28px 28px 0 0;padding:10px 16px 28px;display:flex;flex-direction:column;gap:14px">
+<div style="width:40px;height:4px;border-radius:2px;background:#DEDED6;align-self:center"></div>
+<div style="display:flex;align-items:center;justify-content:space-between">
+<h1 style="margin:0;font:700 26px 'Bricolage Grotesque',sans-serif">Add Event</h1>
+<a href="Calendar.dc.html" style="height:44px;padding:0 8px;display:flex;align-items:center;font-weight:700;font-size:15px;text-decoration:none">Cancel</a>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="ae-title" style="font-size:13px;font-weight:600;color:#55584F">What's happening?</label>
+<input id="ae-title" value="Guests Saturday" style="height:56px;box-sizing:border-box;border:2px solid #16181A;border-radius:16px;padding:0 16px;font:500 16px 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF;outline:3px solid #C8F169">
+</div>
+<div style="display:flex;gap:8px;overflow:hidden">
+<button style="height:44px;padding:0 14px;border:0;border-radius:22px;background:#F3F3EE;font:600 14px 'DM Sans',sans-serif;color:#16181A;white-space:nowrap">Today</button>
+<button style="height:44px;padding:0 14px;border:0;border-radius:22px;background:#F3F3EE;font:600 14px 'DM Sans',sans-serif;color:#16181A;white-space:nowrap">Tomorrow</button>
+<button aria-pressed="true" style="height:44px;padding:0 14px;border:0;border-radius:22px;background:#16181A;font:700 14px 'DM Sans',sans-serif;color:#FFFFFF;white-space:nowrap">Sat 10 Oct</button>
+<button style="height:44px;padding:0 14px;border:0;border-radius:22px;background:#F3F3EE;font:600 14px 'DM Sans',sans-serif;color:#16181A;white-space:nowrap">Pick date</button>
+</div>
+<div style="background:#F3F3EE;border-radius:16px;padding:0 16px">
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;border-bottom:1px solid #DEDED6;font-size:15px;font-weight:600">All day<span role="switch" aria-checked="true" style="width:52px;height:32px;border-radius:16px;background:#16181A;display:flex;align-items:center;justify-content:flex-end;padding:3px;box-sizing:border-box"><span style="width:26px;height:26px;border-radius:50%;background:#C8F169"></span></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;border-bottom:1px solid #DEDED6;font-size:15px;font-weight:600">Ends<span style="color:#55584F;font-weight:500">Same day</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;min-height:52px;font-size:15px;font-weight:600">Tell the Flat<span role="switch" aria-checked="true" style="width:52px;height:32px;border-radius:16px;background:#16181A;display:flex;align-items:center;justify-content:flex-end;padding:3px;box-sizing:border-box"><span style="width:26px;height:26px;border-radius:50%;background:#C8F169"></span></span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="ae-note" style="font-size:13px;font-weight:600;color:#55584F">Note (optional)</label>
+<textarea id="ae-note" rows="2" style="box-sizing:border-box;border:2px solid #DEDED6;border-radius:16px;padding:12px 16px;font:500 15px/1.4 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF;resize:none">Two friends staying over, they'll use the sofa bed.</textarea>
+</div>
+<button style="height:60px;border:0;border-radius:30px;background:#C8F169;color:#16181A;font:700 18px 'DM Sans',sans-serif">Add Event</button>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create or edit a Chore</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A00}a:hover{color:#2A3D00}
+</style>
+</head>
+<body>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#55584F;color:#16181A;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;padding-top:48px;overflow:hidden">
+<div style="flex:1;background:#FFFFFF;border-radius:28px 28px 0 0;padding:10px 16px 28px;display:flex;flex-direction:column;gap:12px">
+<div style="width:40px;height:4px;border-radius:2px;background:#DEDED6;align-self:center"></div>
+<div style="display:flex;align-items:center;justify-content:space-between">
+<h1 style="margin:0;font:700 26px 'Bricolage Grotesque',sans-serif">New Chore</h1>
+<a href="Chores.dc.html" style="height:44px;padding:0 8px;display:flex;align-items:center;font-weight:700;font-size:15px;text-decoration:none">Cancel</a>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="ce-name" style="font-size:13px;font-weight:600;color:#55584F">Chore name</label>
+<input id="ce-name" value="Clean bathroom" style="height:52px;box-sizing:border-box;border:2px solid #DEDED6;border-radius:16px;padding:0 16px;font:500 16px 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF">
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#55584F"><span>Rotation · drag to reorder</span><span>4 Mates</span></div>
+<div style="display:flex;gap:8px">
+<button style="flex:1;height:64px;border:0;border-radius:16px;background:#F3F3EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px 'DM Sans',sans-serif;color:#16181A"><span style="width:28px;height:28px;border-radius:50%;background:#2670AD;color:#FFFFFF;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">S</span>1 · Sam</button>
+<button style="flex:1;height:64px;border:0;border-radius:16px;background:#F3F3EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px 'DM Sans',sans-serif;color:#16181A"><span style="width:28px;height:28px;border-radius:50%;background:#8E4EA8;color:#FFFFFF;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">P</span>2 · Priya</button>
+<button style="flex:1;height:64px;border:0;border-radius:16px;background:#F3F3EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px 'DM Sans',sans-serif;color:#16181A"><span style="width:28px;height:28px;border-radius:50%;background:#1F7A52;color:#FFFFFF;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">J</span>3 · Jonas</button>
+<button style="flex:1;height:64px;border:0;border-radius:16px;background:#F3F3EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px 'DM Sans',sans-serif;color:#16181A"><span style="width:28px;height:28px;border-radius:50%;background:#C8431F;color:#FFFFFF;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">M</span>4 · You</button>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:13px;font-weight:600;color:#55584F">Rotation period</div>
+<div style="display:flex;gap:6px">
+<button style="flex:1;height:48px;border:2px solid #DEDED6;border-radius:24px;background:#FFFFFF;font:600 13px 'DM Sans',sans-serif;color:#16181A">Every day</button>
+<button style="flex:1;height:48px;border:2px solid #DEDED6;border-radius:24px;background:#FFFFFF;font:600 13px 'DM Sans',sans-serif;color:#16181A">3 days</button>
+<button aria-pressed="true" style="flex:1;height:48px;border:2px solid #16181A;border-radius:24px;background:#16181A;font:700 13px 'DM Sans',sans-serif;color:#FFFFFF">Weekly</button>
+<button style="flex:1;height:48px;border:2px solid #DEDED6;border-radius:24px;background:#FFFFFF;font:600 13px 'DM Sans',sans-serif;color:#16181A">Custom</button>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:13px;font-weight:600;color:#55584F">Away rule · when the Mate is Away</div>
+<button aria-pressed="true" style="min-height:54px;border:2px solid #16181A;border-radius:16px;background:#E9F7C6;padding:6px 14px;text-align:left;font:400 13px/1.3 'DM Sans',sans-serif;color:#16181A;display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:50%;border:6px solid #16181A;box-sizing:border-box;flex:none"></span><span><strong style="font-size:15px">Swap</strong><br>Another Mate covers and is owed one back</span></button>
+<button style="min-height:54px;border:2px solid #DEDED6;border-radius:16px;background:#FFFFFF;padding:6px 14px;text-align:left;font:400 13px/1.3 'DM Sans',sans-serif;color:#16181A;display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #55584F;box-sizing:border-box;flex:none"></span><span><strong style="font-size:15px">Skip</strong><br>The Turn passes to the next Mate</span></button>
+<button style="min-height:54px;border:2px solid #DEDED6;border-radius:16px;background:#FFFFFF;padding:6px 14px;text-align:left;font:400 13px/1.3 'DM Sans',sans-serif;color:#16181A;display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #55584F;box-sizing:border-box;flex:none"></span><span><strong style="font-size:15px">Pause</strong><br>The Chore waits until the Mate is back</span></button>
+</div>
+
+<button style="min-height:52px;border:0;border-radius:16px;background:#F3F3EE;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font:600 15px 'DM Sans',sans-serif;color:#16181A"><span style="color:#55584F;font-size:13px">Start date</span><span>Mon 12 Oct · Sam goes first</span></button>
+
+<div style="flex:1"></div>
+<button style="height:60px;border:0;border-radius:30px;background:#C8F169;color:#16181A;font:700 18px 'DM Sans',sans-serif">Save Chore</button>
+</div>
+</div>
+</body>
+</html>

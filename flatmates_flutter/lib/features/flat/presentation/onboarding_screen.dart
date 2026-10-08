@@ -2,15 +2,16 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/action_runner.dart';
-import '../../../core/widgets/illustration.dart';
+import '../../../core/widgets/app_field.dart';
+import '../../../core/widgets/app_sheet.dart';
+import '../../../core/widgets/mate_avatar.dart';
 import '../../auth/application/auth_controller.dart';
-import '../application/my_flat_controller.dart';
+import '../application/flat_actions.dart';
 
-enum _Mode { join, create }
-
-/// Join a Flat with an Invite code, or create one and become its Admin.
+/// Create a Flat (and become its Admin) or join one with an Invite code.
+/// The Mate's name comes from their Google profile.
 @RoutePage()
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -20,216 +21,239 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _name = TextEditingController();
   final _flatName = TextEditingController();
   final _code = TextEditingController();
-  _Mode _mode = _Mode.join;
-  bool _busy = false;
+  String? _flatError, _codeError;
+
+  /// Set once in a Flat, so nothing can be sent again while Home loads.
+  bool _done = false;
 
   @override
   void dispose() {
-    _name.dispose();
     _flatName.dispose();
     _code.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _busy = true);
-    final controller = ref.read(myFlatControllerProvider.notifier);
-    await runAction(
-      context,
-      () => _mode == _Mode.join
-          ? controller.join(inviteCode: _code.text, myName: _name.text)
-          : controller.create(flatName: _flatName.text, myName: _name.text),
-    );
-    if (mounted) setState(() => _busy = false);
+  String get _myName {
+    final p = ref.read(myProfileProvider).value;
+    final name = p?.fullName?.trim() ?? p?.userName?.trim() ?? '';
+    if (name.isNotEmpty) return name;
+    return p?.email?.split('@').first ?? 'Mate';
   }
 
-  String? _required(String? v) =>
-      (v == null || v.trim().isEmpty) ? 'Required' : null;
+  Future<void> _create() async {
+    final name = _flatName.text.trim();
+    setState(() => _flatError = name.isEmpty ? 'Give your Flat a name' : null);
+    if (name.isEmpty) return;
+    final ok = await runAction(
+      context,
+      () => ref
+          .read(createFlatProvider.notifier)
+          .run(flatName: name, myName: _myName),
+    );
+    if (ok && mounted) setState(() => _done = true);
+  }
+
+  Future<void> _join() async {
+    final code = _code.text.trim();
+    setState(() => _codeError = code.isEmpty ? 'Enter the Invite code' : null);
+    if (code.isEmpty) return;
+    final ok = await runAction(
+      context,
+      () => ref
+          .read(joinFlatProvider.notifier)
+          .run(inviteCode: code, myName: _myName),
+    );
+    if (ok && mounted) setState(() => _done = true);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TextButton(
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
-            child: const Text('Sign out'),
-          ),
+    final fm = context.fm;
+    final profile = ref.watch(myProfileProvider).value;
+    final creating = ref.watch(createFlatProvider).isLoading;
+    final joining = ref.watch(joinFlatProvider).isLoading;
+    final busy = creating || joining || _done;
+    final firstName = _myName.split(' ').first;
+
+    Widget card(String title, List<Widget> children) => Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: fm.surface,
+        borderRadius: BorderRadius.circular(Radii.hero),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: context.text.titleLarge),
+          for (final c in children) ...[const SizedBox(height: Space.md), c],
         ],
       ),
+    );
+    final hint = context.text.bodySmall;
+
+    return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Insets.xl),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Form(
-                key: _formKey,
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, Space.lg, 16, Space.xxl),
+              sliver: SliverFillRemaining(
+                hasScrollBody: false,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Center(
-                      child: Illustration(
-                        icon: Icons.cottage_rounded,
-                        size: 140,
+                    Padding(
+                      padding: const EdgeInsets.only(left: Space.sm),
+                      child: Row(
+                        children: [
+                          Avatar(name: firstName, colorIndex: 0, size: 44),
+                          const SizedBox(width: Space.md),
+                          Expanded(
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Signed in as\n',
+                                children: [
+                                  TextSpan(
+                                    text: profile?.email ?? '',
+                                    style: TextStyle(
+                                      color: fm.ink,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              style: context.text.bodyMedium?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: fm.inkSoft,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => runAction(
+                              context,
+                              ref.read(signOutProvider.notifier).run,
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: fm.inkSoft,
+                              textStyle: context.text.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            child: const Text('Sign out'),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: Insets.lg),
-                    Text(
-                      'Let\'s set up your home',
-                      style: theme.textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Insets.xs),
-                    Text(
-                      'Join your flatmates, or start a new flat and invite them.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Insets.xl),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ModeCard(
-                            icon: Icons.key_rounded,
-                            title: 'Join a flat',
-                            subtitle: 'I have a code',
-                            selected: _mode == _Mode.join,
-                            onTap: () => setState(() => _mode = _Mode.join),
+                    const SizedBox(height: Space.xl),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: Space.sm),
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          'Welcome, $firstName. Let\'s find your Flat.',
+                          style: context.text.displaySmall?.copyWith(
+                            fontSize: 36,
+                            height: 1.05,
                           ),
                         ),
-                        const SizedBox(width: Insets.md),
-                        Expanded(
-                          child: _ModeCard(
-                            icon: Icons.add_home_rounded,
-                            title: 'Start a flat',
-                            subtitle: 'I\'ll be admin',
-                            selected: _mode == _Mode.create,
-                            onTap: () => setState(() => _mode = _Mode.create),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Insets.xl),
-                    TextFormField(
-                      controller: _name,
-                      validator: _required,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Your name',
-                        prefixIcon: Icon(Icons.person_rounded),
                       ),
                     ),
-                    const SizedBox(height: Insets.md),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: _mode == _Mode.join
-                          ? TextFormField(
-                              key: const ValueKey('code'),
+                    const Spacer(),
+                    const SizedBox(height: Space.xl),
+                    card('Create a Flat', [
+                      AppField(
+                        label: 'Flat name',
+                        hint: 'Maple Street 12',
+                        controller: _flatName,
+                        errorText: _flatError,
+                        textCapitalization: TextCapitalization.words,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _create(),
+                      ),
+                      Text(
+                        'You\'ll be the Admin. You can invite Mates next.',
+                        style: hint,
+                      ),
+                      PrimaryButton(
+                        label: 'Create Flat',
+                        busy: creating,
+                        onPressed: busy ? null : _create,
+                      ),
+                    ]),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Space.sm,
+                        vertical: Space.lg,
+                      ),
+                      child: Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Space.md,
+                            ),
+                            child: Text(
+                              'or',
+                              style: hint?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                    ),
+                    card('Join with an Invite', [
+                      Text(
+                        'Invite code',
+                        style: hint?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AppField(
+                              hint: 'MAPLE-42',
                               controller: _code,
-                              validator: _required,
+                              errorText: _codeError,
                               textCapitalization: TextCapitalization.characters,
-                              decoration: const InputDecoration(
-                                labelText: 'Invite code',
-                                helperText: 'Ask your flat\'s admin for it.',
-                                prefixIcon: Icon(Icons.vpn_key_rounded),
-                              ),
-                            )
-                          : TextFormField(
-                              key: const ValueKey('flat'),
-                              controller: _flatName,
-                              validator: _required,
-                              textCapitalization: TextCapitalization.words,
-                              decoration: const InputDecoration(
-                                labelText: 'Flat name',
-                                helperText: 'e.g. Elm Street House',
-                                prefixIcon: Icon(Icons.home_rounded),
+                              textInputAction: TextInputAction.go,
+                              onSubmitted: (_) => _join(),
+                            ),
+                          ),
+                          const SizedBox(width: Space.sm),
+                          OutlinedButton(
+                            onPressed: busy ? null : _join,
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, Sizes.buttonPrimary),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
                               ),
                             ),
-                    ),
-                    const SizedBox(height: Insets.xl),
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: _busy
-                          ? const SizedBox.square(
-                              dimension: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : Text(
-                              _mode == _Mode.join ? 'Join flat' : 'Create flat',
-                            ),
-                    ),
+                            child: joining
+                                ? const SizedBox.square(
+                                    dimension: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : const Text('Join'),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        'Ask your Flat\'s Admin for the Invite code.',
+                        style: hint,
+                      ),
+                    ]),
                   ],
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeCard extends StatelessWidget {
-  const _ModeCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      decoration: BoxDecoration(
-        color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Radii.lg),
-        border: Border.all(
-          color: selected ? scheme.primary : scheme.outlineVariant,
-          width: selected ? 2 : 1,
-        ),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(Insets.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                icon,
-                color: selected ? scheme.primary : scheme.onSurfaceVariant,
-              ),
-              const SizedBox(height: Insets.md),
-              Text(title, style: text.titleMedium),
-              Text(
-                subtitle,
-                style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

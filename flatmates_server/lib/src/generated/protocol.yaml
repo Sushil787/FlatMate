@@ -7,6 +7,7 @@ jwtRefresh:
 away:
   - list:
   - create:
+  - preview:
   - cancel:
 chore:
   - list:
@@ -16,6 +17,8 @@ chore:
   - update:
   - archive:
   - markDone:
+  - undoDone:
+  - swapDebts:
 event:
   - between:
   - create:
@@ -25,6 +28,10 @@ flat:
   - create:
   - join:
   - regenerateInvite:
+  - rename:
+  - setMyName:
+  - setMyColor:
+  - setNotifications:
   - setAwayRule:
   - transferAdmin:
   - removeMate:
@@ -40,4 +47,5 @@ notice:
   - list:
   - post:
   - setPinned:
+  - gotIt:
   - delete:

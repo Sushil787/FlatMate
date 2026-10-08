@@ -23,25 +23,22 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SplashRoute.page, initial: true),
       AutoRoute(page: SignInRoute.page),
       AutoRoute(page: OnboardingRoute.page),
-      AutoRoute(page: HomeRoute.page, guards: ready),
-      // Each section opens from its note on the fridge; the note's Heroine
-      // flight is the whole transition. The fridge stays painted while the
-      // route animates, so that runs as long as the flight's spring.
-      for (final page in [
-        ChoresRoute.page,
-        CalendarRoute.page,
-        BoardRoute.page,
-        GroceriesRoute.page,
-        FlatRoute.page,
-      ])
-        CustomRoute<void>(
-          page: page,
-          guards: ready,
-          transitionsBuilder: TransitionsBuilders.noTransition,
-          duration: const Duration(milliseconds: 600),
-          reverseDuration: const Duration(milliseconds: 600),
-        ),
-      AutoRoute(page: ChoreEditorRoute.page, guards: ready),
+      // The five tabs of the bottom nav.
+      AutoRoute(
+        page: TabsRoute.page,
+        guards: ready,
+        children: [
+          AutoRoute(page: HomeRoute.page, initial: true),
+          AutoRoute(page: ChoresRoute.page),
+          AutoRoute(page: CalendarRoute.page),
+          AutoRoute(page: GroceriesRoute.page),
+          AutoRoute(page: FlatRoute.page),
+        ],
+      ),
+      // Detail screens: no bottom nav.
+      AutoRoute(page: ChoreDetailRoute.page, guards: ready),
+      AutoRoute(page: BoardRoute.page, guards: ready),
+      AutoRoute(page: SettingsRoute.page, guards: ready),
     ];
   }
 }

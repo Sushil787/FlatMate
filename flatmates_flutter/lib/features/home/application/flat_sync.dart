@@ -1,5 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../away/application/aways_controller.dart';
 import '../../board/application/notices_controller.dart';
@@ -9,12 +9,9 @@ import '../../flat/application/flat_changes.dart';
 import '../../flat/application/my_flat_controller.dart';
 import '../../groceries/application/groceries_controller.dart';
 
-part 'flat_sync.g.dart';
-
 /// Keeps every feature's data in step with the server: when a Mate changes
 /// something, the affected providers refetch. Watched by the home shell.
-@riverpod
-void flatSync(Ref ref) {
+void _flatSync(Ref ref) {
   ref.listen(flatChangesProvider, (_, next) {
     final change = next.value;
     if (change == null) return;
@@ -42,3 +39,5 @@ void flatSync(Ref ref) {
     }
   });
 }
+
+final flatSyncProvider = Provider.autoDispose<void>(_flatSync);

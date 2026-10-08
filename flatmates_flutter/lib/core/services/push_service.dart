@@ -2,15 +2,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/foundation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../firebase_options.dart';
 import '../providers/client_provider.dart';
 
-part 'push_service.g.dart';
+PushService _pushService(Ref ref) => PushService(ref.watch(clientProvider));
 
-@Riverpod(keepAlive: true)
-PushService pushService(Ref ref) => PushService(ref.watch(clientProvider));
+final pushServiceProvider = Provider<PushService>(_pushService);
 
 /// Registers the device with FCM and the server. Failures are logged and
 /// ignored, so everything else works without push.

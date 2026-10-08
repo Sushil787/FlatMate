@@ -7,6 +7,8 @@ fields:
   timezone: String
   adminMateId: int?
   inviteCode: String
+  ### When [inviteCode] stops working; 7 days after it was made.
+  inviteExpiresAt: DateTime
   awayRule: AwayRule
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now

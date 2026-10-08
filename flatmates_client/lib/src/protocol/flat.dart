@@ -22,6 +22,7 @@ abstract class Flat
     required this.timezone,
     this.adminMateId,
     required this.inviteCode,
+    required this.inviteExpiresAt,
     required this.awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -34,6 +35,7 @@ abstract class Flat
     required String timezone,
     int? adminMateId,
     required String inviteCode,
+    required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -46,6 +48,9 @@ abstract class Flat
       timezone: jsonSerialization['timezone'] as String,
       adminMateId: jsonSerialization['adminMateId'] as int?,
       inviteCode: jsonSerialization['inviteCode'] as String,
+      inviteExpiresAt: _isc.DateTimeJsonExtension.fromJson(
+        jsonSerialization['inviteExpiresAt'],
+      ),
       awayRule: _isc380kv.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
@@ -72,6 +77,9 @@ abstract class Flat
 
   String inviteCode;
 
+  /// When [inviteCode] stops working; 7 days after it was made.
+  DateTime inviteExpiresAt;
+
   _isc380kv.AwayRule awayRule;
 
   DateTime createdAt;
@@ -87,6 +95,7 @@ abstract class Flat
     String? timezone,
     int? adminMateId,
     String? inviteCode,
+    DateTime? inviteExpiresAt,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -100,6 +109,7 @@ abstract class Flat
       'timezone': timezone,
       if (adminMateId != null) 'adminMateId': adminMateId,
       'inviteCode': inviteCode,
+      'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -115,6 +125,7 @@ abstract class Flat
       'timezone': timezone,
       if (adminMateId != null) 'adminMateId': adminMateId,
       'inviteCode': inviteCode,
+      'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -136,6 +147,7 @@ class _FlatImpl extends Flat {
     required String timezone,
     int? adminMateId,
     required String inviteCode,
+    required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -145,6 +157,7 @@ class _FlatImpl extends Flat {
          timezone: timezone,
          adminMateId: adminMateId,
          inviteCode: inviteCode,
+         inviteExpiresAt: inviteExpiresAt,
          awayRule: awayRule,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -160,6 +173,7 @@ class _FlatImpl extends Flat {
     String? timezone,
     Object? adminMateId = _Undefined,
     String? inviteCode,
+    DateTime? inviteExpiresAt,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -170,6 +184,7 @@ class _FlatImpl extends Flat {
       timezone: timezone ?? this.timezone,
       adminMateId: adminMateId is int? ? adminMateId : this.adminMateId,
       inviteCode: inviteCode ?? this.inviteCode,
+      inviteExpiresAt: inviteExpiresAt ?? this.inviteExpiresAt,
       awayRule: awayRule ?? this.awayRule,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

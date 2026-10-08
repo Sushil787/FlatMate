@@ -10,6 +10,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_client/src/protocol/protocol.dart' as _iyp1dgna;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 
 /// A text post on the Flat's notice board.
@@ -21,6 +22,7 @@ abstract class Notice
     required this.mateId,
     required this.text,
     required this.pinned,
+    this.gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -32,6 +34,7 @@ abstract class Notice
     required int mateId,
     required String text,
     required bool pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _NoticeImpl;
@@ -43,6 +46,11 @@ abstract class Notice
       mateId: jsonSerialization['mateId'] as int,
       text: jsonSerialization['text'] as String,
       pinned: _isc.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
+      gotItMateIds: jsonSerialization['gotItMateIds'] == null
+          ? null
+          : _iyp1dgna.Protocol().deserialize<List<int>>(
+              jsonSerialization['gotItMateIds'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -65,6 +73,9 @@ abstract class Notice
 
   bool pinned;
 
+  /// Mates who said "Got it"; filled in by list().
+  List<int>? gotItMateIds;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -78,6 +89,7 @@ abstract class Notice
     int? mateId,
     String? text,
     bool? pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -90,6 +102,7 @@ abstract class Notice
       'mateId': mateId,
       'text': text,
       'pinned': pinned,
+      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -104,6 +117,7 @@ abstract class Notice
       'mateId': mateId,
       'text': text,
       'pinned': pinned,
+      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -124,6 +138,7 @@ class _NoticeImpl extends Notice {
     required int mateId,
     required String text,
     required bool pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -132,6 +147,7 @@ class _NoticeImpl extends Notice {
          mateId: mateId,
          text: text,
          pinned: pinned,
+         gotItMateIds: gotItMateIds,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -146,6 +162,7 @@ class _NoticeImpl extends Notice {
     int? mateId,
     String? text,
     bool? pinned,
+    Object? gotItMateIds = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -155,6 +172,9 @@ class _NoticeImpl extends Notice {
       mateId: mateId ?? this.mateId,
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
+      gotItMateIds: gotItMateIds is List<int>?
+          ? gotItMateIds
+          : this.gotItMateIds?.map((e0) => e0).toList(),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

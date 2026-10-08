@@ -1,12 +1,14 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/client_provider.dart';
 
-part 'grocery_repository.g.dart';
+GroceryRepository _groceryRepository(Ref ref) =>
+    GroceryRepository(ref.watch(clientProvider));
 
-@Riverpod(keepAlive: true)
-GroceryRepository groceryRepository(Ref ref) => GroceryRepository(ref.watch(clientProvider));
+final groceryRepositoryProvider = Provider<GroceryRepository>(
+  _groceryRepository,
+);
 
 class GroceryRepository {
   GroceryRepository(this._client);

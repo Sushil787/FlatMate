@@ -22,9 +22,12 @@ abstract class FlatEvent
     required this.title,
     this.note,
     required this.startsAt,
+    this.endsAt,
+    bool? allDay,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now(),
+  }) : allDay = allDay ?? false,
+       createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory FlatEvent({
@@ -34,6 +37,8 @@ abstract class FlatEvent
     required String title,
     String? note,
     required DateTime startsAt,
+    DateTime? endsAt,
+    bool? allDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _FlatEventImpl;
@@ -48,6 +53,12 @@ abstract class FlatEvent
       startsAt: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['startsAt'],
       ),
+      endsAt: jsonSerialization['endsAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['endsAt']),
+      allDay: jsonSerialization['allDay'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['allDay']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -74,6 +85,13 @@ abstract class FlatEvent
 
   DateTime startsAt;
 
+  /// Null for an Event with no set end. For an all-day Event the app sends
+  /// local midnights: [startsAt] the first day's, [endsAt] the one after
+  /// the last day (null for a single day).
+  DateTime? endsAt;
+
+  bool allDay;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -91,6 +109,8 @@ abstract class FlatEvent
     String? title,
     String? note,
     DateTime? startsAt,
+    DateTime? endsAt,
+    bool? allDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -104,6 +124,8 @@ abstract class FlatEvent
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
+      if (endsAt != null) 'endsAt': endsAt?.toJson(),
+      'allDay': allDay,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -119,6 +141,8 @@ abstract class FlatEvent
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
+      if (endsAt != null) 'endsAt': endsAt?.toJson(),
+      'allDay': allDay,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -162,6 +186,8 @@ class _FlatEventImpl extends FlatEvent {
     required String title,
     String? note,
     required DateTime startsAt,
+    DateTime? endsAt,
+    bool? allDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -171,6 +197,8 @@ class _FlatEventImpl extends FlatEvent {
          title: title,
          note: note,
          startsAt: startsAt,
+         endsAt: endsAt,
+         allDay: allDay,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -186,6 +214,8 @@ class _FlatEventImpl extends FlatEvent {
     String? title,
     Object? note = _Undefined,
     DateTime? startsAt,
+    Object? endsAt = _Undefined,
+    bool? allDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -196,6 +226,8 @@ class _FlatEventImpl extends FlatEvent {
       title: title ?? this.title,
       note: note is String? ? note : this.note,
       startsAt: startsAt ?? this.startsAt,
+      endsAt: endsAt is DateTime? ? endsAt : this.endsAt,
+      allDay: allDay ?? this.allDay,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -230,6 +262,17 @@ class FlatEventUpdateTable extends _is.UpdateTable<FlatEventTable> {
         table.startsAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> endsAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.endsAt,
+        value,
+      );
+
+  _is.ColumnValue<bool, bool> allDay(bool value) => _is.ColumnValue(
+    table.allDay,
+    value,
+  );
 
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
@@ -267,6 +310,15 @@ class FlatEventTable extends _is.Table<int?> {
       'startsAt',
       this,
     );
+    endsAt = _is.ColumnDateTime(
+      'endsAt',
+      this,
+    );
+    allDay = _is.ColumnBool(
+      'allDay',
+      this,
+      hasDefault: true,
+    );
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
@@ -291,6 +343,13 @@ class FlatEventTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime startsAt;
 
+  /// Null for an Event with no set end. For an all-day Event the app sends
+  /// local midnights: [startsAt] the first day's, [endsAt] the one after
+  /// the last day (null for a single day).
+  late final _is.ColumnDateTime endsAt;
+
+  late final _is.ColumnBool allDay;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -303,6 +362,8 @@ class FlatEventTable extends _is.Table<int?> {
     title,
     note,
     startsAt,
+    endsAt,
+    allDay,
     createdAt,
     updatedAt,
   ];

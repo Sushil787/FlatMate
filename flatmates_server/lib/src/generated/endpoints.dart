@@ -12,6 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/future_calls.dart' as _idh4zhdh;
+import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -216,6 +217,30 @@ class Endpoints extends _is.EndpointDispatch {
                 params['lastDay'],
               ),
         ),
+        'preview': _is.MethodConnector(
+          name: 'preview',
+          params: {
+            'startDay': _is.ParameterDescription(
+              name: 'startDay',
+              type: _is.getType<DateTime>(),
+              nullable: false,
+            ),
+            'lastDay': _is.ParameterDescription(
+              name: 'lastDay',
+              type: _is.getType<DateTime>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['away'] as _im6g9gk0.AwayEndpoint).preview(
+                session,
+                params['startDay'],
+                params['lastDay'],
+              ),
+        ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
           params: {
@@ -395,6 +420,35 @@ class Endpoints extends _is.EndpointDispatch {
                     params['turnId'],
                   ),
         ),
+        'undoDone': _is.MethodConnector(
+          name: 'undoDone',
+          params: {
+            'turnId': _is.ParameterDescription(
+              name: 'turnId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['chore'] as _ikknmojt.ChoreEndpoint).undoDone(
+                    session,
+                    params['turnId'],
+                  ),
+        ),
+        'swapDebts': _is.MethodConnector(
+          name: 'swapDebts',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['chore'] as _ikknmojt.ChoreEndpoint)
+                  .swapDebts(session),
+        ),
       },
     );
     connectors['event'] = _is.EndpointConnector(
@@ -444,6 +498,21 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<DateTime>(),
               nullable: false,
             ),
+            'allDay': _is.ParameterDescription(
+              name: 'allDay',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'endsAt': _is.ParameterDescription(
+              name: 'endsAt',
+              type: _is.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'tellFlat': _is.ParameterDescription(
+              name: 'tellFlat',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -454,6 +523,9 @@ class Endpoints extends _is.EndpointDispatch {
                 params['title'],
                 params['note'],
                 params['startsAt'],
+                allDay: params['allDay'],
+                endsAt: params['endsAt'],
+                tellFlat: params['tellFlat'],
               ),
         ),
         'delete': _is.MethodConnector(
@@ -553,6 +625,105 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
                   .regenerateInvite(session),
+        ),
+        'rename': _is.MethodConnector(
+          name: 'rename',
+          params: {
+            'name': _is.ParameterDescription(
+              name: 'name',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint).rename(
+                session,
+                params['name'],
+              ),
+        ),
+        'setMyName': _is.MethodConnector(
+          name: 'setMyName',
+          params: {
+            'displayName': _is.ParameterDescription(
+              name: 'displayName',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['flat'] as _iho3d8m1.FlatEndpoint).setMyName(
+                    session,
+                    params['displayName'],
+                  ),
+        ),
+        'setMyColor': _is.MethodConnector(
+          name: 'setMyColor',
+          params: {
+            'color': _is.ParameterDescription(
+              name: 'color',
+              type: _is.getType<_ilt6zfd6.MateColor>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['flat'] as _iho3d8m1.FlatEndpoint).setMyColor(
+                    session,
+                    params['color'],
+                  ),
+        ),
+        'setNotifications': _is.MethodConnector(
+          name: 'setNotifications',
+          params: {
+            'turnStarts': _is.ParameterDescription(
+              name: 'turnStarts',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'reminder': _is.ParameterDescription(
+              name: 'reminder',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'missed': _is.ParameterDescription(
+              name: 'missed',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'notice': _is.ParameterDescription(
+              name: 'notice',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'addedToRotation': _is.ParameterDescription(
+              name: 'addedToRotation',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
+                  .setNotifications(
+                    session,
+                    turnStarts: params['turnStarts'],
+                    reminder: params['reminder'],
+                    missed: params['missed'],
+                    notice: params['notice'],
+                    addedToRotation: params['addedToRotation'],
+                  ),
         ),
         'setAwayRule': _is.MethodConnector(
           name: 'setAwayRule',
@@ -797,6 +968,25 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['noticeId'],
                     params['pinned'],
+                  ),
+        ),
+        'gotIt': _is.MethodConnector(
+          name: 'gotIt',
+          params: {
+            'noticeId': _is.ParameterDescription(
+              name: 'noticeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['notice'] as _iaw8zfqb.NoticeEndpoint).gotIt(
+                    session,
+                    params['noticeId'],
                   ),
         ),
         'delete': _is.MethodConnector(

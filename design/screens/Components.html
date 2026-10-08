@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flatmates components</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A00}a:hover{color:#2A3D00}
+</style>
+</head>
+<body>
+<div style="width:1200px;height:980px;box-sizing:border-box;background:#F3F3EE;color:#16181A;font-family:'DM Sans',sans-serif;padding:48px;display:flex;flex-direction:column;gap:24px">
+<h1 style="margin:0;font:700 44px 'Bricolage Grotesque',sans-serif">Flatmates · components</h1>
+<div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:24px;flex:1">
+
+<div style="display:flex;flex-direction:column;gap:24px">
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Buttons</h2>
+<button style="height:56px;border:0;border-radius:28px;background:#C8F169;color:#16181A;font:700 17px 'DM Sans',sans-serif">Primary</button>
+<button style="height:56px;border:0;border-radius:28px;background:#C8F169;color:#16181A;font:700 17px 'DM Sans',sans-serif">Primary on ink</button>
+<button style="height:48px;border:2px solid #16181A;border-radius:24px;background:transparent;color:#16181A;font:700 16px 'DM Sans',sans-serif">Secondary</button>
+<div style="display:flex;gap:12px;align-items:center">
+<button style="height:48px;padding:0 16px;border:0;border-radius:24px;background:transparent;color:#3F5A00;font:700 16px 'DM Sans',sans-serif">Text button</button>
+<button style="height:48px;padding:0 16px;border:0;border-radius:24px;background:transparent;color:#9A3412;font:700 16px 'DM Sans',sans-serif">Leave the Flat</button>
+</div>
+<button disabled style="height:56px;border:0;border-radius:28px;background:#EAEAE3;color:#55584F;font:700 17px 'DM Sans',sans-serif">Disabled</button>
+</section>
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:12px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Input</h2>
+<label for="c-in1" style="font-size:13px;font-weight:600;color:#55584F">Flat name</label>
+<input id="c-in1" value="Maple Street 12" style="height:56px;box-sizing:border-box;border:2px solid #DEDED6;border-radius:16px;padding:0 16px;font:500 16px 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF">
+<label for="c-in2" style="font-size:13px;font-weight:600;color:#55584F">Focused</label>
+<input id="c-in2" value="Clean bath" style="height:56px;box-sizing:border-box;border:2px solid #16181A;border-radius:16px;padding:0 16px;font:500 16px 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF;outline:3px solid #C8F169">
+<label for="c-in3" style="font-size:13px;font-weight:600;color:#55584F">Invite code</label>
+<input id="c-in3" value="MAPLE-00" style="height:56px;box-sizing:border-box;border:2px solid #9A3412;border-radius:16px;padding:0 16px;font:500 16px 'DM Sans',sans-serif;color:#16181A;background:#FFFFFF">
+<div style="font-size:13px;color:#9A3412;font-weight:600">That Invite code doesn't match a Flat. Check it and try again.</div>
+</section>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:24px">
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:14px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Mate avatar</h2>
+<div style="display:flex;gap:16px;align-items:center">
+<span style="width:24px;height:24px;border-radius:50%;background:#C8431F;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">M</span>
+<span style="width:36px;height:36px;border-radius:50%;background:#2670AD;color:#FFFFFF;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">S</span>
+<span style="width:48px;height:48px;border-radius:50%;background:#8E4EA8;color:#FFFFFF;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center">P</span>
+<span style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2px dashed #2F5275;box-sizing:border-box;color:#2F5275;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center">J</span>
+<span style="width:48px;height:48px;border-radius:50%;background:#C8431F;color:#FFFFFF;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;outline:3px solid #C8F169;outline-offset:2px">M</span>
+</div>
+<div style="font-size:13px;color:#55584F;line-height:1.4">24 inline, 36 in rows, 48 in headers. Dashed outline means Away. Lime ring marks whose Turn it is.</div>
+</section>
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:14px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Turn chip</h2>
+<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12px;font-weight:700">
+<span style="background:#E9F7C6;border-radius:12px;padding:5px 10px;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Due today</span>
+<span style="background:#DDF2E6;color:#17594A;border-radius:12px;padding:5px 10px;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Done</span>
+<span style="background:#ECE7F1;color:#5E4B73;border-radius:12px;padding:5px 10px;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>Missed</span>
+<span style="background:#E3ECF5;color:#2F5275;border-radius:12px;padding:5px 10px;display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>Away · back in 3 days</span>
+<span style="background:#EAEAE3;color:#55584F;border-radius:12px;padding:5px 10px">Thu</span>
+<span style="background:#EAEAE3;color:#55584F;border-radius:12px;padding:5px 10px">Swap · owed 1</span>
+</div>
+</section>
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:10px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Card and list row</h2>
+<div style="background:#F3F3EE;border-radius:20px;padding:4px 16px">
+<div style="display:flex;align-items:center;gap:12px;min-height:56px;border-bottom:1px solid #DEDED6">
+<span style="width:36px;height:36px;border-radius:50%;background:#2670AD;color:#FFFFFF;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none">S</span>
+<div style="flex:1"><div style="font-size:15px;font-weight:600">Clean bathroom</div><div style="font-size:13px;color:#55584F">Sam · this week</div></div>
+<span style="background:#E9F7C6;border-radius:12px;padding:4px 10px;font-size:12px;font-weight:700">Due Sun</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;min-height:56px">
+<span style="width:24px;height:24px;margin:0 6px;border-radius:8px;border:2px solid #55584F;box-sizing:border-box;flex:none"></span>
+<div style="flex:1"><div style="font-size:15px;font-weight:600">Oat milk</div><div style="font-size:13px;color:#55584F">Added by Priya</div></div>
+</div>
+</div>
+<div style="background:#16181A;color:#FFFFFF;border-radius:28px;padding:16px 20px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase">Your Turn today</span><span style="font:700 24px 'Bricolage Grotesque',sans-serif">Hero card</span></div>
+</section>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:24px">
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:14px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Bottom nav</h2>
+<div style="display:flex;background:#FFFFFF;border:1px solid #DEDED6;border-radius:36px;padding:6px;box-shadow:0 8px 24px rgba(22,24,26,.14)">
+<div style="flex:none;display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:24px;background:#C8F169;color:#16181A;font-size:14px;font-weight:700"><span style="height:24px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>Home</div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;height:48px;color:#55584F"><span style="width:52px;height:24px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;height:48px;color:#55584F"><span style="width:52px;height:24px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></span></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;height:48px;color:#55584F"><span style="width:52px;height:24px;display:flex;align-items:center;justify-content:center;position:relative"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg><span style="position:absolute;top:0;right:4px;min-width:16px;height:16px;border-radius:8px;background:#16181A;color:#FFFFFF;font-size:10px;line-height:16px;text-align:center">8</span></span></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;height:48px;color:#55584F"><span style="width:52px;height:24px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></span></div>
+</div>
+<div style="font-size:13px;color:#55584F;line-height:1.4">Five tabs in a floating capsule bar, inset 16 from the screen edges. Only the active tab shows its label, inside a Lime pill; the others are icon only. Notice board opens from Home and the Flat tab.</div>
+</section>
+<section style="background:#55584F;border-radius:28px;padding:24px 0 0;display:flex;flex-direction:column;gap:14px;flex:1;overflow:hidden">
+<h2 style="margin:0 24px;font:700 18px 'Bricolage Grotesque',sans-serif;color:#FFFFFF">Sheet</h2>
+<div style="background:#FFFFFF;border-radius:28px 28px 0 0;padding:12px 20px 24px;display:flex;flex-direction:column;gap:14px;flex:1;margin:0 16px">
+<div style="width:40px;height:4px;border-radius:2px;background:#DEDED6;align-self:center"></div>
+<h3 style="margin:0;font:700 24px 'Bricolage Grotesque',sans-serif">Sheet title</h3>
+<div style="font-size:15px;line-height:1.4;color:#55584F">Flows open as bottom sheets so fields and the main action stay in thumb reach. Drag down or tap outside to close.</div>
+<button style="height:56px;border:0;border-radius:28px;background:#C8F169;color:#16181A;font:700 17px 'DM Sans',sans-serif;margin-top:auto">Save</button>
+</div>
+</section>
+<section style="background:#FFFFFF;border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:10px">
+<h2 style="margin:0;font:700 18px 'Bricolage Grotesque',sans-serif">Banners</h2>
+<div style="background:#16181A;color:#FFFFFF;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:600">Reconnecting… your changes are saved here</div>
+<div style="background:#FDE9DD;color:#9A3412;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:600">Couldn't save. Try again</div>
+</section>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -154,6 +154,32 @@ PlannedTurn? planNextTurn(
   );
 }
 
+/// What the Away rule does to an existing Turn of [mateId] that an Away
+/// overlaps: someone covers it, or (Pause, or nobody free) it moves to
+/// new days.
+({({int index, int mateId})? cover, DateTime day, DateTime lastDay})
+awayOutcome(
+  PlannerState state,
+  int rotationIndex,
+  int mateId,
+  DateTime day,
+  DateTime lastDay, {
+  required bool canMoveStart,
+}) {
+  if (state.awayRule != AwayRule.pause) {
+    final cover = findCover(state, rotationIndex, mateId, day, lastDay);
+    if (cover != null) return (cover: cover, day: day, lastDay: lastDay);
+  }
+  final span = pauseSpan(
+    state,
+    mateId,
+    day,
+    lastDay,
+    canMoveStart: canMoveStart,
+  );
+  return (cover: null, day: span.day, lastDay: span.lastDay);
+}
+
 /// The next Mate after [index] in the Rotation who is in the Flat, is not
 /// [excludeMateId] and is not Away during the Turn.
 ({int index, int mateId})? findCover(

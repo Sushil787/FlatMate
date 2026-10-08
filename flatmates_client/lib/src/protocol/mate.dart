@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'mate_color.dart' as _ieys87jp;
 
 /// A member of a Flat. A Mate with [leftAt] set has left the Flat.
 abstract class Mate
@@ -22,9 +23,21 @@ abstract class Mate
     required this.displayName,
     required this.joinedAt,
     this.leftAt,
+    _ieys87jp.MateColor? color,
+    bool? notifyTurnStarts,
+    bool? notifyReminder,
+    bool? notifyMissed,
+    bool? notifyNotice,
+    bool? notifyAddedToRotation,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now(),
+  }) : color = color ?? _ieys87jp.MateColor.tomato,
+       notifyTurnStarts = notifyTurnStarts ?? true,
+       notifyReminder = notifyReminder ?? true,
+       notifyMissed = notifyMissed ?? true,
+       notifyNotice = notifyNotice ?? true,
+       notifyAddedToRotation = notifyAddedToRotation ?? true,
+       createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Mate({
@@ -34,6 +47,12 @@ abstract class Mate
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    _ieys87jp.MateColor? color,
+    bool? notifyTurnStarts,
+    bool? notifyReminder,
+    bool? notifyMissed,
+    bool? notifyNotice,
+    bool? notifyAddedToRotation,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _MateImpl;
@@ -52,6 +71,32 @@ abstract class Mate
       leftAt: jsonSerialization['leftAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['leftAt']),
+      color: jsonSerialization['color'] == null
+          ? null
+          : _ieys87jp.MateColor.fromJson(
+              (jsonSerialization['color'] as String),
+            ),
+      notifyTurnStarts: jsonSerialization['notifyTurnStarts'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(
+              jsonSerialization['notifyTurnStarts'],
+            ),
+      notifyReminder: jsonSerialization['notifyReminder'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(
+              jsonSerialization['notifyReminder'],
+            ),
+      notifyMissed: jsonSerialization['notifyMissed'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['notifyMissed']),
+      notifyNotice: jsonSerialization['notifyNotice'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['notifyNotice']),
+      notifyAddedToRotation: jsonSerialization['notifyAddedToRotation'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(
+              jsonSerialization['notifyAddedToRotation'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -76,6 +121,19 @@ abstract class Mate
 
   DateTime? leftAt;
 
+  _ieys87jp.MateColor color;
+
+  /// Which push notifications the Mate wants.
+  bool notifyTurnStarts;
+
+  bool notifyReminder;
+
+  bool notifyMissed;
+
+  bool notifyNotice;
+
+  bool notifyAddedToRotation;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -90,6 +148,12 @@ abstract class Mate
     String? displayName,
     DateTime? joinedAt,
     DateTime? leftAt,
+    _ieys87jp.MateColor? color,
+    bool? notifyTurnStarts,
+    bool? notifyReminder,
+    bool? notifyMissed,
+    bool? notifyNotice,
+    bool? notifyAddedToRotation,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -103,6 +167,12 @@ abstract class Mate
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'color': color.toJson(),
+      'notifyTurnStarts': notifyTurnStarts,
+      'notifyReminder': notifyReminder,
+      'notifyMissed': notifyMissed,
+      'notifyNotice': notifyNotice,
+      'notifyAddedToRotation': notifyAddedToRotation,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -118,6 +188,12 @@ abstract class Mate
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
       if (leftAt != null) 'leftAt': leftAt?.toJson(),
+      'color': color.toJson(),
+      'notifyTurnStarts': notifyTurnStarts,
+      'notifyReminder': notifyReminder,
+      'notifyMissed': notifyMissed,
+      'notifyNotice': notifyNotice,
+      'notifyAddedToRotation': notifyAddedToRotation,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -139,6 +215,12 @@ class _MateImpl extends Mate {
     required String displayName,
     required DateTime joinedAt,
     DateTime? leftAt,
+    _ieys87jp.MateColor? color,
+    bool? notifyTurnStarts,
+    bool? notifyReminder,
+    bool? notifyMissed,
+    bool? notifyNotice,
+    bool? notifyAddedToRotation,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -148,6 +230,12 @@ class _MateImpl extends Mate {
          displayName: displayName,
          joinedAt: joinedAt,
          leftAt: leftAt,
+         color: color,
+         notifyTurnStarts: notifyTurnStarts,
+         notifyReminder: notifyReminder,
+         notifyMissed: notifyMissed,
+         notifyNotice: notifyNotice,
+         notifyAddedToRotation: notifyAddedToRotation,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -163,6 +251,12 @@ class _MateImpl extends Mate {
     String? displayName,
     DateTime? joinedAt,
     Object? leftAt = _Undefined,
+    _ieys87jp.MateColor? color,
+    bool? notifyTurnStarts,
+    bool? notifyReminder,
+    bool? notifyMissed,
+    bool? notifyNotice,
+    bool? notifyAddedToRotation,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -173,6 +267,13 @@ class _MateImpl extends Mate {
       displayName: displayName ?? this.displayName,
       joinedAt: joinedAt ?? this.joinedAt,
       leftAt: leftAt is DateTime? ? leftAt : this.leftAt,
+      color: color ?? this.color,
+      notifyTurnStarts: notifyTurnStarts ?? this.notifyTurnStarts,
+      notifyReminder: notifyReminder ?? this.notifyReminder,
+      notifyMissed: notifyMissed ?? this.notifyMissed,
+      notifyNotice: notifyNotice ?? this.notifyNotice,
+      notifyAddedToRotation:
+          notifyAddedToRotation ?? this.notifyAddedToRotation,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

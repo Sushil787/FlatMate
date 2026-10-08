@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:heroine/heroine.dart';
 
 import '../core/providers/theme_mode_provider.dart';
 import '../core/theme/app_theme.dart';
@@ -35,7 +34,7 @@ class _FlatmatesAppState extends ConsumerState<FlatmatesApp> {
       SessionStatus.loading => const SplashRoute(),
       SessionStatus.signedOut => const SignInRoute(),
       SessionStatus.noFlat => const OnboardingRoute(),
-      SessionStatus.ready => const HomeRoute(),
+      SessionStatus.ready => const TabsRoute(),
     };
     _router.replaceAll([route]);
   }
@@ -45,19 +44,16 @@ class _FlatmatesAppState extends ConsumerState<FlatmatesApp> {
     return MaterialApp.router(
       title: 'Flatmates',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: FlatmatesTheme.light(),
+      darkTheme: FlatmatesTheme.dark(),
       themeMode: ref.watch(themeModeControllerProvider),
-      routerConfig: _router.config(
-        navigatorObservers: () => [HeroineController()],
-      ),
-      // Respect the phone's text size, but only up to 1.1x: bigger breaks
-      // the layouts.
+      routerConfig: _router.config(),
+      // Follow the phone's text size, up to 200%.
       builder: (context, child) {
         final media = MediaQuery.of(context);
         return MediaQuery(
           data: media.copyWith(
-            textScaler: media.textScaler.clamp(maxScaleFactor: 1.1),
+            textScaler: media.textScaler.clamp(maxScaleFactor: 2),
           ),
           child: child!,
         );

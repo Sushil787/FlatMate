@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-part 'theme_mode_provider.g.dart';
+/// Loaded and overridden in main. Null in tests, so nothing is stored.
+final sharedPreferencesProvider = Provider<SharedPreferencesWithCache?>(
+  (ref) => null,
+);
 
-/// Light or dark. Follows the phone until the kitchen's bulb is tapped.
-@Riverpod(keepAlive: true)
-class ThemeModeController extends _$ThemeModeController {
+/// System, light or dark, picked under Appearance in settings.
+final themeModeControllerProvider =
+    NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);
+
+class ThemeModeController extends Notifier<ThemeMode> {
+  static const key = 'themeMode';
+
   @override
-  ThemeMode build() => ThemeMode.system;
+  ThemeMode build() {
+    final saved = ref.watch(sharedPreferencesProvider)?.getString(key);
+    return ThemeMode.values.asNameMap()[saved] ?? ThemeMode.system;
+  }
 
-  /// Switches away from what's showing now.
-  void toggle(Brightness showing) =>
-      state = showing == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+  void set(ThemeMode mode) {
+    state = mode;
+    ref.read(sharedPreferencesProvider)?.setString(key, mode.name);
+  }
 }

@@ -14,6 +14,7 @@
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
+import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
 import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
@@ -27,8 +28,11 @@ import 'package:flatmates_server/src/generated/future_calls_generated_models/tur
 import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_started_model.dart'
     as _i844uiph;
 import 'package:flatmates_server/src/generated/grocery_item.dart' as _itw5ie4o;
+import 'package:flatmates_server/src/generated/mate.dart' as _ia7hvzvd;
+import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
 import 'package:flatmates_server/src/generated/my_flat.dart' as _isxy0ptp;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
+import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -460,6 +464,41 @@ class _AwayEndpoint {
     });
   }
 
+  _ida.Future<List<_i8nyq5gw.AwayEffect>> preview(
+    _ist.TestSessionBuilder sessionBuilder,
+    DateTime startDay,
+    DateTime lastDay,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'away',
+            method: 'preview',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'away',
+          methodName: 'preview',
+          parameters: _ist.testObjectToJson({
+            'startDay': startDay,
+            'lastDay': lastDay,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i8nyq5gw.AwayEffect>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<void> cancel(
     _ist.TestSessionBuilder sessionBuilder,
     int awayId,
@@ -736,6 +775,67 @@ class _ChoreEndpoint {
       }
     });
   }
+
+  _ida.Future<_ij03rvz2.Turn> undoDone(
+    _ist.TestSessionBuilder sessionBuilder,
+    int turnId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'chore',
+            method: 'undoDone',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'chore',
+          methodName: 'undoDone',
+          parameters: _ist.testObjectToJson({'turnId': turnId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ij03rvz2.Turn>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_implyx9l.SwapDebt>> swapDebts(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'chore',
+            method: 'swapDebts',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'chore',
+          methodName: 'swapDebts',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_implyx9l.SwapDebt>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _EventEndpoint {
@@ -787,8 +887,11 @@ class _EventEndpoint {
     _ist.TestSessionBuilder sessionBuilder,
     String title,
     String? note,
-    DateTime startsAt,
-  ) async {
+    DateTime startsAt, {
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -804,6 +907,9 @@ class _EventEndpoint {
             'title': title,
             'note': note,
             'startsAt': startsAt,
+            'allDay': allDay,
+            'endsAt': endsAt,
+            'tellFlat': tellFlat,
           }),
           serializationManager: _serializationManager,
         );
@@ -987,6 +1093,140 @@ class _FlatEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i7obirgc.Flat> rename(
+    _ist.TestSessionBuilder sessionBuilder,
+    String name,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'rename',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'rename',
+          parameters: _ist.testObjectToJson({'name': name}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i7obirgc.Flat>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ia7hvzvd.Mate> setMyName(
+    _ist.TestSessionBuilder sessionBuilder,
+    String displayName,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'setMyName',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'setMyName',
+          parameters: _ist.testObjectToJson({'displayName': displayName}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ia7hvzvd.Mate>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ia7hvzvd.Mate> setMyColor(
+    _ist.TestSessionBuilder sessionBuilder,
+    _ilt6zfd6.MateColor color,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'setMyColor',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'setMyColor',
+          parameters: _ist.testObjectToJson({'color': color}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ia7hvzvd.Mate>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ia7hvzvd.Mate> setNotifications(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required bool turnStarts,
+    required bool reminder,
+    required bool missed,
+    required bool notice,
+    required bool addedToRotation,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'setNotifications',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'setNotifications',
+          parameters: _ist.testObjectToJson({
+            'turnStarts': turnStarts,
+            'reminder': reminder,
+            'missed': missed,
+            'notice': notice,
+            'addedToRotation': addedToRotation,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ia7hvzvd.Mate>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1412,6 +1652,37 @@ class _NoticeEndpoint {
             'noticeId': noticeId,
             'pinned': pinned,
           }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> gotIt(
+    _ist.TestSessionBuilder sessionBuilder,
+    int noticeId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notice',
+            method: 'gotIt',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notice',
+          methodName: 'gotIt',
+          parameters: _ist.testObjectToJson({'noticeId': noticeId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

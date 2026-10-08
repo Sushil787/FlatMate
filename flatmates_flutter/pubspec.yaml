@@ -18,40 +18,40 @@ dependencies:
   serverpod_flutter: ^4.0.3
   serverpod_auth_idp_flutter: ^4.0.3
   intl: ^0.20.2
-  table_calendar: ^3.2.1
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
   flutter_riverpod: ^3.4.3
   auto_route: ^11.2.0
-  riverpod_annotation: ^4.0.7
   flutter_timezone: ^5.1.1
-  heroine: ^0.7.2
-  motor: ^1.1.0
-
+  motor: ^1.0.0-dev.5
+  stupid_simple_sheet: ^0.9.1
+  shared_preferences: ^2.5.6
+  hugeicons: ^1.2.0
+  share_plus: ^13.3.1
 dev_dependencies:
   auto_route_generator: ^10.0.0
   build_runner: ^2.5.0
   flutter_lints: '>=3.0.0 <7.0.0'
   flutter_test:
     sdk: flutter
-  riverpod_generator: ^4.0.9
-
 flutter:
   uses-material-design: true
   assets:
     - assets/config.json
 
   fonts:
-    - family: PlusJakartaSans
+    - family: BricolageGrotesque
       fonts:
-        - asset: assets/fonts/PlusJakartaSans-400.ttf
-        - asset: assets/fonts/PlusJakartaSans-500.ttf
-          weight: 500
-        - asset: assets/fonts/PlusJakartaSans-600.ttf
-          weight: 600
-        - asset: assets/fonts/PlusJakartaSans-700.ttf
+        - asset: assets/fonts/BricolageGrotesque-700.ttf
           weight: 700
-        - asset: assets/fonts/PlusJakartaSans-800.ttf
-          weight: 800
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-400.ttf
+        - asset: assets/fonts/DMSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-600.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-700.ttf
+          weight: 700
 dependency_overrides:
   flutter_secure_storage: ^10.0.0

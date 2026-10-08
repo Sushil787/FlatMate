@@ -43,6 +43,7 @@ class FlatEndpoint extends Endpoint {
           name: name,
           timezone: timezone,
           inviteCode: inviteCode,
+          inviteExpiresAt: _inviteExpiry(),
           awayRule: AwayRule.swap,
         ),
         transaction: tx,
@@ -54,6 +55,7 @@ class FlatEndpoint extends Endpoint {
           authUserId: currentUserId(session),
           displayName: displayName,
           joinedAt: now,
+          color: MateColor.values.first,
         ),
         transaction: tx,
       );
@@ -79,6 +81,11 @@ class FlatEndpoint extends Endpoint {
       where: (t) => t.inviteCode.equals(inviteCode.trim().toUpperCase()),
     );
     if (flat == null) fail('That invite code doesn\'t match any flat.');
+    if (!flat.inviteExpiresAt.isAfter(DateTime.now().toUtc())) {
+      fail(
+        'That Invite code has expired. Ask your Flat\'s Admin for a new one.',
+      );
+    }
 
     final me = await Mate.db.insertRow(
       session,
@@ -87,6 +94,7 @@ class FlatEndpoint extends Endpoint {
         authUserId: currentUserId(session),
         displayName: displayName,
         joinedAt: DateTime.now().toUtc(),
+        color: await _freeColor(session, flat.id!),
       ),
     );
     await Notifier.toFlat(
@@ -103,10 +111,61 @@ class FlatEndpoint extends Endpoint {
   /// Replaces the Invite code; the old one stops working.
   Future<String> regenerateInvite(Session session) async {
     final (:me, :flat) = await requireAdmin(session);
-    flat.inviteCode = await _newInviteCode(session);
+    flat
+      ..inviteCode = await _newInviteCode(session)
+      ..inviteExpiresAt = _inviteExpiry();
     await Flat.db.updateRow(session, flat);
     await broadcast(session, flat.id!, FlatChangeKind.flat);
     return flat.inviteCode;
+  }
+
+  Future<Flat> rename(Session session, String name) async {
+    final (:me, :flat) = await requireAdmin(session);
+    flat.name = _required(name, 'Flat name');
+    await Flat.db.updateRow(session, flat);
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+    return flat;
+  }
+
+  Future<Mate> setMyName(Session session, String displayName) async {
+    final (:me, :flat) = await requireMate(session);
+    me.displayName = _required(displayName, 'Your name');
+    await Mate.db.updateRow(session, me);
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+    return me;
+  }
+
+  Future<Mate> setMyColor(Session session, MateColor color) async {
+    final (:me, :flat) = await requireMate(session);
+    final mates = await activeMates(session, flat.id!);
+    if (mates.any((m) => m.id != me.id && m.color == color)) {
+      fail('That colour is taken by another Mate.');
+    }
+    me.color = color;
+    await Mate.db.updateRow(session, me);
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+    return me;
+  }
+
+  /// Sets which push notifications the caller gets.
+  Future<Mate> setNotifications(
+    Session session, {
+    required bool turnStarts,
+    required bool reminder,
+    required bool missed,
+    required bool notice,
+    required bool addedToRotation,
+  }) async {
+    final (:me, :flat) = await requireMate(session);
+    me
+      ..notifyTurnStarts = turnStarts
+      ..notifyReminder = reminder
+      ..notifyMissed = missed
+      ..notifyNotice = notice
+      ..notifyAddedToRotation = addedToRotation;
+    await Mate.db.updateRow(session, me);
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+    return me;
   }
 
   /// Sets the Flat-wide Away rule.
@@ -206,7 +265,21 @@ class FlatEndpoint extends Endpoint {
     );
   }
 
+  /// The first colour no active Mate has; wraps round when all are taken.
+  Future<MateColor> _freeColor(Session session, int flatId) async {
+    final mates = await activeMates(session, flatId);
+    final taken = mates.map((m) => m.color).toSet();
+    return MateColor.values.firstWhere(
+      (c) => !taken.contains(c),
+      orElse: () => MateColor.values[mates.length % MateColor.values.length],
+    );
+  }
+
   static const _alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  /// An Invite works for 7 days from when it was made.
+  static DateTime _inviteExpiry() =>
+      DateTime.now().toUtc().add(const Duration(days: 7));
 
   Future<String> _newInviteCode(Session session) async {
     final random = Random.secure();
@@ -227,5 +300,6 @@ class FlatEndpoint extends Endpoint {
 String _required(String value, String label) {
   final v = value.trim();
   if (v.isEmpty) fail('$label can\'t be empty.');
+  if (v.length > 40) fail('$label is too long.');
   return v;
 }

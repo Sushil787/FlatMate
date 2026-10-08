@@ -13,7 +13,7 @@ Flatmates: a Flutter app plus a Serverpod 3.4/4.x backend for sharing recurring 
 This is a Dart pub workspace (root `pubspec.yaml`) with three packages:
 - `flatmates_server/`: the Serverpod server. Models live in `lib/src/models/*.spy.yaml` and endpoints in `lib/src/endpoints/`.
 - `flatmates_client/`: **generated** by `serverpod generate`. Never edit it by hand.
-- `flatmates_flutter/`: the app (Riverpod 3 with codegen, and auto_route).
+- `flatmates_flutter/`: the app (Riverpod 3, hand-written providers with no codegen, and auto_route).
 
 ## Commands
 
@@ -30,7 +30,7 @@ dart test test/unit/planner_test.dart    # a single file; add --name '<pattern>'
 
 # app
 cd flatmates_flutter
-dart run build_runner build -d           # regenerates *.g.dart (Riverpod) and router.gr.dart (auto_route)
+dart run build_runner build -d           # regenerates router.gr.dart (auto_route) after adding or changing a @RoutePage
 flutter test                             # widget tests; they run against FakeBackend, no server needed
 flutter run                              # server URL comes from assets/config.json or --dart-define=SERVER_URL
 ./run_device.sh                          # physical device; points the app at this machine's LAN IP
@@ -46,7 +46,7 @@ flutter run                              # server URL comes from assets/config.j
 
 **App feature layout.** Each feature lives in `lib/features/<feature>/` and is split into these folders:
 - `data/`: a repository that wraps the generated client endpoint.
-- `application/`: `@riverpod` controllers, often `keepAlive`, with optimistic updates that roll back on error.
+- `application/`: hand-written Riverpod (Async)Notifier controllers that own the data, with optimistic updates that roll back on error. Each user action that can take a while (Save Chore, Mark Done, …) has its own `ActionNotifier` (`core/providers/action_notifier.dart`) in `<feature>_actions.dart`: its button watches `.isLoading` for the spinner, and a second tap while it runs does nothing.
 - `domain/`: view models.
 - `presentation/`: screens and widgets.
 

@@ -1,0 +1,10 @@
+### A Mate's colour, used for their avatar and Turns. Unique among active Mates.
+enum: MateColor
+serialized: byName
+values:
+  - tomato
+  - sky
+  - plum
+  - leaf
+  - marigold
+  - berry

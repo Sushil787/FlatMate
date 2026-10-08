@@ -1,14 +1,13 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/client_provider.dart';
 
-part 'flat_repository.g.dart';
-
-@Riverpod(keepAlive: true)
-FlatRepository flatRepository(Ref ref) =>
+FlatRepository _flatRepository(Ref ref) =>
     FlatRepository(ref.watch(clientProvider));
+
+final flatRepositoryProvider = Provider<FlatRepository>(_flatRepository);
 
 /// Flat membership and settings on the server.
 class FlatRepository {
@@ -33,6 +32,22 @@ class FlatRepository {
   Future<String> regenerateInvite() => _client.flat.regenerateInvite();
 
   Future<Flat> setAwayRule(AwayRule rule) => _client.flat.setAwayRule(rule);
+
+  Future<Flat> rename(String name) => _client.flat.rename(name);
+
+  Future<Mate> setMyName(String displayName) =>
+      _client.flat.setMyName(displayName);
+
+  Future<Mate> setMyColor(MateColor color) => _client.flat.setMyColor(color);
+
+  /// Saves [me]'s notify* switches.
+  Future<Mate> setNotifications(Mate me) => _client.flat.setNotifications(
+    turnStarts: me.notifyTurnStarts,
+    reminder: me.notifyReminder,
+    missed: me.notifyMissed,
+    notice: me.notifyNotice,
+    addedToRotation: me.notifyAddedToRotation,
+  );
 
   Future<void> transferAdmin(int mateId) => _client.flat.transferAdmin(mateId);
 

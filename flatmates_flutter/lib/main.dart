@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'core/providers/client_provider.dart';
+import 'core/providers/theme_mode_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +30,18 @@ Future<void> main() async {
     );
   }
 
+  final prefs = await SharedPreferencesWithCache.create(
+    cacheOptions: const SharedPreferencesWithCacheOptions(
+      allowList: {ThemeModeController.key},
+    ),
+  );
+
   runApp(
     ProviderScope(
-      overrides: [clientProvider.overrideWithValue(client)],
+      overrides: [
+        clientProvider.overrideWithValue(client),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
       child: const FlatmatesApp(),
     ),
   );

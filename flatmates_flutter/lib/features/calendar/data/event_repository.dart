@@ -1,12 +1,12 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/client_provider.dart';
 
-part 'event_repository.g.dart';
+EventRepository _eventRepository(Ref ref) =>
+    EventRepository(ref.watch(clientProvider));
 
-@Riverpod(keepAlive: true)
-EventRepository eventRepository(Ref ref) => EventRepository(ref.watch(clientProvider));
+final eventRepositoryProvider = Provider<EventRepository>(_eventRepository);
 
 class EventRepository {
   EventRepository(this._client);
@@ -20,7 +20,17 @@ class EventRepository {
     required String title,
     String? note,
     required DateTime startsAt,
-  }) => _client.event.create(title, note, startsAt);
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
+  }) => _client.event.create(
+    title,
+    note,
+    startsAt,
+    allDay: allDay,
+    endsAt: endsAt,
+    tellFlat: tellFlat,
+  );
 
   Future<void> delete(int eventId) => _client.event.delete(eventId);
 }

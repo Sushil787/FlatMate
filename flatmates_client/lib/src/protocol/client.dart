@@ -12,14 +12,18 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:flatmates_client/src/protocol/away.dart' as _irs4lusq;
+import 'package:flatmates_client/src/protocol/away_effect.dart' as _ivmd14y1;
 import 'package:flatmates_client/src/protocol/away_rule.dart' as _i2aenio5;
 import 'package:flatmates_client/src/protocol/chore.dart' as _ipou5iyr;
 import 'package:flatmates_client/src/protocol/event.dart' as _igj22k42;
 import 'package:flatmates_client/src/protocol/flat.dart' as _iy3ygg88;
 import 'package:flatmates_client/src/protocol/flat_change.dart' as _ibvlxgjf;
 import 'package:flatmates_client/src/protocol/grocery_item.dart' as _iy9ydfy6;
+import 'package:flatmates_client/src/protocol/mate.dart' as _iynws3fs;
+import 'package:flatmates_client/src/protocol/mate_color.dart' as _ioi9k01f;
 import 'package:flatmates_client/src/protocol/my_flat.dart' as _i9fyr2h8;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
+import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -156,6 +160,20 @@ class EndpointAway extends _isc.EndpointRef {
     },
   );
 
+  /// What marking the caller Away for [startDay]..[lastDay] would do to
+  /// their Turns. Saves nothing.
+  _ida.Future<List<_ivmd14y1.AwayEffect>> preview(
+    DateTime startDay,
+    DateTime lastDay,
+  ) => caller.callServerEndpoint<List<_ivmd14y1.AwayEffect>>(
+    'away',
+    'preview',
+    {
+      'startDay': startDay,
+      'lastDay': lastDay,
+    },
+  );
+
   /// Cancels one of the caller's Away periods before it starts. Covers
   /// already arranged for it stay as they are.
   _ida.Future<void> cancel(int awayId) => caller.callServerEndpoint<void>(
@@ -248,6 +266,21 @@ class EndpointChore extends _isc.EndpointRef {
         'markDone',
         {'turnId': turnId},
       );
+
+  _ida.Future<_i4k8bhoi.Turn> undoDone(int turnId) =>
+      caller.callServerEndpoint<_i4k8bhoi.Turn>(
+        'chore',
+        'undoDone',
+        {'turnId': turnId},
+      );
+
+  /// Turns owed back under the Swap rule, across the Flat's Chores.
+  _ida.Future<List<_icdhy1dj.SwapDebt>> swapDebts() =>
+      caller.callServerEndpoint<List<_icdhy1dj.SwapDebt>>(
+        'chore',
+        'swapDebts',
+        {},
+      );
 }
 
 /// Events on the Flat's shared calendar.
@@ -258,6 +291,7 @@ class EndpointEvent extends _isc.EndpointRef {
   @override
   String get name => 'event';
 
+  /// Events overlapping [from]..[to].
   _ida.Future<List<_igj22k42.FlatEvent>> between(
     DateTime from,
     DateTime to,
@@ -273,14 +307,20 @@ class EndpointEvent extends _isc.EndpointRef {
   _ida.Future<_igj22k42.FlatEvent> create(
     String title,
     String? note,
-    DateTime startsAt,
-  ) => caller.callServerEndpoint<_igj22k42.FlatEvent>(
+    DateTime startsAt, {
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
+  }) => caller.callServerEndpoint<_igj22k42.FlatEvent>(
     'event',
     'create',
     {
       'title': title,
       'note': note,
       'startsAt': startsAt,
+      'allDay': allDay,
+      'endsAt': endsAt,
+      'tellFlat': tellFlat,
     },
   );
 
@@ -341,6 +381,46 @@ class EndpointFlat extends _isc.EndpointRef {
     'flat',
     'regenerateInvite',
     {},
+  );
+
+  _ida.Future<_iy3ygg88.Flat> rename(String name) =>
+      caller.callServerEndpoint<_iy3ygg88.Flat>(
+        'flat',
+        'rename',
+        {'name': name},
+      );
+
+  _ida.Future<_iynws3fs.Mate> setMyName(String displayName) =>
+      caller.callServerEndpoint<_iynws3fs.Mate>(
+        'flat',
+        'setMyName',
+        {'displayName': displayName},
+      );
+
+  _ida.Future<_iynws3fs.Mate> setMyColor(_ioi9k01f.MateColor color) =>
+      caller.callServerEndpoint<_iynws3fs.Mate>(
+        'flat',
+        'setMyColor',
+        {'color': color},
+      );
+
+  /// Sets which push notifications the caller gets.
+  _ida.Future<_iynws3fs.Mate> setNotifications({
+    required bool turnStarts,
+    required bool reminder,
+    required bool missed,
+    required bool notice,
+    required bool addedToRotation,
+  }) => caller.callServerEndpoint<_iynws3fs.Mate>(
+    'flat',
+    'setNotifications',
+    {
+      'turnStarts': turnStarts,
+      'reminder': reminder,
+      'missed': missed,
+      'notice': notice,
+      'addedToRotation': addedToRotation,
+    },
   );
 
   /// Sets the Flat-wide Away rule.
@@ -479,6 +559,13 @@ class EndpointNotice extends _isc.EndpointRef {
       'noticeId': noticeId,
       'pinned': pinned,
     },
+  );
+
+  /// Says "Got it" on someone else's Notice. Saying it twice is fine.
+  _ida.Future<void> gotIt(int noticeId) => caller.callServerEndpoint<void>(
+    'notice',
+    'gotIt',
+    {'noticeId': noticeId},
   );
 
   /// Deletes a Notice; only its author or the Admin can.

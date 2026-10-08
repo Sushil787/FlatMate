@@ -1,15 +1,15 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../chores/application/chores_controller.dart';
 import '../../flat/application/mate_directory.dart';
 import '../data/away_repository.dart';
 
-part 'aways_controller.g.dart';
-
 /// Away periods in the Flat that haven't ended yet.
-@Riverpod(keepAlive: true)
-class AwaysController extends _$AwaysController {
+final awaysControllerProvider =
+    AsyncNotifierProvider<AwaysController, List<Away>>(AwaysController.new);
+
+class AwaysController extends AsyncNotifier<List<Away>> {
   AwayRepository get _repo => ref.read(awayRepositoryProvider);
 
   @override
@@ -35,3 +35,18 @@ class AwaysController extends _$AwaysController {
     await refresh();
   }
 }
+
+/// What marking the user Away for [startDay]..[lastDay] (see day.dart)
+/// would do to their Turns.
+Future<List<AwayEffect>> _awayPreview(
+  Ref ref,
+  ({DateTime startDay, DateTime lastDay}) days,
+) {
+  ref.watch(currentFlatIdProvider);
+  return ref.watch(awayRepositoryProvider).preview(days.startDay, days.lastDay);
+}
+
+final awayPreviewProvider = FutureProvider.autoDispose
+    .family<List<AwayEffect>, ({DateTime startDay, DateTime lastDay})>(
+      _awayPreview,
+    );

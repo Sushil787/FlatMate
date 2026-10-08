@@ -7,6 +7,13 @@ fields:
   displayName: String
   joinedAt: DateTime
   leftAt: DateTime?
+  color: MateColor, default=tomato
+  ### Which push notifications the Mate wants.
+  notifyTurnStarts: bool, default=true
+  notifyReminder: bool, default=true
+  notifyMissed: bool, default=true
+  notifyNotice: bool, default=true
+  notifyAddedToRotation: bool, default=true
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

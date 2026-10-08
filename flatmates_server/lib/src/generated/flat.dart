@@ -21,6 +21,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.timezone,
     this.adminMateId,
     required this.inviteCode,
+    required this.inviteExpiresAt,
     required this.awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -33,6 +34,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required String timezone,
     int? adminMateId,
     required String inviteCode,
+    required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -45,6 +47,9 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       timezone: jsonSerialization['timezone'] as String,
       adminMateId: jsonSerialization['adminMateId'] as int?,
       inviteCode: jsonSerialization['inviteCode'] as String,
+      inviteExpiresAt: _is.DateTimeJsonExtension.fromJson(
+        jsonSerialization['inviteExpiresAt'],
+      ),
       awayRule: _isc380kv.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
@@ -73,6 +78,9 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   String inviteCode;
 
+  /// When [inviteCode] stops working; 7 days after it was made.
+  DateTime inviteExpiresAt;
+
   _isc380kv.AwayRule awayRule;
 
   DateTime createdAt;
@@ -91,6 +99,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
     String? timezone,
     int? adminMateId,
     String? inviteCode,
+    DateTime? inviteExpiresAt,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -104,6 +113,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'timezone': timezone,
       if (adminMateId != null) 'adminMateId': adminMateId,
       'inviteCode': inviteCode,
+      'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -119,6 +129,7 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'timezone': timezone,
       if (adminMateId != null) 'adminMateId': adminMateId,
       'inviteCode': inviteCode,
+      'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -162,6 +173,7 @@ class _FlatImpl extends Flat {
     required String timezone,
     int? adminMateId,
     required String inviteCode,
+    required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -171,6 +183,7 @@ class _FlatImpl extends Flat {
          timezone: timezone,
          adminMateId: adminMateId,
          inviteCode: inviteCode,
+         inviteExpiresAt: inviteExpiresAt,
          awayRule: awayRule,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -186,6 +199,7 @@ class _FlatImpl extends Flat {
     String? timezone,
     Object? adminMateId = _Undefined,
     String? inviteCode,
+    DateTime? inviteExpiresAt,
     _isc380kv.AwayRule? awayRule,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -196,6 +210,7 @@ class _FlatImpl extends Flat {
       timezone: timezone ?? this.timezone,
       adminMateId: adminMateId is int? ? adminMateId : this.adminMateId,
       inviteCode: inviteCode ?? this.inviteCode,
+      inviteExpiresAt: inviteExpiresAt ?? this.inviteExpiresAt,
       awayRule: awayRule ?? this.awayRule,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -225,6 +240,12 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
     table.inviteCode,
     value,
   );
+
+  _is.ColumnValue<DateTime, DateTime> inviteExpiresAt(DateTime value) =>
+      _is.ColumnValue(
+        table.inviteExpiresAt,
+        value,
+      );
 
   _is.ColumnValue<_isc380kv.AwayRule, _isc380kv.AwayRule> awayRule(
     _isc380kv.AwayRule value,
@@ -265,6 +286,10 @@ class FlatTable extends _is.Table<int?> {
       'inviteCode',
       this,
     );
+    inviteExpiresAt = _is.ColumnDateTime(
+      'inviteExpiresAt',
+      this,
+    );
     awayRule = _is.ColumnEnum(
       'awayRule',
       this,
@@ -293,6 +318,9 @@ class FlatTable extends _is.Table<int?> {
 
   late final _is.ColumnString inviteCode;
 
+  /// When [inviteCode] stops working; 7 days after it was made.
+  late final _is.ColumnDateTime inviteExpiresAt;
+
   late final _is.ColumnEnum<_isc380kv.AwayRule> awayRule;
 
   late final _is.ColumnDateTime createdAt;
@@ -306,6 +334,7 @@ class FlatTable extends _is.Table<int?> {
     timezone,
     adminMateId,
     inviteCode,
+    inviteExpiresAt,
     awayRule,
     createdAt,
     updatedAt,

@@ -12,10 +12,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
+import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/grocery_item.dart' as _itw5ie4o;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
+import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -24,6 +26,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'away.dart' as _injc6hlm;
+import 'away_effect.dart' as _i3z62lxk;
 import 'away_rule.dart' as _isc380kv;
 import 'chore.dart' as _imnq0nzy;
 import 'device_token.dart' as _ilggw95u;
@@ -39,12 +42,15 @@ import 'future_calls_generated_models/turn_calls_started_model.dart'
     as _icfcmm02;
 import 'grocery_item.dart' as _idc9is2h;
 import 'mate.dart' as _itahn62i;
+import 'mate_color.dart' as _ieys87jp;
 import 'my_flat.dart' as _i9fqeegk;
 import 'notice.dart' as _i8bpb14y;
+import 'notice_got_it.dart' as _ia5ed1vr;
 import 'swap_debt.dart' as _ijdri2o7;
 import 'turn.dart' as _i0nsa51h;
 import 'turn_status.dart' as _i5yk6qf9;
 export 'away.dart';
+export 'away_effect.dart';
 export 'away_rule.dart';
 export 'chore.dart';
 export 'device_token.dart';
@@ -55,8 +61,10 @@ export 'flat_change_kind.dart';
 export 'flatmates_exception.dart';
 export 'grocery_item.dart';
 export 'mate.dart';
+export 'mate_color.dart';
 export 'my_flat.dart';
 export 'notice.dart';
+export 'notice_got_it.dart';
 export 'swap_debt.dart';
 export 'turn.dart';
 export 'turn_status.dart';
@@ -336,6 +344,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'String',
         ),
         _isp.ColumnDefinition(
+          name: 'inviteExpiresAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
           name: 'awayRule',
           columnType: _isp.ColumnType.text,
           isNullable: false,
@@ -416,6 +430,19 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
           dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'endsAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'allDay',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -580,6 +607,48 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'DateTime?',
         ),
         _isp.ColumnDefinition(
+          name: 'color',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:MateColor',
+          columnDefault: '\'tomato\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyTurnStarts',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyReminder',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyMissed',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyNotice',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyAddedToRotation',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
           name: 'createdAt',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -690,6 +759,61 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'notice_got_it',
+      dartName: 'NoticeGotIt',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'noticeId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'notice_got_it_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'noticeId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'mateId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
           isPrimary: false,
         ),
       ],
@@ -905,6 +1029,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _injc6hlm.Away) {
       return _injc6hlm.Away.fromJson(data) as T;
     }
+    if (t == _i3z62lxk.AwayEffect) {
+      return _i3z62lxk.AwayEffect.fromJson(data) as T;
+    }
     if (t == _isc380kv.AwayRule) {
       return _isc380kv.AwayRule.fromJson(data) as T;
     }
@@ -944,11 +1071,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _itahn62i.Mate) {
       return _itahn62i.Mate.fromJson(data) as T;
     }
+    if (t == _ieys87jp.MateColor) {
+      return _ieys87jp.MateColor.fromJson(data) as T;
+    }
     if (t == _i9fqeegk.MyFlat) {
       return _i9fqeegk.MyFlat.fromJson(data) as T;
     }
     if (t == _i8bpb14y.Notice) {
       return _i8bpb14y.Notice.fromJson(data) as T;
+    }
+    if (t == _ia5ed1vr.NoticeGotIt) {
+      return _ia5ed1vr.NoticeGotIt.fromJson(data) as T;
     }
     if (t == _ijdri2o7.SwapDebt) {
       return _ijdri2o7.SwapDebt.fromJson(data) as T;
@@ -961,6 +1094,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_injc6hlm.Away?>()) {
       return (data != null ? _injc6hlm.Away.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i3z62lxk.AwayEffect?>()) {
+      return (data != null ? _i3z62lxk.AwayEffect.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_isc380kv.AwayRule?>()) {
       return (data != null ? _isc380kv.AwayRule.fromJson(data) : null) as T;
@@ -1012,11 +1148,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_itahn62i.Mate?>()) {
       return (data != null ? _itahn62i.Mate.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_ieys87jp.MateColor?>()) {
+      return (data != null ? _ieys87jp.MateColor.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_i9fqeegk.MyFlat?>()) {
       return (data != null ? _i9fqeegk.MyFlat.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i8bpb14y.Notice?>()) {
       return (data != null ? _i8bpb14y.Notice.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ia5ed1vr.NoticeGotIt?>()) {
+      return (data != null ? _ia5ed1vr.NoticeGotIt.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_ijdri2o7.SwapDebt?>()) {
       return (data != null ? _ijdri2o7.SwapDebt.fromJson(data) : null) as T;
@@ -1034,8 +1176,20 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data as List).map((e) => deserialize<_itahn62i.Mate>(e)).toList()
           as T;
     }
+    if (t == _is.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_icx3t1f1.Away>) {
       return (data as List).map((e) => deserialize<_icx3t1f1.Away>(e)).toList()
+          as T;
+    }
+    if (t == List<_i8nyq5gw.AwayEffect>) {
+      return (data as List)
+              .map((e) => deserialize<_i8nyq5gw.AwayEffect>(e))
+              .toList()
           as T;
     }
     if (t == List<_ij1nfwf4.Chore>) {
@@ -1048,6 +1202,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_implyx9l.SwapDebt>) {
+      return (data as List)
+              .map((e) => deserialize<_implyx9l.SwapDebt>(e))
+              .toList()
+          as T;
     }
     if (t == List<_i7uqo6xr.FlatEvent>) {
       return (data as List)
@@ -1082,6 +1242,7 @@ class Protocol extends _is.DatabaseSerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _injc6hlm.Away => 'Away',
+      _i3z62lxk.AwayEffect => 'AwayEffect',
       _isc380kv.AwayRule => 'AwayRule',
       _imnq0nzy.Chore => 'Chore',
       _ilggw95u.DeviceToken => 'DeviceToken',
@@ -1095,8 +1256,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       _icfcmm02.TurnCallsStartedModel => 'TurnCallsStartedModel',
       _idc9is2h.GroceryItem => 'GroceryItem',
       _itahn62i.Mate => 'Mate',
+      _ieys87jp.MateColor => 'MateColor',
       _i9fqeegk.MyFlat => 'MyFlat',
       _i8bpb14y.Notice => 'Notice',
+      _ia5ed1vr.NoticeGotIt => 'NoticeGotIt',
       _ijdri2o7.SwapDebt => 'SwapDebt',
       _i0nsa51h.Turn => 'Turn',
       _i5yk6qf9.TurnStatus => 'TurnStatus',
@@ -1116,6 +1279,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     switch (data) {
       case _injc6hlm.Away():
         return 'Away';
+      case _i3z62lxk.AwayEffect():
+        return 'AwayEffect';
       case _isc380kv.AwayRule():
         return 'AwayRule';
       case _imnq0nzy.Chore():
@@ -1142,10 +1307,14 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'GroceryItem';
       case _itahn62i.Mate():
         return 'Mate';
+      case _ieys87jp.MateColor():
+        return 'MateColor';
       case _i9fqeegk.MyFlat():
         return 'MyFlat';
       case _i8bpb14y.Notice():
         return 'Notice';
+      case _ia5ed1vr.NoticeGotIt():
+        return 'NoticeGotIt';
       case _ijdri2o7.SwapDebt():
         return 'SwapDebt';
       case _i0nsa51h.Turn():
@@ -1180,6 +1349,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'Away') {
       return deserialize<_injc6hlm.Away>(data['data']);
+    }
+    if (dataClassName == 'AwayEffect') {
+      return deserialize<_i3z62lxk.AwayEffect>(data['data']);
     }
     if (dataClassName == 'AwayRule') {
       return deserialize<_isc380kv.AwayRule>(data['data']);
@@ -1220,11 +1392,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'Mate') {
       return deserialize<_itahn62i.Mate>(data['data']);
     }
+    if (dataClassName == 'MateColor') {
+      return deserialize<_ieys87jp.MateColor>(data['data']);
+    }
     if (dataClassName == 'MyFlat') {
       return deserialize<_i9fqeegk.MyFlat>(data['data']);
     }
     if (dataClassName == 'Notice') {
       return deserialize<_i8bpb14y.Notice>(data['data']);
+    }
+    if (dataClassName == 'NoticeGotIt') {
+      return deserialize<_ia5ed1vr.NoticeGotIt>(data['data']);
     }
     if (dataClassName == 'SwapDebt') {
       return deserialize<_ijdri2o7.SwapDebt>(data['data']);
@@ -1292,6 +1470,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _itahn62i.Mate.t;
       case _i8bpb14y.Notice:
         return _i8bpb14y.Notice.t;
+      case _ia5ed1vr.NoticeGotIt:
+        return _ia5ed1vr.NoticeGotIt.t;
       case _ijdri2o7.SwapDebt:
         return _ijdri2o7.SwapDebt.t;
       case _i0nsa51h.Turn:
