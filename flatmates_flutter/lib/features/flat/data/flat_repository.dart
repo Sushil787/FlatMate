@@ -33,6 +33,9 @@ class FlatRepository {
 
   Future<Flat> setAwayRule(AwayRule rule) => _client.flat.setAwayRule(rule);
 
+  Future<Flat> setMorningSummaryAt(int minutes) =>
+      _client.flat.setMorningSummaryAt(minutes);
+
   Future<Flat> rename(String name) => _client.flat.rename(name);
 
   Future<Mate> setMyName(String displayName) =>
@@ -44,10 +47,13 @@ class FlatRepository {
   Future<Mate> setNotifications(Mate me) => _client.flat.setNotifications(
     turnStarts: me.notifyTurnStarts,
     reminder: me.notifyReminder,
-    missed: me.notifyMissed,
+    matesNotDone: me.notifyMatesNotDone,
     notice: me.notifyNotice,
     addedToRotation: me.notifyAddedToRotation,
   );
+
+  Future<void> welcomeMate(int mateId, List<int> choreIds) =>
+      _client.flat.welcomeMate(mateId, choreIds);
 
   Future<void> transferAdmin(int mateId) => _client.flat.transferAdmin(mateId);
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
@@ -18,6 +20,11 @@ class PushService {
 
   final Client _client;
   bool _registered = false;
+  final _foreground = StreamController<RemoteNotification>.broadcast();
+
+  /// Notifications that arrive while the app is open. The phone shows none
+  /// itself then, so the app shows them in-app.
+  Stream<RemoteNotification> get foreground => _foreground.stream;
 
   Future<void> register() async {
     if (_registered || kIsWeb) return;
@@ -32,6 +39,9 @@ class PushService {
       final token = await messaging.getToken();
       if (token != null) await _client.flat.registerDevice(token);
       messaging.onTokenRefresh.listen(_client.flat.registerDevice);
+      FirebaseMessaging.onMessage.listen((m) {
+        if (m.notification != null) _foreground.add(m.notification!);
+      });
       _registered = true;
     } catch (e) {
       debugPrint('Push notifications unavailable: $e');

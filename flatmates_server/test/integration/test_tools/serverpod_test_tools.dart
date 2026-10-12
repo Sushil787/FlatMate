@@ -1197,7 +1197,7 @@ class _FlatEndpoint {
     _ist.TestSessionBuilder sessionBuilder, {
     required bool turnStarts,
     required bool reminder,
-    required bool missed,
+    bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
   }) async {
@@ -1215,7 +1215,7 @@ class _FlatEndpoint {
           parameters: _ist.testObjectToJson({
             'turnStarts': turnStarts,
             'reminder': reminder,
-            'missed': missed,
+            'matesNotDone': matesNotDone,
             'notice': notice,
             'addedToRotation': addedToRotation,
           }),
@@ -1250,6 +1250,72 @@ class _FlatEndpoint {
           endpointPath: 'flat',
           methodName: 'setAwayRule',
           parameters: _ist.testObjectToJson({'rule': rule}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i7obirgc.Flat>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> welcomeMate(
+    _ist.TestSessionBuilder sessionBuilder,
+    int mateId,
+    List<int> choreIds,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'welcomeMate',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'welcomeMate',
+          parameters: _ist.testObjectToJson({
+            'mateId': mateId,
+            'choreIds': choreIds,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i7obirgc.Flat> setMorningSummaryAt(
+    _ist.TestSessionBuilder sessionBuilder,
+    int minutes,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'setMorningSummaryAt',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'setMorningSummaryAt',
+          parameters: _ist.testObjectToJson({'minutes': minutes}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

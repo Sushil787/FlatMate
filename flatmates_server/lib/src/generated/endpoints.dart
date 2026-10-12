@@ -695,10 +695,10 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<bool>(),
               nullable: false,
             ),
-            'missed': _is.ParameterDescription(
-              name: 'missed',
-              type: _is.getType<bool>(),
-              nullable: false,
+            'matesNotDone': _is.ParameterDescription(
+              name: 'matesNotDone',
+              type: _is.getType<bool?>(),
+              nullable: true,
             ),
             'notice': _is.ParameterDescription(
               name: 'notice',
@@ -720,7 +720,7 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     turnStarts: params['turnStarts'],
                     reminder: params['reminder'],
-                    missed: params['missed'],
+                    matesNotDone: params['matesNotDone'],
                     notice: params['notice'],
                     addedToRotation: params['addedToRotation'],
                   ),
@@ -742,6 +742,50 @@ class Endpoints extends _is.EndpointDispatch {
                   (endpoints['flat'] as _iho3d8m1.FlatEndpoint).setAwayRule(
                     session,
                     params['rule'],
+                  ),
+        ),
+        'welcomeMate': _is.MethodConnector(
+          name: 'welcomeMate',
+          params: {
+            'mateId': _is.ParameterDescription(
+              name: 'mateId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'choreIds': _is.ParameterDescription(
+              name: 'choreIds',
+              type: _is.getType<List<int>>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['flat'] as _iho3d8m1.FlatEndpoint).welcomeMate(
+                    session,
+                    params['mateId'],
+                    params['choreIds'],
+                  ),
+        ),
+        'setMorningSummaryAt': _is.MethodConnector(
+          name: 'setMorningSummaryAt',
+          params: {
+            'minutes': _is.ParameterDescription(
+              name: 'minutes',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
+                  .setMorningSummaryAt(
+                    session,
+                    params['minutes'],
                   ),
         ),
         'transferAdmin': _is.MethodConnector(

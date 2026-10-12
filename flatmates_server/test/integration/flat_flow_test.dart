@@ -104,6 +104,35 @@ void main() {
       },
     );
 
+    test('the admin welcomes a new mate into chores, once', () async {
+      final mine = await endpoints.flat.mine(priya);
+      expect(
+        {for (final m in mine!.mates) m.displayName: m.welcomed},
+        {'Priya': true, 'Sam': false, 'Alex': false},
+      );
+      final bins = await endpoints.chore.create(
+        priya,
+        'Bins',
+        week,
+        today(),
+        [priyaId],
+      );
+      await expectLater(
+        endpoints.flat.welcomeMate(sam, alexId, [bins.id!]),
+        throwsA(isA<FlatmatesException>()),
+      );
+
+      await endpoints.flat.welcomeMate(priya, samId, [bins.id!]);
+      // A second answer (the admin's other phone) changes nothing.
+      await endpoints.flat.welcomeMate(priya, samId, [bins.id!]);
+      await endpoints.flat.welcomeMate(priya, alexId, []);
+
+      final chores = await endpoints.chore.list(priya);
+      expect(chores.single.rotation, [priyaId, samId]);
+      final after = await endpoints.flat.mine(priya);
+      expect(after!.mates.every((m) => m.welcomed), isTrue);
+    });
+
     test('only the admin can create chores', () async {
       await expectLater(
         endpoints.chore.create(sam, 'Bins', week, today(), [samId]),
@@ -387,7 +416,7 @@ void main() {
         sam,
         turnStarts: false,
         reminder: true,
-        missed: true,
+        matesNotDone: true,
         notice: true,
         addedToRotation: true,
       );
@@ -399,6 +428,125 @@ void main() {
         kind: NotifyKind.turnStarts,
       );
       expect(sent.map((m) => m.id), [alexId]);
+    });
+
+    group('with pushes collected', () {
+      setUp(() => Notifier.sent = []);
+      tearDown(() => Notifier.sent = null);
+
+      /// Runs every active Turn's scheduled [call], as at its time.
+      Future<void> runAll(
+        Future<void> Function(TestSessionBuilder, int) call,
+      ) async {
+        for (final t in await endpoints.chore.activeTurns(priya)) {
+          await call(sessionBuilder, t.id!);
+        }
+      }
+
+      test('the morning summary is one push per Mate', () async {
+        const day = Duration(days: 1);
+        for (final (chore, mate) in [
+          ('Bins', samId),
+          ('Dishes', samId),
+          ('Hoover', alexId),
+        ]) {
+          await endpoints.chore.create(priya, chore, day, today(), [mate]);
+        }
+        Notifier.sent!.clear(); // pushes on creation if it's past 8:00
+
+        await runAll(endpoints.futureCalls.turnCalls.started);
+        expect(
+          {for (final p in Notifier.sent!) p.mateId: p.title},
+          {samId: 'Your Turns today', alexId: 'Your Turn: Hoover'},
+        );
+        expect(Notifier.sent, hasLength(2));
+      });
+
+      test('the evening push tells each Mate what is not Done', () async {
+        // A fixed offset where it's 19:00 now, before the 21:00 push.
+        final now = DateTime.now().toUtc();
+        var minutes = 19 * 60 - (now.hour * 60 + now.minute);
+        if (minutes <= -12 * 60) minutes += 24 * 60;
+        if (minutes > 12 * 60) minutes -= 24 * 60;
+        final offset =
+            '${minutes < 0 ? '-' : '+'}'
+            '${(minutes.abs() ~/ 60).toString().padLeft(2, '0')}'
+            '${(minutes.abs() % 60).toString().padLeft(2, '0')}';
+        final session = sessionBuilder.build();
+        await Flat.db.updateRow(session, flat.flat..timezone = offset);
+        final day = Day.today(offset);
+
+        late Chore mop;
+        for (final (name, mate) in [
+          ('Bins', samId),
+          ('Dishes', samId),
+          ('Hoover', alexId),
+          ('Mop', alexId),
+        ]) {
+          mop = await endpoints.chore.create(
+            priya,
+            name,
+            const Duration(days: 1),
+            day,
+            [mate],
+          );
+        }
+        final mopTurn = (await endpoints.chore.activeTurns(
+          alex,
+        )).singleWhere((t) => t.choreId == mop.id);
+        await endpoints.chore.markDone(alex, mopTurn.id!);
+        // Priya is Away today, so she isn't told about anyone's Turns.
+        await Away.db.insertRow(
+          session,
+          Away(
+            flatId: flat.flat.id!,
+            mateId: priyaId,
+            startDay: day,
+            lastDay: day,
+          ),
+        );
+        Notifier.sent!.clear();
+
+        await runAll(endpoints.futureCalls.turnCalls.reminder);
+        expect(Notifier.sent, [
+          (
+            mateId: samId,
+            title: '3 hours left for Bins, Dishes',
+            body: 'Also not Done yet: Alex (Hoover)',
+          ),
+          (
+            mateId: alexId,
+            title: '3 hours left for Hoover',
+            body: 'Also not Done yet: Sam (Bins, Dishes)',
+          ),
+        ]);
+      });
+
+      test('a Done tells nobody, and neither does a Missed', () async {
+        await endpoints.chore.create(priya, 'Bins', week, today(), [samId]);
+        final turn = await onlyActiveTurn();
+        Notifier.sent!.clear();
+        await endpoints.chore.markDone(sam, turn.id!);
+        await endpoints.chore.undoDone(sam, turn.id!);
+        await endTurn(turn);
+        expect(
+          Notifier.sent!.where((p) => p.mateId != samId),
+          isEmpty,
+        );
+      });
+    });
+
+    test('only the admin moves the morning summary, to before 21:00', () async {
+      await expectLater(
+        endpoints.flat.setMorningSummaryAt(sam, 7 * 60),
+        throwsA(isA<FlatmatesException>()),
+      );
+      await expectLater(
+        endpoints.flat.setMorningSummaryAt(priya, 21 * 60),
+        throwsA(isA<FlatmatesException>()),
+      );
+      final moved = await endpoints.flat.setMorningSummaryAt(priya, 7 * 60);
+      expect(moved.morningSummaryAt, 7 * 60);
     });
 
     test('a Done can be undone only by its mate, on its day', () async {

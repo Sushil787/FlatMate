@@ -77,12 +77,19 @@ abstract final class Day {
   }
 
   /// The instant [day] begins (local midnight) in [timezone], in UTC.
-  static DateTime start(String timezone, DateTime day) => tz.TZDateTime(
-    _location(timezone),
-    day.year,
-    day.month,
-    day.day,
-  ).toUtc();
+  static DateTime start(String timezone, DateTime day) => at(timezone, day, 0);
+
+  /// The instant [minutes] after local midnight on [day] in [timezone], in
+  /// UTC. Local clock time, so it stays put across a daylight saving change.
+  static DateTime at(String timezone, DateTime day, int minutes) =>
+      tz.TZDateTime(
+        _location(timezone),
+        day.year,
+        day.month,
+        day.day,
+        0,
+        minutes,
+      ).toUtc();
 
   /// The instant [day] ends (the next local midnight) in [timezone], in UTC.
   static DateTime end(String timezone, DateTime day) =>

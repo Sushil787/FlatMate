@@ -33,6 +33,8 @@ flat:
   - setMyColor:
   - setNotifications:
   - setAwayRule:
+  - welcomeMate:
+  - setMorningSummaryAt:
   - transferAdmin:
   - removeMate:
   - leave:

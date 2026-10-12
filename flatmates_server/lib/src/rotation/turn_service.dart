@@ -4,11 +4,16 @@ import '../day.dart';
 import '../flat_access.dart';
 import '../generated/future_calls.dart';
 import '../generated/protocol.dart';
+import '../notify/digests.dart';
 import '../notify/notifier.dart';
 import 'planner.dart';
 
 /// How long before a Turn ends its Mate is reminded.
 const reminderLead = Duration(hours: 3);
+
+/// How late the evening push may run (after a restart, say) and still go
+/// out; any later and "3 hours left" would be wrong.
+const _reminderLate = Duration(minutes: 30);
 
 /// Moves Chores through their Turns: creates them, reacts to Away and
 /// leaving Mates, and handles the scheduled start, reminder and end.
@@ -188,8 +193,13 @@ class TurnService {
     end: Day.end(flat.timezone, turn.lastDay),
   );
 
-  /// Schedules the Turn's start, reminder and end. A Turn that has already
-  /// started is announced right away unless [announce] is false.
+  /// When the morning summary for Turns starting on [day] goes out.
+  static DateTime morningOf(Flat flat, DateTime day) =>
+      Day.at(flat.timezone, day, flat.morningSummaryAt);
+
+  /// Schedules the Turn's morning summary, reminder and end. A Turn that
+  /// lands after its morning summary went out is announced right away,
+  /// unless [announce] is false.
   static Future<void> _schedule(
     Session session,
     Flat flat,
@@ -197,25 +207,57 @@ class TurnService {
     bool announce = true,
   }) async {
     final calls = session.serverpod.futureCalls;
-    final now = DateTime.now().toUtc();
-    final (:start, :end) = instants(flat, turn);
     await _cancel(session, turn.id!);
 
-    if (start.isAfter(now)) {
-      await calls
-          .callAtTime(start, identifier: _id(turn.id!, 'start'))
-          .turnCalls
-          .started(turn.id!);
+    final morning = morningOf(flat, turn.day);
+    if (morning.isAfter(DateTime.now().toUtc())) {
+      await _scheduleMorning(session, turn, morning);
     } else if (announce) {
-      await onTurnStarted(session, turn.id!);
+      await _announce(session, flat, turn);
     }
 
     await _scheduleReminder(session, flat, turn);
 
     await calls
-        .callAtTime(end, identifier: _id(turn.id!, 'end'))
+        .callAtTime(instants(flat, turn).end, identifier: _id(turn.id!, 'end'))
         .turnCalls
         .ended(turn.id!);
+  }
+
+  static Future<void> _scheduleMorning(
+    Session session,
+    Turn turn,
+    DateTime at,
+  ) => session.serverpod.futureCalls
+      .callAtTime(at, identifier: _id(turn.id!, 'start'))
+      .turnCalls
+      .started(turn.id!);
+
+  /// Moves the morning summary of Turns still waiting for theirs to the
+  /// Flat's new time; [wasAt] is the old one. Today's summary stays put if
+  /// the new time has already passed.
+  static Future<void> moveMorningSummary(
+    Session session,
+    Flat flat,
+    int wasAt,
+  ) async {
+    final now = DateTime.now().toUtc();
+    final turns = await Turn.db.find(
+      session,
+      where: (t) =>
+          t.flatId.equals(flat.id!) &
+          t.status.equals(TurnStatus.active) &
+          (t.day >= Day.today(flat.timezone)),
+    );
+    for (final turn in turns) {
+      final next = morningOf(flat, turn.day);
+      if (!Day.at(flat.timezone, turn.day, wasAt).isAfter(now) ||
+          !next.isAfter(now)) {
+        continue;
+      }
+      await session.serverpod.futureCalls.cancel(_id(turn.id!, 'start'));
+      await _scheduleMorning(session, turn, next);
+    }
   }
 
   /// Schedules the reminder, unless its time has passed or comes before the
@@ -258,46 +300,168 @@ class TurnService {
     return (turn: turn, chore: chore, flat: flat);
   }
 
+  /// Tells a Turn's Mate it's theirs, when it lands on them after the
+  /// morning summary.
+  static Future<void> _announce(Session session, Flat flat, Turn turn) async {
+    final chore = await Chore.db.findById(session, turn.choreId);
+    final coveringFor = turn.coveringForMateId;
+    final other = coveringFor == null
+        ? null
+        : await Mate.db.findById(session, coveringFor);
+    final push = turnPush(
+      chore?.name ?? 'A chore',
+      coveringFor: coveringFor == null ? null : other?.displayName ?? 'a mate',
+      due: _dueIn(instants(flat, turn).end),
+    );
+    await Notifier.toMates(
+      session,
+      [turn.mateId],
+      title: push.title,
+      body: push.body,
+      kind: NotifyKind.turnStarts,
+    );
+  }
+
+  /// The Flat's open Turns matching [where], oldest first, or nothing
+  /// unless [turnId] is the oldest. Every one of them has a call at the
+  /// same time, so this lets the first call speak for all of them.
+  static Future<List<Turn>> _ifFirst(
+    Session session,
+    Flat flat,
+    int turnId,
+    WhereExpressionBuilder<TurnTable> where,
+  ) async {
+    final turns = await Turn.db.find(
+      session,
+      where: (t) =>
+          t.flatId.equals(flat.id!) &
+          t.status.equals(TurnStatus.active) &
+          where(t),
+      orderBy: (t) => t.id,
+    );
+    return turns.firstOrNull?.id == turnId ? turns : const [];
+  }
+
+  static Future<Map<int, String>> _choreNames(
+    Session session,
+    Iterable<Turn> turns,
+  ) async => {
+    for (final c in await Chore.db.find(
+      session,
+      where: (t) => t.id.inSet(turns.map((t) => t.choreId).toSet()),
+    ))
+      c.id!: c.name,
+  };
+
+  /// The morning summary: each Mate gets one push listing their Turns that
+  /// start today.
   static Future<void> onTurnStarted(Session session, int turnId) async {
     final loaded = await _load(session, turnId);
-    if (loaded == null || loaded.turn.status != TurnStatus.active) return;
-    final (:turn, :chore, :flat) = loaded;
-    final due = _dueIn(instants(flat, turn).end);
+    if (loaded == null) return;
+    final flat = loaded.flat;
+    final today = Day.today(flat.timezone);
+    final turns = await _ifFirst(
+      session,
+      flat,
+      turnId,
+      (t) => t.day.equals(today),
+    );
+    if (turns.isEmpty) return;
 
-    final coveringFor = turn.coveringForMateId;
-    if (coveringFor == null) {
-      await Notifier.toMates(
+    final chores = await _choreNames(session, turns);
+    // Left Mates too: someone may be covering for one.
+    final names = {
+      for (final m in await Mate.db.find(
         session,
-        [turn.mateId],
-        title: 'Your Turn: ${chore.name}',
-        body: 'It\'s yours, due $due.',
-        kind: NotifyKind.turnStarts,
+        where: (t) => t.flatId.equals(flat.id!),
+      ))
+        m.id!: m.displayName,
+    };
+    final byMate = <int, List<Turn>>{};
+    for (final t in turns) {
+      (byMate[t.mateId] ??= []).add(t);
+    }
+    for (final MapEntry(key: mateId, value: mine) in byMate.entries) {
+      final push = morningPush(
+        [
+          for (final t in mine)
+            (
+              chore: chores[t.choreId] ?? 'A chore',
+              coveringFor: t.coveringForMateId == null
+                  ? null
+                  : names[t.coveringForMateId] ?? 'a mate',
+            ),
+        ],
+        due: _dueIn(instants(flat, mine.first).end),
       );
-    } else {
-      final other = await Mate.db.findById(session, coveringFor);
       await Notifier.toMates(
         session,
-        [turn.mateId],
-        title: 'You\'re covering: ${chore.name}',
-        body:
-            'Doing ${other?.displayName ?? 'a mate'}\'s turn, '
-            'due $due.',
+        [mateId],
+        title: push.title,
+        body: push.body,
         kind: NotifyKind.turnStarts,
       );
     }
   }
 
+  /// The evening push, [reminderLead] before the day ends: each Mate gets
+  /// one push with their own Turns not Done yet and, unless they are Away,
+  /// their Mates' ones.
   static Future<void> onTurnReminder(Session session, int turnId) async {
     final loaded = await _load(session, turnId);
-    if (loaded == null || loaded.turn.status != TurnStatus.active) return;
-    final (:turn, :chore, :flat) = loaded;
-    await Notifier.toMates(
+    if (loaded == null) return;
+    final flat = loaded.flat;
+    final today = Day.today(flat.timezone);
+    final remindAt = Day.end(flat.timezone, today).subtract(reminderLead);
+    if (DateTime.now().toUtc().isAfter(remindAt.add(_reminderLate))) return;
+    final turns = await _ifFirst(
       session,
-      [turn.mateId],
-      title: '${reminderLead.inHours} hours left for ${chore.name}',
-      body: 'Done already? Tap to tell your Mates.',
-      kind: NotifyKind.reminder,
+      flat,
+      turnId,
+      (t) => t.lastDay.equals(today),
     );
+    if (turns.isEmpty) return;
+
+    final chores = await _choreNames(session, turns);
+    final mates = await activeMates(session, flat.id!);
+    final names = {for (final m in mates) m.id!: m.displayName};
+    final away = {
+      for (final a in await Away.db.find(
+        session,
+        where: (t) =>
+            t.flatId.equals(flat.id!) &
+            (t.startDay <= today) &
+            (t.lastDay >= today),
+      ))
+        a.mateId,
+    };
+    for (final m in mates) {
+      final mine = [
+        if (m.notifyReminder)
+          for (final t in turns.where((t) => t.mateId == m.id))
+            chores[t.choreId] ?? 'A chore',
+      ];
+      final others = <String, List<String>>{};
+      if (m.notifyMatesNotDone && !away.contains(m.id)) {
+        for (final t in turns.where((t) => t.mateId != m.id)) {
+          (others[names[t.mateId] ?? 'Someone'] ??= []).add(
+            chores[t.choreId] ?? 'A chore',
+          );
+        }
+      }
+      final push = eveningPush(
+        mine,
+        others,
+        hoursLeft: reminderLead.inHours,
+      );
+      if (push == null) continue;
+      await Notifier.toMates(
+        session,
+        [m.id!],
+        title: push.title,
+        body: push.body,
+      );
+    }
   }
 
   static Future<void> onTurnEnded(Session session, int turnId) async {
@@ -365,17 +529,10 @@ class TurnService {
     );
     if (newer > 0) return false;
 
+    // No push: the evening one already told the Flat it wasn't Done.
     if (turn.status == TurnStatus.active) {
       turn.status = TurnStatus.missed;
       await Turn.db.updateRow(session, turn);
-      final mate = await Mate.db.findById(session, turn.mateId);
-      await Notifier.toFlat(
-        session,
-        flat.id!,
-        title: '${chore.name} was Missed',
-        body: '${mate?.displayName ?? 'Someone'}\'s Turn ended without a Done.',
-        kind: NotifyKind.missed,
-      );
     }
 
     if (!chore.archived) {
@@ -415,15 +572,6 @@ class TurnService {
     turn.doneAt = now;
     await Turn.db.updateRow(session, turn);
     await session.serverpod.futureCalls.cancel(_id(turnId, 'reminder'));
-
-    final chore = await Chore.db.findById(session, turn.choreId);
-    await Notifier.toFlat(
-      session,
-      me.flatId,
-      title: '${chore?.name ?? 'A chore'} is done',
-      body: '${me.displayName} marked it done.',
-      exceptMateId: me.id,
-    );
     await broadcast(session, me.flatId, FlatChangeKind.chores);
     return turn;
   }

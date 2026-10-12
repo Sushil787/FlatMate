@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -8,6 +11,8 @@ import '../core/services/push_service.dart';
 import '../core/theme/app_theme.dart';
 import '../core/widgets/banners.dart';
 import '../features/flat/application/flat_changes.dart';
+import '../features/flat/application/my_flat_controller.dart';
+import '../features/flat/presentation/widgets/new_mate_dialog.dart';
 import '../features/groceries/application/groceries_controller.dart';
 import '../features/home/application/flat_sync.dart';
 import 'router.gr.dart';
@@ -54,10 +59,63 @@ class _TabsShellState extends ConsumerState<TabsShell> {
 
   static const _exitWindow = Duration(seconds: 2);
 
+  /// The notification showing in-app, while the app is open.
+  RemoteNotification? _incoming;
+  Timer? _incomingTimer;
+  StreamSubscription<RemoteNotification>? _incomingSub;
+
+  void _showIncoming(RemoteNotification n) {
+    _incomingTimer?.cancel();
+    setState(() => _incoming = n);
+    _incomingTimer = Timer(const Duration(seconds: 5), _hideIncoming);
+  }
+
+  void _hideIncoming() {
+    _incomingTimer?.cancel();
+    if (mounted) setState(() => _incoming = null);
+  }
+
+  /// New Mates the Admin was already asked about while the app is open.
+  final _askedAbout = <int>{};
+  bool _asking = false;
+
+  /// Admin only: asks about each Mate who joined and hasn't been welcomed,
+  /// one at a time.
+  Future<void> _askAboutNewMates() async {
+    final flat = ref.read(myFlatControllerProvider).value;
+    if (_asking || flat == null || flat.flat.adminMateId != flat.me.id) return;
+    final mate = flat.mates
+        .where((m) => !m.welcomed && !_askedAbout.contains(m.id))
+        .firstOrNull;
+    if (mate == null) return;
+    _asking = true;
+    _askedAbout.add(mate.id!);
+    await showNewMateDialog(context, mate);
+    _asking = false;
+    if (mounted) _askAboutNewMates();
+  }
+
   @override
   void initState() {
     super.initState();
-    ref.read(pushServiceProvider).register();
+    final push = ref.read(pushServiceProvider);
+    _incomingSub = push.foreground.listen(_showIncoming);
+    push.register();
+    ref.listenManual(
+      myFlatControllerProvider,
+      // After the frame: a dialog can't open mid-build.
+      (_, _) => WidgetsBinding.instance.addPostFrameCallback(
+        (_) => mounted ? _askAboutNewMates() : null,
+      ),
+      fireImmediately: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _incomingSub?.cancel();
+    _incomingTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -92,18 +150,46 @@ class _TabsShellState extends ConsumerState<TabsShell> {
           onBackButtonPressed: () => _onBack(tabs),
           child: Scaffold(
             extendBody: true,
-            body: Column(
+            body: Stack(
               children: [
-                if (!online) const ReconnectingBanner(),
-                Expanded(
-                  // The banner already sits in the status bar's space. Read
-                  // the padding inside the Scaffold, which includes the nav.
-                  child: Builder(
-                    builder: (context) => MediaQuery.removePadding(
-                      context: context,
-                      removeTop: !online,
-                      child: child,
+                Column(
+                  children: [
+                    if (!online) const ReconnectingBanner(),
+                    Expanded(
+                      // The banner already sits in the status bar's space.
+                      // Read the padding inside the Scaffold, which
+                      // includes the nav.
+                      child: Builder(
+                        builder: (context) => MediaQuery.removePadding(
+                          context: context,
+                          removeTop: !online,
+                          child: child,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: AnimatedSwitcher(
+                    duration: Timing.delayed,
+                    transitionBuilder: (child, animation) => SlideTransition(
+                      position: Tween(
+                        begin: const Offset(0, -1),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: FadeTransition(opacity: animation, child: child),
+                    ),
+                    child: _incoming == null
+                        ? const SizedBox.shrink()
+                        : InAppNotification(
+                            key: ObjectKey(_incoming),
+                            title: _incoming!.title ?? '',
+                            body: _incoming!.body ?? '',
+                            onDismiss: _hideIncoming,
+                          ),
                   ),
                 ),
               ],

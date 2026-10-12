@@ -242,9 +242,9 @@ class _NotificationsCard extends ConsumerWidget {
         (bool v) => me.copyWith(notifyReminder: v),
       ),
       (
-        'A Turn was Missed',
-        me.notifyMissed,
-        (bool v) => me.copyWith(notifyMissed: v),
+        'Mates\' Turns not Done, 3 hours before midnight',
+        me.notifyMatesNotDone,
+        (bool v) => me.copyWith(notifyMatesNotDone: v),
       ),
       (
         'New Notice',

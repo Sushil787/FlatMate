@@ -221,6 +221,28 @@ void main() {
     expect(find.text('Party on Saturday!'), findsOneWidget);
   });
 
+  testWidgets('the Admin is asked to add a new Mate to Chores', (
+    tester,
+  ) async {
+    final backend = FakeBackend()
+      ..addChore('Bins', mateId: FakeBackend.priya)
+      ..addChore('Dishes', mateId: FakeBackend.sam, id: 2);
+    backend.chores[0].rotation = [FakeBackend.priya, FakeBackend.sam];
+    backend.chores[1].rotation = [FakeBackend.priya, FakeBackend.sam];
+    backend.myFlat!.mates.last.welcomed = false; // Alex just joined
+    await pumpApp(tester, backend);
+
+    expect(find.text('Alex joined Elm St'), findsOneWidget);
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Dishes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add to 1 Chore'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Alex joined Elm St'), findsNothing);
+    expect(backend.chores[0].rotation.last, FakeBackend.alex);
+    expect(backend.chores[1].rotation, isNot(contains(FakeBackend.alex)));
+  });
+
   testWidgets('the Admin sets the Away rule on the Flat tab', (tester) async {
     final backend = FakeBackend();
     await pumpApp(tester, backend);

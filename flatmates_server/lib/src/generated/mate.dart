@@ -25,17 +25,19 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     _ieys87jp.MateColor? color,
     bool? notifyTurnStarts,
     bool? notifyReminder,
-    bool? notifyMissed,
+    bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? welcomed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : color = color ?? _ieys87jp.MateColor.tomato,
        notifyTurnStarts = notifyTurnStarts ?? true,
        notifyReminder = notifyReminder ?? true,
-       notifyMissed = notifyMissed ?? true,
+       notifyMatesNotDone = notifyMatesNotDone ?? true,
        notifyNotice = notifyNotice ?? true,
        notifyAddedToRotation = notifyAddedToRotation ?? true,
+       welcomed = welcomed ?? true,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
@@ -49,9 +51,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     _ieys87jp.MateColor? color,
     bool? notifyTurnStarts,
     bool? notifyReminder,
-    bool? notifyMissed,
+    bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? welcomed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _MateImpl;
@@ -83,9 +86,11 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       notifyReminder: jsonSerialization['notifyReminder'] == null
           ? null
           : _is.BoolJsonExtension.fromJson(jsonSerialization['notifyReminder']),
-      notifyMissed: jsonSerialization['notifyMissed'] == null
+      notifyMatesNotDone: jsonSerialization['notifyMatesNotDone'] == null
           ? null
-          : _is.BoolJsonExtension.fromJson(jsonSerialization['notifyMissed']),
+          : _is.BoolJsonExtension.fromJson(
+              jsonSerialization['notifyMatesNotDone'],
+            ),
       notifyNotice: jsonSerialization['notifyNotice'] == null
           ? null
           : _is.BoolJsonExtension.fromJson(jsonSerialization['notifyNotice']),
@@ -94,6 +99,9 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
           : _is.BoolJsonExtension.fromJson(
               jsonSerialization['notifyAddedToRotation'],
             ),
+      welcomed: jsonSerialization['welcomed'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['welcomed']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -127,11 +135,16 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   bool notifyReminder;
 
-  bool notifyMissed;
+  /// The evening push about other Mates' Turns not Done yet.
+  bool notifyMatesNotDone;
 
   bool notifyNotice;
 
   bool notifyAddedToRotation;
+
+  /// False until the Admin has seen that this Mate joined and picked their
+  /// Chores (or chose to do it later).
+  bool welcomed;
 
   DateTime createdAt;
 
@@ -153,9 +166,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
     _ieys87jp.MateColor? color,
     bool? notifyTurnStarts,
     bool? notifyReminder,
-    bool? notifyMissed,
+    bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? welcomed,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -172,9 +186,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'color': color.toJson(),
       'notifyTurnStarts': notifyTurnStarts,
       'notifyReminder': notifyReminder,
-      'notifyMissed': notifyMissed,
+      'notifyMatesNotDone': notifyMatesNotDone,
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
+      'welcomed': welcomed,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -193,9 +208,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'color': color.toJson(),
       'notifyTurnStarts': notifyTurnStarts,
       'notifyReminder': notifyReminder,
-      'notifyMissed': notifyMissed,
+      'notifyMatesNotDone': notifyMatesNotDone,
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
+      'welcomed': welcomed,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -242,9 +258,10 @@ class _MateImpl extends Mate {
     _ieys87jp.MateColor? color,
     bool? notifyTurnStarts,
     bool? notifyReminder,
-    bool? notifyMissed,
+    bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? welcomed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -257,9 +274,10 @@ class _MateImpl extends Mate {
          color: color,
          notifyTurnStarts: notifyTurnStarts,
          notifyReminder: notifyReminder,
-         notifyMissed: notifyMissed,
+         notifyMatesNotDone: notifyMatesNotDone,
          notifyNotice: notifyNotice,
          notifyAddedToRotation: notifyAddedToRotation,
+         welcomed: welcomed,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -278,9 +296,10 @@ class _MateImpl extends Mate {
     _ieys87jp.MateColor? color,
     bool? notifyTurnStarts,
     bool? notifyReminder,
-    bool? notifyMissed,
+    bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? welcomed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -294,10 +313,11 @@ class _MateImpl extends Mate {
       color: color ?? this.color,
       notifyTurnStarts: notifyTurnStarts ?? this.notifyTurnStarts,
       notifyReminder: notifyReminder ?? this.notifyReminder,
-      notifyMissed: notifyMissed ?? this.notifyMissed,
+      notifyMatesNotDone: notifyMatesNotDone ?? this.notifyMatesNotDone,
       notifyNotice: notifyNotice ?? this.notifyNotice,
       notifyAddedToRotation:
           notifyAddedToRotation ?? this.notifyAddedToRotation,
+      welcomed: welcomed ?? this.welcomed,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -353,8 +373,8 @@ class MateUpdateTable extends _is.UpdateTable<MateTable> {
     value,
   );
 
-  _is.ColumnValue<bool, bool> notifyMissed(bool value) => _is.ColumnValue(
-    table.notifyMissed,
+  _is.ColumnValue<bool, bool> notifyMatesNotDone(bool value) => _is.ColumnValue(
+    table.notifyMatesNotDone,
     value,
   );
 
@@ -368,6 +388,11 @@ class MateUpdateTable extends _is.UpdateTable<MateTable> {
         table.notifyAddedToRotation,
         value,
       );
+
+  _is.ColumnValue<bool, bool> welcomed(bool value) => _is.ColumnValue(
+    table.welcomed,
+    value,
+  );
 
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
@@ -421,8 +446,8 @@ class MateTable extends _is.Table<int?> {
       this,
       hasDefault: true,
     );
-    notifyMissed = _is.ColumnBool(
-      'notifyMissed',
+    notifyMatesNotDone = _is.ColumnBool(
+      'notifyMatesNotDone',
       this,
       hasDefault: true,
     );
@@ -433,6 +458,11 @@ class MateTable extends _is.Table<int?> {
     );
     notifyAddedToRotation = _is.ColumnBool(
       'notifyAddedToRotation',
+      this,
+      hasDefault: true,
+    );
+    welcomed = _is.ColumnBool(
+      'welcomed',
       this,
       hasDefault: true,
     );
@@ -467,11 +497,16 @@ class MateTable extends _is.Table<int?> {
 
   late final _is.ColumnBool notifyReminder;
 
-  late final _is.ColumnBool notifyMissed;
+  /// The evening push about other Mates' Turns not Done yet.
+  late final _is.ColumnBool notifyMatesNotDone;
 
   late final _is.ColumnBool notifyNotice;
 
   late final _is.ColumnBool notifyAddedToRotation;
+
+  /// False until the Admin has seen that this Mate joined and picked their
+  /// Chores (or chose to do it later).
+  late final _is.ColumnBool welcomed;
 
   late final _is.ColumnDateTime createdAt;
 
@@ -488,9 +523,10 @@ class MateTable extends _is.Table<int?> {
     color,
     notifyTurnStarts,
     notifyReminder,
-    notifyMissed,
+    notifyMatesNotDone,
     notifyNotice,
     notifyAddedToRotation,
+    welcomed,
     createdAt,
     updatedAt,
   ];

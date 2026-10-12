@@ -54,6 +54,11 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
     await refresh();
   }
 
+  Future<void> setMorningSummaryAt(int minutes) async {
+    await _repo.setMorningSummaryAt(minutes);
+    await refresh();
+  }
+
   Future<void> rename(String name) async {
     await _repo.rename(name);
     await refresh();
@@ -93,6 +98,11 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
       state = AsyncData(before);
       rethrow;
     }
+  }
+
+  Future<void> welcomeMate(int mateId, List<int> choreIds) async {
+    await _repo.welcomeMate(mateId, choreIds);
+    await refresh();
   }
 
   Future<void> transferAdmin(int mateId) async {

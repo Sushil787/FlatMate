@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_flutter/app/app.dart';
 import 'package:flatmates_flutter/core/providers/theme_mode_provider.dart';
@@ -61,4 +62,31 @@ void main() {
       });
     }
   }
+
+  testWidgets('a notification while the app is open shows in-app', (
+    tester,
+  ) async {
+    final backend = FakeBackend();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: backend.overrides(),
+        child: const FlatmatesApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    backend.pushes.add(
+      const RemoteNotification(
+        title: 'Sam added an Event',
+        body: 'Saturday party',
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Sam added an Event'), findsOneWidget);
+    expect(find.text('Saturday party'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Sam added an Event'), findsNothing);
+  });
 }

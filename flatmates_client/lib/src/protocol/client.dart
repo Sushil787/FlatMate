@@ -404,11 +404,12 @@ class EndpointFlat extends _isc.EndpointRef {
         {'color': color},
       );
 
-  /// Sets which push notifications the caller gets.
+  /// Sets which push notifications the caller gets. [matesNotDone] is
+  /// optional because older apps don't send it.
   _ida.Future<_iynws3fs.Mate> setNotifications({
     required bool turnStarts,
     required bool reminder,
-    required bool missed,
+    bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
   }) => caller.callServerEndpoint<_iynws3fs.Mate>(
@@ -417,7 +418,7 @@ class EndpointFlat extends _isc.EndpointRef {
     {
       'turnStarts': turnStarts,
       'reminder': reminder,
-      'missed': missed,
+      'matesNotDone': matesNotDone,
       'notice': notice,
       'addedToRotation': addedToRotation,
     },
@@ -429,6 +430,30 @@ class EndpointFlat extends _isc.EndpointRef {
         'flat',
         'setAwayRule',
         {'rule': rule},
+      );
+
+  /// Marks a newly joined Mate as seen by the Admin, adding them to the end
+  /// of each of [choreIds]' Rotations. Does nothing if they were already
+  /// welcomed (say, from the Admin's other phone).
+  _ida.Future<void> welcomeMate(
+    int mateId,
+    List<int> choreIds,
+  ) => caller.callServerEndpoint<void>(
+    'flat',
+    'welcomeMate',
+    {
+      'mateId': mateId,
+      'choreIds': choreIds,
+    },
+  );
+
+  /// Sets when the morning summary goes out, in minutes after local
+  /// midnight. It has to come before the evening push.
+  _ida.Future<_iy3ygg88.Flat> setMorningSummaryAt(int minutes) =>
+      caller.callServerEndpoint<_iy3ygg88.Flat>(
+        'flat',
+        'setMorningSummaryAt',
+        {'minutes': minutes},
       );
 
   /// Hands the Admin role to another Mate.

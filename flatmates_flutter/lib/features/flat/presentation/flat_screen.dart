@@ -81,6 +81,26 @@ class FlatScreen extends ConsumerWidget {
             expiresAt: flat.inviteExpiresAt,
           ),
         _AwayRuleCard(current: flat.awayRule, canChange: directory.amAdmin),
+        RowCard(
+          children: [
+            AppRow(
+              minHeight: 52,
+              leading: AppIcon(HugeIcons.strokeRoundedSun03, color: fm.ink),
+              title: const Text('Morning summary'),
+              meta: Text(
+                directory.amAdmin
+                    ? 'When each Mate hears about their Turns for the day.'
+                    : 'When each Mate hears about their Turns for the day. Only the Admin can change it.',
+              ),
+              trailing: Text(_morningOf(flat).format(context)),
+              onTap:
+                  directory.amAdmin &&
+                      !ref.watch(setMorningSummaryProvider).isLoading
+                  ? () => _pickMorning(context, ref, flat)
+                  : null,
+            ),
+          ],
+        ),
         IconTheme.merge(
           data: IconThemeData(color: fm.inkSoft),
           child: RowCard(
@@ -132,6 +152,31 @@ class FlatScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  static TimeOfDay _morningOf(Flat flat) => TimeOfDay(
+    hour: flat.morningSummaryAt ~/ 60,
+    minute: flat.morningSummaryAt % 60,
+  );
+
+  Future<void> _pickMorning(
+    BuildContext context,
+    WidgetRef ref,
+    Flat flat,
+  ) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _morningOf(flat),
+      helpText: 'Morning summary',
+    );
+    if (picked == null || !context.mounted) return;
+    await runAction(
+      context,
+      () => ref
+          .read(setMorningSummaryProvider.notifier)
+          .run(picked.hour * 60 + picked.minute),
+      success: 'Morning summary is now at ${picked.format(context)}',
     );
   }
 

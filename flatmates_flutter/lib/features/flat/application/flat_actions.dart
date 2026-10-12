@@ -71,6 +71,30 @@ class SetAwayRule extends ActionNotifier {
   Future<bool> run(AwayRule rule) => guard(() => _flat(ref).setAwayRule(rule));
 }
 
+/// Setting when the Flat's morning summary goes out.
+final setMorningSummaryProvider =
+    AsyncNotifierProvider.autoDispose<SetMorningSummary, void>(
+      SetMorningSummary.new,
+    );
+
+class SetMorningSummary extends ActionNotifier {
+  Future<bool> run(int minutes) =>
+      guard(() => _flat(ref).setMorningSummaryAt(minutes));
+}
+
+/// Answering the new-Mate dialog: adding them to Chores, or not, by Mate id.
+final welcomeMateProvider = AsyncNotifierProvider.autoDispose
+    .family<WelcomeMate, void, int>(WelcomeMate.new);
+
+class WelcomeMate extends ActionNotifier {
+  WelcomeMate(this.mateId);
+
+  final int mateId;
+
+  Future<bool> run(List<int> choreIds) =>
+      guard(() => _flat(ref).welcomeMate(mateId, choreIds));
+}
+
 /// Handing the Admin role to a Mate, by Mate id.
 final makeAdminProvider = AsyncNotifierProvider.autoDispose
     .family<MakeAdmin, void, int>(MakeAdmin.new);

@@ -195,3 +195,90 @@ class _FreshHighlightState extends State<FreshHighlight>
     );
   }
 }
+
+/// A notification that arrived while the app was open, as a card that drops
+/// in from the top. Tap or swipe it away.
+class InAppNotification extends StatelessWidget {
+  const InAppNotification({
+    super.key,
+    required this.title,
+    required this.body,
+    required this.onDismiss,
+  });
+
+  final String title;
+  final String body;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final fm = context.fm;
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Space.screenMargin,
+          Space.sm,
+          Space.screenMargin,
+          0,
+        ),
+        child: Dismissible(
+          key: ValueKey((title, body)),
+          direction: DismissDirection.up,
+          onDismissed: (_) => onDismiss(),
+          child: Semantics(
+            liveRegion: true,
+            child: Material(
+              color: fm.heroCard,
+              borderRadius: BorderRadius.circular(Radii.card),
+              elevation: 6,
+              shadowColor: const Color(0x5216181A),
+              child: InkWell(
+                onTap: onDismiss,
+                borderRadius: BorderRadius.circular(Radii.card),
+                child: Padding(
+                  padding: const EdgeInsets.all(Space.lg),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppIcon(
+                        HugeIcons.strokeRoundedNotification03,
+                        color: fm.primary,
+                      ),
+                      const SizedBox(width: Space.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (title.isNotEmpty)
+                              Text(
+                                title,
+                                style: context.text.titleSmall?.copyWith(
+                                  color: fm.onHeroCard,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            if (body.isNotEmpty)
+                              Text(
+                                body,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.text.bodyMedium?.copyWith(
+                                  fontSize: 14,
+                                  color: fm.onHeroCard,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

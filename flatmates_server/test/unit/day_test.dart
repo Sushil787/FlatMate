@@ -18,6 +18,19 @@ void main() {
     );
   });
 
+  test('a time of day is local clock time, across daylight saving', () {
+    const berlin = 'Europe/Berlin';
+    // 8:00 in summer (UTC+2), and the day the clocks go back (UTC+1).
+    expect(
+      Day.at(berlin, Day.of(2026, 10, 24), 480),
+      DateTime.utc(2026, 10, 24, 6),
+    );
+    expect(
+      Day.at(berlin, Day.of(2026, 10, 25), 480),
+      DateTime.utc(2026, 10, 25, 7),
+    );
+  });
+
   test('a name that is neither a zone nor an offset is unknown', () {
     expect(Day.isKnown('Mars/Phobos'), isFalse);
     expect(Day.isKnown('UTC'), isTrue);

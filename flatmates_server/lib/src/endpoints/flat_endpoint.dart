@@ -95,6 +95,7 @@ class FlatEndpoint extends Endpoint {
         displayName: displayName,
         joinedAt: DateTime.now().toUtc(),
         color: await _freeColor(session, flat.id!),
+        welcomed: false,
       ),
     );
     await Notifier.toFlat(
@@ -147,12 +148,13 @@ class FlatEndpoint extends Endpoint {
     return me;
   }
 
-  /// Sets which push notifications the caller gets.
+  /// Sets which push notifications the caller gets. [matesNotDone] is
+  /// optional because older apps don't send it.
   Future<Mate> setNotifications(
     Session session, {
     required bool turnStarts,
     required bool reminder,
-    required bool missed,
+    bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
   }) async {
@@ -160,7 +162,7 @@ class FlatEndpoint extends Endpoint {
     me
       ..notifyTurnStarts = turnStarts
       ..notifyReminder = reminder
-      ..notifyMissed = missed
+      ..notifyMatesNotDone = matesNotDone ?? me.notifyMatesNotDone
       ..notifyNotice = notice
       ..notifyAddedToRotation = addedToRotation;
     await Mate.db.updateRow(session, me);
@@ -173,6 +175,69 @@ class FlatEndpoint extends Endpoint {
     final (:me, :flat) = await requireAdmin(session);
     flat.awayRule = rule;
     await Flat.db.updateRow(session, flat);
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+    return flat;
+  }
+
+  /// Marks a newly joined Mate as seen by the Admin, adding them to the end
+  /// of each of [choreIds]' Rotations. Does nothing if they were already
+  /// welcomed (say, from the Admin's other phone).
+  Future<void> welcomeMate(
+    Session session,
+    int mateId,
+    List<int> choreIds,
+  ) async {
+    final (:me, :flat) = await requireAdmin(session);
+    final mate = await Mate.db.findById(session, mateId);
+    if (mate == null || mate.flatId != flat.id || mate.leftAt != null) {
+      fail('That mate isn\'t in your flat.');
+    }
+    if (mate.welcomed) return;
+
+    final chores = await Chore.db.find(
+      session,
+      where: (t) =>
+          t.flatId.equals(flat.id!) &
+          t.archived.equals(false) &
+          t.id.inSet(choreIds.toSet()),
+      orderBy: (t) => t.name,
+    );
+    final added = chores.where((c) => !c.rotation.contains(mateId)).toList();
+    await session.db.transaction((tx) async {
+      for (final chore in added) {
+        // Appending keeps rotationIndex pointing at the same slot.
+        chore.rotation = [...chore.rotation, mateId];
+        await Chore.db.updateRow(session, chore, transaction: tx);
+      }
+      mate.welcomed = true;
+      await Mate.db.updateRow(session, mate, transaction: tx);
+    });
+    if (added.isNotEmpty && mate.id != me.id) {
+      await Notifier.toMates(
+        session,
+        [mate.id!],
+        title: 'You\'ve been added to a Rotation',
+        body:
+            '${me.displayName} added you to '
+            '${added.map((c) => c.name).join(', ')}.',
+        kind: NotifyKind.addedToRotation,
+      );
+    }
+    await broadcast(session, flat.id!, FlatChangeKind.flat);
+  }
+
+  /// Sets when the morning summary goes out, in minutes after local
+  /// midnight. It has to come before the evening push.
+  Future<Flat> setMorningSummaryAt(Session session, int minutes) async {
+    final (:me, :flat) = await requireAdmin(session);
+    final eveningAt = Duration.minutesPerDay - reminderLead.inMinutes;
+    if (minutes < 0 || minutes >= eveningAt) {
+      fail('The morning summary has to come before ${eveningAt ~/ 60}:00.');
+    }
+    final wasAt = flat.morningSummaryAt;
+    flat.morningSummaryAt = minutes;
+    await Flat.db.updateRow(session, flat);
+    await TurnService.moveMorningSummary(session, flat, wasAt);
     await broadcast(session, flat.id!, FlatChangeKind.flat);
     return flat;
   }

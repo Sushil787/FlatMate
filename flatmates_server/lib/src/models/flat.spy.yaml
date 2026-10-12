@@ -10,6 +10,9 @@ fields:
   ### When [inviteCode] stops working; 7 days after it was made.
   inviteExpiresAt: DateTime
   awayRule: AwayRule
+  ### When each Mate gets the push about their Turns starting that day, in
+  ### minutes after local midnight; the Admin sets it.
+  morningSummaryAt: int, default=480
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

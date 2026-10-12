@@ -356,6 +356,13 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'protocol:AwayRule',
         ),
         _isp.ColumnDefinition(
+          name: 'morningSummaryAt',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '480',
+        ),
+        _isp.ColumnDefinition(
           name: 'createdAt',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -628,7 +635,7 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnDefault: 'true',
         ),
         _isp.ColumnDefinition(
-          name: 'notifyMissed',
+          name: 'notifyMatesNotDone',
           columnType: _isp.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
@@ -643,6 +650,13 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'notifyAddedToRotation',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'welcomed',
           columnType: _isp.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',

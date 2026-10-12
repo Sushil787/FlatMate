@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_flutter/core/utils/day.dart';
 import 'package:flatmates_flutter/core/services/push_service.dart';
@@ -31,6 +32,9 @@ class FakeBackend {
   /// How long Chore calls take, to catch a second tap while one runs.
   Duration latency = Duration.zero;
   final _changes = StreamController<FlatChange>.broadcast();
+
+  /// Push notifications arriving while the app is open.
+  final pushes = StreamController<RemoteNotification>.broadcast();
 
   static const priya = 1, sam = 2, alex = 3;
 
@@ -102,7 +106,7 @@ class FakeBackend {
         email: 'priya@example.com',
       ),
     ),
-    pushServiceProvider.overrideWithValue(_NoPush()),
+    pushServiceProvider.overrideWithValue(_NoPush(pushes.stream)),
     flatRepositoryProvider.overrideWithValue(_FlatRepo(this)),
     choreRepositoryProvider.overrideWithValue(_ChoreRepo(this)),
     awayRepositoryProvider.overrideWithValue(_AwayRepo(this)),
@@ -118,6 +122,9 @@ class _SignedIn extends AuthController {
 }
 
 class _NoPush implements PushService {
+  _NoPush(this.foreground);
+  @override
+  final Stream<RemoteNotification> foreground;
   @override
   Future<void> register() async {}
 }
@@ -152,6 +159,9 @@ class _FlatRepo implements FlatRepository {
   Future<Flat> setAwayRule(AwayRule rule) async =>
       b.myFlat!.flat..awayRule = rule;
   @override
+  Future<Flat> setMorningSummaryAt(int minutes) async =>
+      b.myFlat!.flat..morningSummaryAt = minutes;
+  @override
   Future<Flat> rename(String name) async => b.myFlat!.flat..name = name;
   @override
   Future<Mate> setMyName(String displayName) async =>
@@ -160,6 +170,16 @@ class _FlatRepo implements FlatRepository {
   Future<Mate> setMyColor(MateColor color) async => b.myFlat!.me..color = color;
   @override
   Future<Mate> setNotifications(Mate me) async => me;
+  @override
+  Future<void> welcomeMate(int mateId, List<int> choreIds) async {
+    for (final c in b.chores.where((c) => choreIds.contains(c.id))) {
+      c.rotation = [...c.rotation, mateId];
+    }
+    for (final m in b.myFlat!.mates.where((m) => m.id == mateId)) {
+      m.welcomed = true;
+    }
+  }
+
   @override
   Future<void> transferAdmin(int mateId) async {}
   @override
