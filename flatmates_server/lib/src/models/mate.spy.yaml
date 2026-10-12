@@ -7,6 +7,17 @@ fields:
   displayName: String
   joinedAt: DateTime
   leftAt: DateTime?
+  color: MateColor, default=tomato
+  ### Which push notifications the Mate wants.
+  notifyTurnStarts: bool, default=true
+  notifyReminder: bool, default=true
+  ### The evening push about other Mates' Turns not Done yet.
+  notifyMatesNotDone: bool, default=true
+  notifyNotice: bool, default=true
+  notifyAddedToRotation: bool, default=true
+  ### False until the Admin has seen that this Mate joined and picked their
+  ### Chores (or chose to do it later).
+  welcomed: bool, default=true
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

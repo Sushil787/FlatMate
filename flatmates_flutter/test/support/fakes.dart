@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_flutter/core/utils/day.dart';
 import 'package:flatmates_flutter/core/services/push_service.dart';
@@ -11,6 +12,7 @@ import 'package:flatmates_flutter/features/chores/data/chore_repository.dart';
 import 'package:flatmates_flutter/features/flat/data/flat_repository.dart';
 import 'package:flatmates_flutter/features/groceries/data/grocery_repository.dart';
 import 'package:flutter_riverpod/misc.dart';
+import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 /// An in-memory Flat with Priya (admin, the signed-in user), Sam and Alex.
 class FakeBackend {
@@ -26,7 +28,13 @@ class FakeBackend {
   final events = <FlatEvent>[];
   final aways = <Away>[];
   final doneTurnIds = <int>[];
+
+  /// How long Chore calls take, to catch a second tap while one runs.
+  Duration latency = Duration.zero;
   final _changes = StreamController<FlatChange>.broadcast();
+
+  /// Push notifications arriving while the app is open.
+  final pushes = StreamController<RemoteNotification>.broadcast();
 
   static const priya = 1, sam = 2, alex = 3;
 
@@ -37,6 +45,7 @@ class FakeBackend {
       timezone: 'UTC',
       adminMateId: priya,
       inviteCode: 'ABC234',
+      inviteExpiresAt: DateTime.now().toUtc().add(const Duration(days: 7)),
       awayRule: AwayRule.swap,
       createdAt: DateTime.now(),
     );
@@ -48,6 +57,7 @@ class FakeBackend {
       ),
       displayName: n,
       joinedAt: DateTime.now(),
+      color: MateColor.values[id - 1],
     );
     final me = mate(priya, name);
     return MyFlat(
@@ -87,7 +97,16 @@ class FakeBackend {
 
   List<Override> overrides() => [
     authControllerProvider.overrideWith(_SignedIn.new),
-    pushServiceProvider.overrideWithValue(_NoPush()),
+    myProfileProvider.overrideWith(
+      (ref) async => UserProfileModel(
+        authUserId: UuidValue.fromString(
+          '00000000-0000-4000-8000-000000000001',
+        ),
+        fullName: 'Priya Shah',
+        email: 'priya@example.com',
+      ),
+    ),
+    pushServiceProvider.overrideWithValue(_NoPush(pushes.stream)),
     flatRepositoryProvider.overrideWithValue(_FlatRepo(this)),
     choreRepositoryProvider.overrideWithValue(_ChoreRepo(this)),
     awayRepositoryProvider.overrideWithValue(_AwayRepo(this)),
@@ -103,6 +122,9 @@ class _SignedIn extends AuthController {
 }
 
 class _NoPush implements PushService {
+  _NoPush(this.foreground);
+  @override
+  final Stream<RemoteNotification> foreground;
   @override
   Future<void> register() async {}
 }
@@ -137,6 +159,28 @@ class _FlatRepo implements FlatRepository {
   Future<Flat> setAwayRule(AwayRule rule) async =>
       b.myFlat!.flat..awayRule = rule;
   @override
+  Future<Flat> setMorningSummaryAt(int minutes) async =>
+      b.myFlat!.flat..morningSummaryAt = minutes;
+  @override
+  Future<Flat> rename(String name) async => b.myFlat!.flat..name = name;
+  @override
+  Future<Mate> setMyName(String displayName) async =>
+      b.myFlat!.me..displayName = displayName;
+  @override
+  Future<Mate> setMyColor(MateColor color) async => b.myFlat!.me..color = color;
+  @override
+  Future<Mate> setNotifications(Mate me) async => me;
+  @override
+  Future<void> welcomeMate(int mateId, List<int> choreIds) async {
+    for (final c in b.chores.where((c) => choreIds.contains(c.id))) {
+      c.rotation = [...c.rotation, mateId];
+    }
+    for (final m in b.myFlat!.mates.where((m) => m.id == mateId)) {
+      m.welcomed = true;
+    }
+  }
+
+  @override
   Future<void> transferAdmin(int mateId) async {}
   @override
   Future<void> removeMate(int mateId) async {}
@@ -169,6 +213,7 @@ class _ChoreRepo implements ChoreRepository {
     required DateTime startDay,
     required List<int> rotation,
   }) async {
+    await Future<void>.delayed(b.latency);
     b.addChore(name, mateId: rotation.first, id: b.chores.length + 1);
     return b.chores.last;
   }
@@ -185,11 +230,24 @@ class _ChoreRepo implements ChoreRepository {
       b.chores.removeWhere((c) => c.id == choreId);
   @override
   Future<Turn> markDone(int turnId) async {
+    await Future<void>.delayed(b.latency);
     b.doneTurnIds.add(turnId);
     final turn = b.turns.firstWhere((t) => t.id == turnId);
     turn.status = TurnStatus.done;
     return turn;
   }
+
+  @override
+  Future<Turn> undoDone(int turnId) async {
+    await Future<void>.delayed(b.latency);
+    b.doneTurnIds.remove(turnId);
+    return b.turns.firstWhere((t) => t.id == turnId)
+      ..status = TurnStatus.active
+      ..doneAt = null;
+  }
+
+  @override
+  Future<List<SwapDebt>> swapDebts() async => [];
 }
 
 class _AwayRepo implements AwayRepository {
@@ -212,6 +270,10 @@ class _AwayRepo implements AwayRepository {
   }
 
   @override
+  Future<List<AwayEffect>> preview(DateTime startDay, DateTime lastDay) async =>
+      [];
+
+  @override
   Future<void> cancel(int awayId) async =>
       b.aways.removeWhere((a) => a.id == awayId);
 }
@@ -229,6 +291,9 @@ class _EventRepo implements EventRepository {
     required String title,
     String? note,
     required DateTime startsAt,
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
   }) async {
     final e = FlatEvent(
       id: b.events.length + 1,
@@ -237,6 +302,8 @@ class _EventRepo implements EventRepository {
       title: title,
       note: note,
       startsAt: startsAt,
+      allDay: allDay,
+      endsAt: endsAt,
     );
     b.events.add(e);
     return e;
@@ -270,6 +337,12 @@ class _NoticeRepo implements NoticeRepository {
   @override
   Future<void> setPinned(int noticeId, bool pinned) async =>
       b.notices.firstWhere((n) => n.id == noticeId).pinned = pinned;
+  @override
+  Future<void> gotIt(int noticeId) async {
+    final n = b.notices.firstWhere((n) => n.id == noticeId);
+    n.gotItMateIds = [...?n.gotItMateIds, FakeBackend.priya];
+  }
+
   @override
   Future<void> delete(int noticeId) async =>
       b.notices.removeWhere((n) => n.id == noticeId);

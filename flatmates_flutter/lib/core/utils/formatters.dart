@@ -49,6 +49,11 @@ abstract final class Fmt {
     return day(t);
   }
 
+  /// "Sam", "Sam and Priya", "Sam, Priya and Jonas".
+  static String and(List<String> names) => names.length < 2
+      ? names.join()
+      : '${names.sublist(0, names.length - 1).join(', ')} and ${names.last}';
+
   static String greeting([DateTime? now]) {
     final h = (now ?? DateTime.now()).hour;
     if (h < 12) return 'Good morning';

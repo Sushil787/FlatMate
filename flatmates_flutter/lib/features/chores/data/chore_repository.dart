@@ -1,13 +1,12 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/client_provider.dart';
 
-part 'chore_repository.g.dart';
-
-@Riverpod(keepAlive: true)
-ChoreRepository choreRepository(Ref ref) =>
+ChoreRepository _choreRepository(Ref ref) =>
     ChoreRepository(ref.watch(clientProvider));
+
+final choreRepositoryProvider = Provider<ChoreRepository>(_choreRepository);
 
 /// Chores and Turns on the server.
 class ChoreRepository {
@@ -40,4 +39,8 @@ class ChoreRepository {
   Future<void> archive(int choreId) => _client.chore.archive(choreId);
 
   Future<Turn> markDone(int turnId) => _client.chore.markDone(turnId);
+
+  Future<Turn> undoDone(int turnId) => _client.chore.undoDone(turnId);
+
+  Future<List<SwapDebt>> swapDebts() => _client.chore.swapDebts();
 }

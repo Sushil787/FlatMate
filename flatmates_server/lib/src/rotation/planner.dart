@@ -87,14 +87,12 @@ PlannedTurn? planNextTurn(
   if (index == null) return null;
 
   final owner = state.rotation[index];
-  final start = day;
-  final end = day;
 
   // A Mate who covered a Swap gets their next Turn done by the debtor.
   final debt = state.debts
       .where((d) => d.creditorMateId == owner)
       .where((d) => state.activeMateIds.contains(d.debtorMateId))
-      .where((d) => !state.isAway(d.debtorMateId, start, end))
+      .where((d) => !state.isAway(d.debtorMateId, day, day))
       .firstOrNull;
   if (debt != null) {
     state.debts.remove(debt);
@@ -102,24 +100,24 @@ PlannedTurn? planNextTurn(
       rotationIndex: index,
       mateId: debt.debtorMateId,
       coveringForMateId: owner,
-      day: start,
-      lastDay: end,
+      day: day,
+      lastDay: day,
       debtRepaid: debt,
     );
   }
 
-  if (!state.isAway(owner, start, end)) {
+  if (!state.isAway(owner, day, day)) {
     return PlannedTurn(
       rotationIndex: index,
       mateId: owner,
-      day: start,
-      lastDay: end,
+      day: day,
+      lastDay: day,
     );
   }
 
   switch (state.awayRule) {
     case AwayRule.swap:
-      final cover = findCover(state, index, owner, start, end);
+      final cover = findCover(state, index, owner, day, day);
       if (cover != null) {
         final created = Debt(owner, cover.mateId);
         state.debts.add(created);
@@ -127,19 +125,19 @@ PlannedTurn? planNextTurn(
           rotationIndex: index,
           mateId: cover.mateId,
           coveringForMateId: owner,
-          day: start,
-          lastDay: end,
+          day: day,
+          lastDay: day,
           debtCreated: created,
         );
       }
     case AwayRule.skip:
-      final cover = findCover(state, index, owner, start, end);
+      final cover = findCover(state, index, owner, day, day);
       if (cover != null) {
         return PlannedTurn(
           rotationIndex: cover.index,
           mateId: cover.mateId,
-          day: start,
-          lastDay: end,
+          day: day,
+          lastDay: day,
         );
       }
     case AwayRule.pause:
@@ -147,13 +145,39 @@ PlannedTurn? planNextTurn(
   }
 
   // Pause, or nobody available to cover: the Chore freezes for the owner.
-  final paused = pauseSpan(state, owner, start, end, canMoveStart: true);
+  final paused = pauseSpan(state, owner, day, day, canMoveStart: true);
   return PlannedTurn(
     rotationIndex: index,
     mateId: owner,
     day: paused.day,
     lastDay: paused.lastDay,
   );
+}
+
+/// What the Away rule does to an existing Turn of [mateId] that an Away
+/// overlaps: someone covers it, or (Pause, or nobody free) it moves to
+/// new days.
+({({int index, int mateId})? cover, DateTime day, DateTime lastDay})
+awayOutcome(
+  PlannerState state,
+  int rotationIndex,
+  int mateId,
+  DateTime day,
+  DateTime lastDay, {
+  required bool canMoveStart,
+}) {
+  if (state.awayRule != AwayRule.pause) {
+    final cover = findCover(state, rotationIndex, mateId, day, lastDay);
+    if (cover != null) return (cover: cover, day: day, lastDay: lastDay);
+  }
+  final span = pauseSpan(
+    state,
+    mateId,
+    day,
+    lastDay,
+    canMoveStart: canMoveStart,
+  );
+  return (cover: null, day: span.day, lastDay: span.lastDay);
 }
 
 /// The next Mate after [index] in the Rotation who is in the Flat, is not

@@ -1,13 +1,14 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import '../../../core/providers/client_provider.dart';
 
-part 'auth_controller.g.dart';
-
 /// Whether a user is signed in. Follows the Serverpod auth session.
-@Riverpod(keepAlive: true)
-class AuthController extends _$AuthController {
+final authControllerProvider = NotifierProvider<AuthController, bool>(
+  AuthController.new,
+);
+
+class AuthController extends Notifier<bool> {
   @override
   bool build() {
     final auth = ref.watch(clientProvider).auth;
@@ -19,3 +20,16 @@ class AuthController extends _$AuthController {
 
   Future<void> signOut() => ref.read(clientProvider).auth.signOutDevice();
 }
+
+/// The signed-in user's Google name and email.
+Future<UserProfileModel?> _myProfile(Ref ref) async {
+  if (!ref.watch(authControllerProvider)) return null;
+  return ref
+      .watch(clientProvider)
+      .modules
+      .serverpod_auth_core
+      .userProfileInfo
+      .get();
+}
+
+final myProfileProvider = FutureProvider<UserProfileModel?>(_myProfile);

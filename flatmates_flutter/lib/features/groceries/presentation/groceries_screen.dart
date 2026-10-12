@@ -1,16 +1,23 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
 
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/utils/action_runner.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/app_field.dart';
 import '../../../core/widgets/async_value_view.dart';
-import '../../../core/widgets/empty_state.dart';
-import '../../../core/widgets/section_header.dart';
+import '../../../core/widgets/banners.dart';
+import '../../../core/widgets/layout.dart';
+import '../../flat/application/flat_changes.dart';
 import '../application/groceries_controller.dart';
-import 'widgets/grocery_tile.dart';
+import '../application/grocery_outbox.dart';
+import 'widgets/grocery_row.dart';
+import '../../../core/widgets/app_icon.dart';
 
-/// The Flat's one shared grocery list. Updates live; never pushes.
+/// The Flat's one shared grocery list, with a quick-entry field docked
+/// above the nav. Updates live, and keeps working offline.
 @RoutePage()
 class GroceriesScreen extends ConsumerStatefulWidget {
   const GroceriesScreen({super.key});
@@ -21,129 +28,317 @@ class GroceriesScreen extends ConsumerStatefulWidget {
 
 class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
   final _input = TextEditingController();
-  final _focus = FocusNode();
 
   @override
   void dispose() {
     _input.dispose();
-    _focus.dispose();
     super.dispose();
   }
 
-  Future<void> _add() async {
-    if (_input.text.trim().isEmpty) return;
-    final ok = await runAction(
-      context,
-      () => ref.read(groceriesControllerProvider.notifier).add(_input.text),
-    );
-    if (ok) {
-      _input.clear();
-      _focus.requestFocus();
-    }
+  void _add([String? name]) {
+    final text = (name ?? _input.text).trim();
+    if (text.isEmpty) return;
+    if (name == null) _input.clear();
+    ref.read(groceriesControllerProvider.notifier).add(text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final fm = context.fm;
     final groceries = ref.watch(groceriesControllerProvider);
-    final theme = Theme.of(context);
-    final toBuy = groceries.value?.where((g) => g.boughtAt == null).length;
+    final outbox = ref.watch(groceryOutboxProvider);
+    final online = ref.watch(onlineProvider);
+    final controller = ref.read(groceriesControllerProvider.notifier);
+    final synced = controller.lastSynced;
+    final open = groceries.value?.where((g) => g.boughtAt == null).length;
+    final status = !online && synced != null
+        ? 'Last synced ${Fmt.time(synced)}'
+        : open == null
+        ? null
+        : '$open to buy';
+    final refused = outbox.refused;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Groceries'),
-        actions: [
-          if (toBuy != null && toBuy > 0)
-            Padding(
-              padding: const EdgeInsets.only(right: Insets.lg),
-              child: Center(
-                child: Text(
-                  '$toBuy to buy',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-      body: Column(
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              Insets.lg,
+              Space.screenMargin,
+              Space.lg,
+              Space.screenMargin,
               0,
-              Insets.lg,
-              Insets.md,
             ),
-            child: TextField(
-              controller: _input,
-              focusNode: _focus,
-              textCapitalization: TextCapitalization.sentences,
-              onSubmitted: (_) => _add(),
-              decoration: InputDecoration(
-                hintText: 'Add an item, e.g. "Milk - 2L"',
-                prefixIcon: const Icon(Icons.add_shopping_cart_rounded),
-                suffixIcon: IconButton(
-                  onPressed: _add,
-                  icon: const Icon(Icons.arrow_upward_rounded),
-                ),
-              ),
+            child: ScreenHeader(
+              'Groceries',
+              subtitle: status == null
+                  ? null
+                  : Text(
+                      status,
+                      style: context.text.bodyMedium?.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: fm.inkSoft,
+                      ),
+                    ),
             ),
           ),
           Expanded(
             child: AsyncValueView(
               value: groceries,
               onRetry: () => ref.invalidate(groceriesControllerProvider),
-              data: (items) {
-                if (items.isEmpty) {
-                  return const EmptyState(
-                    icon: Icons.shopping_basket_rounded,
-                    title: 'Nothing needed',
-                    message:
-                        'Add what the flat is running low on. Whoever\'s at the shop ticks it off.',
-                  );
-                }
-                final pending = items.where((g) => g.boughtAt == null).toList();
-                final bought = items.where((g) => g.boughtAt != null).toList();
-                return RefreshIndicator(
-                  onRefresh: ref
-                      .read(groceriesControllerProvider.notifier)
-                      .refresh,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      Insets.lg,
-                      0,
-                      Insets.lg,
-                      Insets.xl,
+              data: (items) => items.isEmpty && outbox.queued.isEmpty
+                  ? _Empty(onAdd: _add)
+                  : _List(
+                      // Newest first.
+                      items: items.reversed.toList(),
+                      waiting: {for (final op in outbox.queued) op.item.id},
+                      offline: !online || outbox.queued.isNotEmpty,
                     ),
-                    children: [
-                      for (final item in pending) ...[
-                        GroceryTile(item: item),
-                        const SizedBox(height: Insets.sm),
-                      ],
-                      if (bought.isNotEmpty) ...[
-                        const SectionHeader(
-                          'Bought · clears after 24h',
-                          padding: EdgeInsets.fromLTRB(
-                            0,
-                            Insets.lg,
-                            0,
-                            Insets.sm,
-                          ),
-                        ),
-                        for (final item in bought) ...[
-                          GroceryTile(item: item),
-                          const SizedBox(height: Insets.sm),
-                        ],
-                      ],
-                    ],
+            ),
+          ),
+          if (refused != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Space.screenMargin,
+                Space.sm,
+                Space.screenMargin,
+                0,
+              ),
+              child: ErrorCard(
+                title:
+                    'Couldn\'t ${_verb(refused.op)} "${refused.op.item.name}"',
+                message: refused.message,
+                onDismiss: ref.read(groceryOutboxProvider.notifier).dismiss,
+                onRetry: controller.retry,
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Space.screenMargin,
+              10,
+              Space.screenMargin,
+              10,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppField(
+                    controller: _input,
+                    hint: 'Add a Grocery item…',
+                    radius: 28,
+                    textInputAction: TextInputAction.done,
+                    // Keep the keyboard up for the next item.
+                    onEditingComplete: () {},
+                    onSubmitted: (_) => _add(),
                   ),
-                );
-              },
+                ),
+                const SizedBox(width: Space.sm),
+                CircleButton(
+                  icon: HugeIcons.strokeRoundedAdd01,
+                  tooltip: 'Add item',
+                  primary: true,
+                  size: Sizes.buttonPrimary,
+                  onPressed: _add,
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+String _verb(GroceryOp op) => switch (op.change) {
+  GroceryChange.add => 'add',
+  GroceryChange.setBought => op.item.boughtAt != null ? 'tick off' : 'untick',
+  GroceryChange.remove => 'remove',
+};
+
+class _List extends ConsumerWidget {
+  const _List({
+    required this.items,
+    required this.waiting,
+    required this.offline,
+  });
+
+  final List<GroceryItem> items;
+  final Set<int?> waiting;
+  final bool offline;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(groceriesControllerProvider.notifier);
+    final open = items.where((g) => g.boughtAt == null).toList();
+    final ticked = items.where((g) => g.boughtAt != null).toList();
+
+    Widget card(List<GroceryItem> rows) => Card(
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const Divider(),
+            GroceryRow(
+              key: ValueKey(rows[i].id),
+              item: rows[i],
+              waiting: waiting.contains(rows[i].id),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return RefreshIndicator(
+      onRefresh: controller.refresh,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          Space.screenMargin,
+          Space.xs,
+          Space.screenMargin,
+          Space.md,
+        ),
+        children: [
+          if (open.isNotEmpty) card(open),
+          if (ticked.isNotEmpty) ...[
+            const SizedBox(height: Space.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: Space.xs),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Ticked off today',
+                      style: context.text.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: controller.clearTicked,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Space.sm,
+                      ),
+                      textStyle: context.text.labelLarge?.copyWith(
+                        fontSize: 13,
+                      ),
+                    ),
+                    child: const Text('Clear ticked'),
+                  ),
+                ],
+              ),
+            ),
+            card(ticked),
+          ],
+          if (offline)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Space.xs,
+                10,
+                Space.xs,
+                0,
+              ),
+              child: Text(
+                'You can keep adding and ticking. We\'ll sync with your '
+                'Mates when you\'re back online.',
+                style: context.text.bodySmall,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Nothing on the list yet: the basket, and a few one-tap adds.
+class _Empty extends StatelessWidget {
+  const _Empty({required this.onAdd});
+
+  final ValueChanged<String> onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final fm = context.fm;
+    return CustomScrollView(
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Space.screenMargin,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Space.sm,
+                      vertical: Space.lg,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(Radii.hero),
+                            color: fm.primaryTint,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(Space.md),
+                            child: AppIcon(
+                              HugeIcons.strokeRoundedShoppingBasket01,
+                              color: fm.primary.withValues(alpha: 0.8),
+                              size: Sizes.avatarLg,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: Space.md),
+                        Text(
+                          'The list is empty. The fridge is not our problem yet.',
+                          style: context.text.headlineMedium,
+                        ),
+                        const SizedBox(height: Space.md),
+                        Text(
+                          'Add the first Grocery item. Every Mate sees it '
+                          'straight away and anyone can tick it off.',
+                          style: context.text.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            height: 1.4,
+                            color: fm.inkSoft,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: Space.xs),
+                  child: Text(
+                    'Quick add',
+                    style: context.text.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Space.sm),
+                Wrap(
+                  spacing: Space.sm,
+                  runSpacing: Space.sm,
+                  children: [
+                    for (final name in ['Milk', 'Bread', 'Eggs', 'Toilet roll'])
+                      PillButton(
+                        label: '+ $name',
+                        onPressed: () => onAdd(name),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

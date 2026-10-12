@@ -23,18 +23,22 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: SplashRoute.page, initial: true),
       AutoRoute(page: SignInRoute.page),
       AutoRoute(page: OnboardingRoute.page),
+      // The five tabs of the bottom nav.
       AutoRoute(
-        page: HomeRoute.page,
+        page: TabsRoute.page,
         guards: ready,
         children: [
-          AutoRoute(page: ChoresRoute.page, initial: true),
+          AutoRoute(page: HomeRoute.page, initial: true),
+          AutoRoute(page: ChoresRoute.page),
           AutoRoute(page: CalendarRoute.page),
-          AutoRoute(page: BoardRoute.page),
           AutoRoute(page: GroceriesRoute.page),
           AutoRoute(page: FlatRoute.page),
         ],
       ),
-      AutoRoute(page: ChoreEditorRoute.page, guards: ready),
+      // Detail screens: no bottom nav.
+      AutoRoute(page: ChoreDetailRoute.page, guards: ready),
+      AutoRoute(page: BoardRoute.page, guards: ready),
+      AutoRoute(page: SettingsRoute.page, guards: ready),
     ];
   }
 }

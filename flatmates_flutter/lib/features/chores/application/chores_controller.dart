@@ -1,14 +1,16 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../flat/application/mate_directory.dart';
 import '../data/chore_repository.dart';
 import '../domain/chores_overview.dart';
 
-part 'chores_controller.g.dart';
-
 /// The Flat's Chores and their open Turns.
-@Riverpod(keepAlive: true)
-class ChoresController extends _$ChoresController {
+final choresControllerProvider =
+    AsyncNotifierProvider<ChoresController, ChoresOverview>(
+      ChoresController.new,
+    );
+
+class ChoresController extends AsyncNotifier<ChoresOverview> {
   ChoreRepository get _repo => ref.read(choreRepositoryProvider);
 
   @override
@@ -28,6 +30,12 @@ class ChoresController extends _$ChoresController {
 
   Future<void> markDone(int turnId) async {
     await _repo.markDone(turnId);
+    await refresh();
+  }
+
+  /// Takes back a Done while the Turn's day is still going.
+  Future<void> undoDone(int turnId) async {
+    await _repo.undoDone(turnId);
     await refresh();
   }
 

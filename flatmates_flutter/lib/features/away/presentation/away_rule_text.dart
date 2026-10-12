@@ -1,5 +1,6 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+import '../../../core/widgets/app_icon.dart';
 
 /// How each Away rule is presented to people.
 extension AwayRuleText on AwayRule {
@@ -10,16 +11,14 @@ extension AwayRuleText on AwayRule {
   };
 
   String get explanation => switch (this) {
-    AwayRule.swap =>
-      'The next mate covers your turn, and you do their next one in return.',
-    AwayRule.skip => 'The next mate takes your turn. Nothing is owed.',
-    AwayRule.pause =>
-      'Your chores wait until you\'re back; away days during a turn extend it.',
+    AwayRule.swap => 'Another Mate covers the Turn and is owed one back.',
+    AwayRule.skip => 'The Turn passes to the next Mate.',
+    AwayRule.pause => 'The Chore waits until the Mate is back.',
   };
 
-  IconData get icon => switch (this) {
-    AwayRule.swap => Icons.swap_horiz_rounded,
-    AwayRule.skip => Icons.skip_next_rounded,
-    AwayRule.pause => Icons.pause_circle_outline_rounded,
+  AppIconData get icon => switch (this) {
+    AwayRule.swap => HugeIcons.strokeRoundedArrowDataTransferHorizontal,
+    AwayRule.skip => HugeIcons.strokeRoundedNext,
+    AwayRule.pause => HugeIcons.strokeRoundedPause,
   };
 }

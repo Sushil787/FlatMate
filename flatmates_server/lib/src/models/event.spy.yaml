@@ -7,7 +7,11 @@ fields:
   title: String
   note: String?
   startsAt: DateTime
+  ### Null for an Event with no set end. For an all-day Event the app sends
+  ### local midnights: [startsAt] the first day's, [endsAt] the one after
+  ### the last day (null for a single day).
   endsAt: DateTime?
+  allDay: bool, default=false
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

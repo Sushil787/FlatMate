@@ -10,6 +10,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_server/src/generated/protocol.dart' as _ikjds9rx;
 import 'package:serverpod/serverpod.dart' as _is;
 
 /// A text post on the Flat's notice board.
@@ -20,6 +21,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required this.mateId,
     required this.text,
     required this.pinned,
+    this.gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -31,6 +33,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     required int mateId,
     required String text,
     required bool pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _NoticeImpl;
@@ -42,6 +45,11 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       mateId: jsonSerialization['mateId'] as int,
       text: jsonSerialization['text'] as String,
       pinned: _is.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
+      gotItMateIds: jsonSerialization['gotItMateIds'] == null
+          ? null
+          : _ikjds9rx.Protocol().deserialize<List<int>>(
+              jsonSerialization['gotItMateIds'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -66,6 +74,9 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   bool pinned;
 
+  /// Mates who said "Got it"; filled in by list().
+  List<int>? gotItMateIds;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -82,6 +93,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
     int? mateId,
     String? text,
     bool? pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -94,6 +106,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'mateId': mateId,
       'text': text,
       'pinned': pinned,
+      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -108,6 +121,7 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
       'mateId': mateId,
       'text': text,
       'pinned': pinned,
+      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -150,6 +164,7 @@ class _NoticeImpl extends Notice {
     required int mateId,
     required String text,
     required bool pinned,
+    List<int>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -158,6 +173,7 @@ class _NoticeImpl extends Notice {
          mateId: mateId,
          text: text,
          pinned: pinned,
+         gotItMateIds: gotItMateIds,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -172,6 +188,7 @@ class _NoticeImpl extends Notice {
     int? mateId,
     String? text,
     bool? pinned,
+    Object? gotItMateIds = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -181,6 +198,9 @@ class _NoticeImpl extends Notice {
       mateId: mateId ?? this.mateId,
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
+      gotItMateIds: gotItMateIds is List<int>?
+          ? gotItMateIds
+          : this.gotItMateIds?.map((e0) => e0).toList(),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

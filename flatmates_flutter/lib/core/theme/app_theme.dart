@@ -1,220 +1,349 @@
+// Flatmates design tokens ("Ink and lime"), from design/lib/theme/app_theme.dart.
+// See design/DESIGN.md for the rules.
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
-import 'app_spacing.dart';
+/// Colours that change between light and dark mode.
+@immutable
+class FlatmatesColors extends ThemeExtension<FlatmatesColors> {
+  const FlatmatesColors({
+    required this.ground,
+    required this.surface,
+    required this.ink,
+    required this.inkSoft,
+    required this.line,
+    required this.fillQuiet,
+    required this.primary,
+    required this.onPrimary,
+    required this.primaryTint,
+    required this.onPrimaryTint,
+    required this.link,
+    required this.heroCard,
+    required this.onHeroCard,
+    required this.heroButton,
+    required this.onHeroButton,
+    required this.doneBg,
+    required this.doneFg,
+    required this.missedBg,
+    required this.missedFg,
+    required this.awayBg,
+    required this.awayFg,
+    required this.dangerBg,
+    required this.dangerFg,
+    required this.switchOff,
+  });
 
-/// Flatmates' light and dark themes.
-abstract final class AppTheme {
-  static const _seed = Color(0xFF0F766E);
+  final Color ground, surface, ink, inkSoft, line, fillQuiet;
+  final Color primary, onPrimary, primaryTint, onPrimaryTint, link;
 
-  static final light = _build(
-    ColorScheme.fromSeed(seedColor: _seed).copyWith(
-      primary: const Color(0xFF0F766E),
-      onPrimary: Colors.white,
-      primaryContainer: const Color(0xFFCCFBF1),
-      onPrimaryContainer: const Color(0xFF042F2E),
-      secondary: const Color(0xFFD97706),
-      secondaryContainer: const Color(0xFFFEF3C7),
-      onSecondaryContainer: const Color(0xFF451A03),
-      tertiary: const Color(0xFF7C3AED),
-      tertiaryContainer: const Color(0xFFEDE9FE),
-      onTertiaryContainer: const Color(0xFF2E1065),
-      surface: const Color(0xFFFAFAF7),
-      onSurface: const Color(0xFF1C1F1E),
-      onSurfaceVariant: const Color(0xFF5B625F),
-      surfaceContainerLowest: Colors.white,
-      surfaceContainerLow: const Color(0xFFF4F4EF),
-      surfaceContainer: const Color(0xFFEFEFE9),
-      surfaceContainerHigh: const Color(0xFFE9E9E2),
-      surfaceContainerHighest: const Color(0xFFE2E2DA),
-      outline: const Color(0xFFB9BFBB),
-      outlineVariant: const Color(0xFFE2E4DE),
-    ),
-    AppColors.light,
+  /// The "Your Turn today" card on Home and the Mark Done button on it.
+  final Color heroCard, onHeroCard, heroButton, onHeroButton;
+
+  final Color doneBg, doneFg, missedBg, missedFg, awayBg, awayFg;
+  final Color dangerBg, dangerFg, switchOff;
+
+  static const light = FlatmatesColors(
+    ground: Color(0xFFF3F3EE),
+    surface: Color(0xFFFFFFFF),
+    ink: Color(0xFF16181A),
+    inkSoft: Color(0xFF55584F),
+    line: Color(0xFFDEDED6),
+    fillQuiet: Color(0xFFEAEAE3),
+    primary: Color(0xFFC8F169),
+    onPrimary: Color(0xFF16181A),
+    primaryTint: Color(0xFFE9F7C6),
+    onPrimaryTint: Color(0xFF16181A),
+    link: Color(0xFF3F5A00),
+    heroCard: Color(0xFF16181A),
+    onHeroCard: Color(0xFFFFFFFF),
+    heroButton: Color(0xFFC8F169),
+    onHeroButton: Color(0xFF16181A),
+    doneBg: Color(0xFFDDF2E6),
+    doneFg: Color(0xFF17594A),
+    missedBg: Color(0xFFECE7F1),
+    missedFg: Color(0xFF5E4B73),
+    awayBg: Color(0xFFE3ECF5),
+    awayFg: Color(0xFF2F5275),
+    dangerBg: Color(0xFFFDE9DD),
+    dangerFg: Color(0xFF9A3412),
+    switchOff: Color(0xFFC9C9C0),
   );
 
-  static final dark = _build(
-    ColorScheme.fromSeed(
-      seedColor: _seed,
-      brightness: Brightness.dark,
-    ).copyWith(
-      primary: const Color(0xFF2DD4BF),
-      onPrimary: const Color(0xFF042F2E),
-      primaryContainer: const Color(0xFF134E4A),
-      onPrimaryContainer: const Color(0xFFCCFBF1),
-      secondary: const Color(0xFFFBBF24),
-      secondaryContainer: const Color(0xFF422006),
-      onSecondaryContainer: const Color(0xFFFEF3C7),
-      tertiary: const Color(0xFFA78BFA),
-      tertiaryContainer: const Color(0xFF2E1065),
-      onTertiaryContainer: const Color(0xFFEDE9FE),
-      surface: const Color(0xFF0E1211),
-      onSurface: const Color(0xFFE6EAE8),
-      onSurfaceVariant: const Color(0xFF9AA4A0),
-      surfaceContainerLowest: const Color(0xFF0A0D0C),
-      surfaceContainerLow: const Color(0xFF141918),
-      surfaceContainer: const Color(0xFF181E1D),
-      surfaceContainerHigh: const Color(0xFF1F2625),
-      surfaceContainerHighest: const Color(0xFF263030),
-      outline: const Color(0xFF4A5551),
-      outlineVariant: const Color(0xFF2A3230),
-    ),
-    AppColors.dark,
+  static const dark = FlatmatesColors(
+    ground: Color(0xFF121312),
+    surface: Color(0xFF1E201E),
+    ink: Color(0xFFF3F3EE),
+    inkSoft: Color(0xFFA9ACA2),
+    line: Color(0xFF3A3D38),
+    fillQuiet: Color(0xFF2A2D29),
+    primary: Color(0xFFC8F169),
+    onPrimary: Color(0xFF16181A),
+    primaryTint: Color(0xFF323A1C),
+    onPrimaryTint: Color(0xFFE0F7A8),
+    link: Color(0xFFC8F169),
+    heroCard: Color(0xFFC8F169),
+    onHeroCard: Color(0xFF16181A),
+    heroButton: Color(0xFF16181A),
+    onHeroButton: Color(0xFFFFFFFF),
+    doneBg: Color(0xFF1E4636),
+    doneFg: Color(0xFF9FE3C2),
+    missedBg: Color(0xFF3A3148),
+    missedFg: Color(0xFFCDBFE0),
+    awayBg: Color(0xFF24384D),
+    awayFg: Color(0xFFB5CFEA),
+    dangerBg: Color(0xFF4A2414),
+    dangerFg: Color(0xFFFFC9AE),
+    switchOff: Color(0xFF4A4D47),
   );
 
+  @override
+  FlatmatesColors copyWith() => this;
+
+  @override
+  FlatmatesColors lerp(ThemeExtension<FlatmatesColors>? other, double t) =>
+      t < 0.5 || other is! FlatmatesColors ? this : other;
+}
+
+/// Mate avatar fill and initial colours, indexed by the server's
+/// `MateColor` (tomato, sky, plum, leaf, marigold, berry). Same in light
+/// and dark.
+const mateColors = [
+  (name: 'Tomato', fill: Color(0xFFC8431F), onFill: Colors.white),
+  (name: 'Sky', fill: Color(0xFF2670AD), onFill: Colors.white),
+  (name: 'Plum', fill: Color(0xFF8E4EA8), onFill: Colors.white),
+  (name: 'Leaf', fill: Color(0xFF1F7A52), onFill: Colors.white),
+  (name: 'Marigold', fill: Color(0xFFE0A100), onFill: Color(0xFF16181A)),
+  (name: 'Berry', fill: Color(0xFFB8356B), onFill: Colors.white),
+];
+
+abstract final class Space {
+  static const double xs = 4, sm = 8, md = 12, lg = 16, xl = 24, xxl = 32;
+  static const double screenMargin = 16;
+
+  /// Room left under scrolling content for the floating bottom nav.
+  static const double navClearance = 120;
+}
+
+abstract final class Radii {
+  static const double chip = 12, input = 16, card = 20, hero = 28, sheet = 28;
+  static const double nav = 36;
+}
+
+abstract final class Sizes {
+  static const double touchMin = 48;
+  static const double buttonPrimary = 56, buttonHero = 60;
+  static const double buttonSecondary = 48;
+  static const double avatarSm = 24, avatarMd = 36, avatarLg = 48;
+}
+
+abstract final class Timing {
+  static const Duration standard = Duration(milliseconds: 200);
+  static const Duration delayed = Duration(milliseconds: 300);
+  static const Curve curve = Curves.easeOut;
+}
+
+abstract final class FlatmatesTheme {
   /// Bundled in assets/fonts (SIL Open Font License).
-  static const fontFamily = 'PlusJakartaSans';
+  static const headFont = 'BricolageGrotesque';
+  static const bodyFont = 'DMSans';
 
-  static ThemeData _build(ColorScheme scheme, AppColors colors) {
-    final base = ThemeData(
-      colorScheme: scheme,
+  static ThemeData light() => _build(Brightness.light, FlatmatesColors.light);
+  static ThemeData dark() => _build(Brightness.dark, FlatmatesColors.dark);
+
+  static ThemeData _build(Brightness brightness, FlatmatesColors c) {
+    TextStyle head(double size, double height) => TextStyle(
+      fontFamily: headFont,
+      fontSize: size,
+      height: height / size,
+      fontWeight: FontWeight.w700,
+      color: c.ink,
+    );
+    TextStyle body(double size, double height, FontWeight w, [Color? color]) =>
+        TextStyle(
+          fontFamily: bodyFont,
+          fontSize: size,
+          height: height / size,
+          fontWeight: w,
+          color: color ?? c.ink,
+        );
+
+    final text = TextTheme(
+      displaySmall: head(32, 34), // display: Chore name on the Turn card
+      headlineMedium: head(30, 33), // screen title
+      headlineSmall: head(24, 28), // sheet title
+      titleLarge: head(20, 24), // card title
+      titleMedium: head(17, 22), // section heading
+      bodyLarge: body(16, 22, FontWeight.w500), // inputs, Notice text
+      bodyMedium: body(15, 21, FontWeight.w500), // body
+      titleSmall: body(15, 21, FontWeight.w600), // row title
+      bodySmall: body(13, 18, FontWeight.w400, c.inkSoft), // meta
+      labelLarge: body(17, 22, FontWeight.w700), // button
+      labelMedium: body(12, 16, FontWeight.w700), // chip
+      labelSmall: body(11, 14, FontWeight.w600, c.inkSoft),
+    );
+
+    return ThemeData(
       useMaterial3: true,
-      fontFamily: fontFamily,
-    );
-    final text = base.textTheme.copyWith(
-      headlineMedium: const TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
+      brightness: brightness,
+      fontFamily: bodyFont,
+      scaffoldBackgroundColor: c.ground,
+      colorScheme: ColorScheme(
+        brightness: brightness,
+        primary: c.primary,
+        onPrimary: c.onPrimary,
+        secondary: c.ink,
+        onSecondary: c.ground,
+        surface: c.surface,
+        onSurface: c.ink,
+        onSurfaceVariant: c.inkSoft,
+        error: c.dangerFg,
+        onError: Colors.white,
+        outline: c.line,
+        outlineVariant: c.line,
       ),
-      headlineSmall: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.3,
-      ),
-      titleLarge: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-      ),
-      titleMedium: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-      ),
-      titleSmall: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.4,
-      ),
-      labelLarge: const TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w700,
-      ),
-    ).apply(
-      fontFamily: fontFamily,
-      bodyColor: scheme.onSurface,
-      displayColor: scheme.onSurface,
-    );
-
-    final rounded = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(Radii.md),
-    );
-
-    return base.copyWith(
       textTheme: text,
-      scaffoldBackgroundColor: scheme.surface,
-      extensions: [colors],
-      appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        titleTextStyle: text.titleLarge,
-      ),
+      iconTheme: IconThemeData(color: c.ink, size: 22),
+      dividerTheme: DividerThemeData(color: c.line, thickness: 1, space: 1),
       cardTheme: CardThemeData(
+        color: c.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
-        color: scheme.surfaceContainerLowest,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.lg),
-          side: BorderSide(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(Radii.card),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(0, 52),
-          padding: const EdgeInsets.symmetric(horizontal: Insets.xl),
-          shape: rounded,
+          backgroundColor: c.primary,
+          foregroundColor: c.onPrimary,
+          disabledBackgroundColor: c.fillQuiet,
+          disabledForegroundColor: c.inkSoft,
+          minimumSize: const Size.fromHeight(Sizes.buttonPrimary),
+          padding: const EdgeInsets.symmetric(horizontal: Space.xl),
+          shape: const StadiumBorder(),
           textStyle: text.labelLarge,
+          elevation: 0,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, 48),
-          shape: rounded,
-          side: BorderSide(color: scheme.outlineVariant),
-          textStyle: text.labelLarge,
+          foregroundColor: c.ink,
+          side: BorderSide(color: c.ink, width: 2),
+          minimumSize: const Size.fromHeight(Sizes.buttonSecondary),
+          shape: const StadiumBorder(),
+          textStyle: text.labelLarge?.copyWith(fontSize: 16),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(textStyle: text.labelLarge),
+        style: TextButton.styleFrom(
+          foregroundColor: c.link,
+          minimumSize: const Size(Sizes.touchMin, Sizes.touchMin),
+          padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+          shape: const StadiumBorder(),
+          textStyle: text.labelLarge?.copyWith(fontSize: 16),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: c.ink,
+          minimumSize: const Size(Sizes.touchMin, Sizes.touchMin),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerLow,
+        fillColor: c.surface,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: Insets.lg,
-          vertical: Insets.lg,
+          horizontal: 16,
+          vertical: 16,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Radii.md),
-          borderSide: BorderSide.none,
+        hintStyle: text.bodyLarge?.copyWith(color: c.inkSoft),
+        labelStyle: text.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+        floatingLabelBehavior: FloatingLabelBehavior.never,
+        errorStyle: text.bodySmall?.copyWith(
+          color: c.dangerFg,
+          fontWeight: FontWeight.w600,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Radii.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(Radii.input),
+          borderSide: BorderSide(color: c.line, width: 2),
         ),
+        // The 3px lime outer ring on focus is drawn by AppField.
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Radii.md),
-          borderSide: BorderSide(color: scheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(Radii.input),
+          borderSide: BorderSide(color: c.ink, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Radii.input),
+          borderSide: BorderSide(color: c.dangerFg, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Radii.input),
+          borderSide: BorderSide(color: c.dangerFg, width: 2),
         ),
       ),
-      chipTheme: ChipThemeData(
-        shape: const StadiumBorder(),
-        side: BorderSide.none,
-        backgroundColor: scheme.surfaceContainer,
-        labelStyle: text.labelMedium,
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: c.ink,
+        selectionColor: c.primaryTint,
+        selectionHandleColor: c.ink,
       ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 72,
-        backgroundColor: scheme.surfaceContainerLowest,
-        indicatorColor: scheme.primaryContainer,
-        surfaceTintColor: Colors.transparent,
-        labelTextStyle: WidgetStatePropertyAll(text.labelSmall),
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.ink : c.switchOff,
+        ),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.primary : Colors.white,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.ink : c.switchOff,
+        ),
       ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.md + 2),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: c.ink),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: c.surface,
+        modalBackgroundColor: c.surface,
+        elevation: 0,
+        showDragHandle: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Radii.sheet),
+          ),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: rounded,
+        backgroundColor: c.ink,
+        contentTextStyle: text.bodyMedium?.copyWith(color: c.ground),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       dialogTheme: DialogThemeData(
+        backgroundColor: c.surface,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: text.headlineSmall,
+        contentTextStyle: text.bodyMedium?.copyWith(color: c.inkSoft),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.lg),
+          borderRadius: BorderRadius.circular(Radii.hero),
         ),
       ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: scheme.surface,
-        showDragHandle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.lg)),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: c.surface,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: c.ink,
+        headerForegroundColor: c.ground,
+        todayBorder: BorderSide(color: c.ink),
+        dayBackgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.primary : null,
         ),
-      ),
-      listTileTheme: ListTileThemeData(
-        shape: rounded,
-        contentPadding: const EdgeInsets.symmetric(horizontal: Insets.lg),
-      ),
-      dividerTheme: DividerThemeData(color: scheme.outlineVariant, space: 1),
-      segmentedButtonTheme: SegmentedButtonThemeData(
-        style: SegmentedButton.styleFrom(
-          shape: rounded,
-          side: BorderSide(color: scheme.outlineVariant),
+        dayForegroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.onPrimary : c.ink,
         ),
+        rangeSelectionBackgroundColor: c.primaryTint,
       ),
+      extensions: [c],
     );
   }
+}
+
+extension FlatmatesThemeX on BuildContext {
+  FlatmatesColors get fm => Theme.of(this).extension<FlatmatesColors>()!;
+  TextTheme get text => Theme.of(this).textTheme;
 }

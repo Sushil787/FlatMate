@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_flutter/app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,11 @@ import 'support/fakes.dart';
 Future<void> pumpApp(WidgetTester tester, FakeBackend backend) async {
   tester.view.physicalSize = const Size(1170, 2532);
   tester.view.devicePixelRatio = 3;
+  // The live dot pulses forever unless motion is reduced.
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
   addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   await tester.pumpWidget(
     ProviderScope(
       overrides: backend.overrides(),
@@ -18,110 +23,266 @@ Future<void> pumpApp(WidgetTester tester, FakeBackend backend) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> tapTab(WidgetTester tester, String label) async {
+  await tester.tap(find.bySemanticsLabel(RegExp('^$label')));
+  await tester.pumpAndSettle();
+}
+
+/// Scrolls the screen's list until [finder] is clear of the floating nav.
+Future<void> scrollTo(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.drag(find.byType(Scrollable).first, const Offset(0, -150));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('a user without a flat joins one with a code', (tester) async {
+  testWidgets('a user without a Flat joins one with an Invite code', (
+    tester,
+  ) async {
     final backend = FakeBackend(inFlat: false);
     await pumpApp(tester, backend);
 
-    expect(find.text('Let\'s set up your home'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Your name'), 'Priya');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Invite code'), 'WRONG1');
-    await tester.tap(find.text('Join flat'));
+    expect(find.textContaining('Welcome, Priya'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'MAPLE-42'),
+      'WRONG1',
+    );
+    await tester.tap(find.text('Join'));
     await tester.pumpAndSettle();
-    expect(find.text('That invite code doesn\'t match any flat.'), findsOneWidget);
+    expect(
+      find.text('That invite code doesn\'t match any flat.'),
+      findsOneWidget,
+    );
+    // Let the error's snackbar go: it covers the button.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Invite code'), 'abc234');
-    await tester.tap(find.text('Join flat'));
+    await tester.enterText(find.byType(TextField).last, 'abc234');
+    await tester.tap(find.text('Join'));
     await tester.pumpAndSettle();
-    expect(find.text('Priya'), findsWidgets);
-    expect(find.text('No chores yet'), findsOneWidget);
+    expect(find.text('Hi Priya'), findsOneWidget);
+    expect(find.textContaining('Elm St'), findsOneWidget);
   });
 
-  testWidgets('my turn is the hero card and can be marked done', (tester) async {
+  testWidgets('my Turn is the hero card; Mark Done and Undo', (tester) async {
     final backend = FakeBackend()
       ..addChore('Bins', mateId: FakeBackend.priya)
       ..addChore('Kitchen', mateId: FakeBackend.sam, id: 2);
     await pumpApp(tester, backend);
 
-    expect(find.text('YOUR TURN'), findsOneWidget);
+    expect(find.text('YOUR TURN TODAY'), findsOneWidget);
     expect(find.text('Bins'), findsOneWidget);
+    expect(find.text('Up next in the Flat'), findsOneWidget);
     expect(find.text('Kitchen'), findsOneWidget);
-    expect(find.text('EVERYONE\'S CHORES'), findsOneWidget);
 
-    await tester.tap(find.text('Mark as done'));
+    await tester.tap(find.text('Mark Done'));
     await tester.pumpAndSettle();
     expect(backend.doneTurnIds, [100]);
-    expect(find.text('You\'re all clear'), findsOneWidget);
+    expect(find.text('Undo'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(backend.doneTurnIds, isEmpty);
+    expect(find.text('Mark Done'), findsOneWidget);
   });
 
-  testWidgets('the admin creates a chore', (tester) async {
+  testWidgets(
+    'Mark Done and Undo move the screen once, before the server answers',
+    (
+      tester,
+    ) async {
+      final backend = FakeBackend()
+        ..addChore('Bins', mateId: FakeBackend.priya)
+        ..latency = const Duration(milliseconds: 500);
+      await pumpApp(tester, backend);
+
+      await tester.tap(find.text('Mark Done'));
+      await tester.pump(const Duration(milliseconds: 16));
+      // Done at once; never a moment with neither the Turn nor the Done row.
+      expect(find.text('Mark Done'), findsNothing);
+      expect(find.text('Done today'), findsOneWidget);
+      expect(find.text('No Turn for you today'), findsNothing);
+      // The server answers; the reloads bring the same state.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(backend.doneTurnIds, [100]);
+      expect(find.text('Done today'), findsOneWidget);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(find.text('Mark Done'), findsOneWidget);
+      expect(find.text('Done today'), findsNothing);
+      // The server answers; the reloads bring the same state.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(backend.doneTurnIds, isEmpty);
+      expect(find.text('Mark Done'), findsOneWidget);
+    },
+  );
+
+  testWidgets('the Admin creates a Chore from the Chores tab', (tester) async {
     final backend = FakeBackend();
     await pumpApp(tester, backend);
 
-    await tester.tap(find.text('New chore'));
+    await tapTab(tester, 'Chores');
+    await tester.tap(find.text('Add Chore'));
     await tester.pumpAndSettle();
-    expect(find.text('ROTATION'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'Chore'), 'Bathroom');
-    await tester.tap(find.text('Create chore'));
+    expect(find.text('New Chore'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Take out bins'),
+      'Bathroom',
+    );
+    await tester.tap(find.text('Save Chore'));
     await tester.pumpAndSettle();
 
     expect(backend.chores.single.name, 'Bathroom');
-    expect(find.text('YOUR TURN'), findsOneWidget);
+    expect(find.text('Bathroom'), findsOneWidget);
   });
 
-  testWidgets('every tab renders and its main action works', (tester) async {
-    final backend = FakeBackend()..addChore('Bins', mateId: FakeBackend.sam);
+  testWidgets('a double tap saves one Chore and marks a Turn Done once', (
+    tester,
+  ) async {
+    final backend = FakeBackend()
+      ..addChore('Bins', mateId: FakeBackend.priya)
+      ..latency = const Duration(milliseconds: 50);
     await pumpApp(tester, backend);
 
-    await tester.tap(find.text('Groceries'));
+    await tester.tap(find.text('Mark Done'));
+    await tester.tap(find.text('Mark Done'));
     await tester.pumpAndSettle();
-    expect(find.text('Nothing needed'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'Milk - 2L');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-    expect(find.text('Milk'), findsOneWidget);
-    expect(backend.groceries.single.note, '2L');
-    await tester.tap(find.text('Milk'));
-    await tester.pumpAndSettle();
-    expect(find.text('Bought by You'), findsOneWidget);
+    expect(backend.doneTurnIds, [100]);
+    expect(find.text('Done today'), findsOneWidget);
 
-    await tester.tap(find.text('Board'));
+    await tapTab(tester, 'Chores');
+    await tester.tap(find.text('Add Chore'));
     await tester.pumpAndSettle();
-    expect(find.text('The board is clear'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'Party on Saturday!');
-    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Take out bins'),
+      'Bathroom',
+    );
+    await tester.tap(find.text('Save Chore'));
+    await tester.tap(find.text('Save Chore'), warnIfMissed: false);
     await tester.pumpAndSettle();
-    expect(find.text('Party on Saturday!'), findsOneWidget);
-
-    await tester.tap(find.text('Calendar'));
-    await tester.pumpAndSettle();
-    expect(find.text('I\'m away'), findsOneWidget);
-    expect(find.text('Turns'), findsOneWidget);
-
-    await tester.tap(find.text('Flat'));
-    await tester.pumpAndSettle();
-    expect(find.text('Invite your flatmates'), findsOneWidget);
-    expect(find.text('A'), findsWidgets); // invite code tiles
-    expect(find.text('Sam'), findsOneWidget);
-    await tester.tap(find.text('Skip'));
-    await tester.pumpAndSettle();
-    expect(find.text('Away rule set to Skip'), findsOneWidget);
+    expect(backend.chores.where((c) => c.name == 'Bathroom'), hasLength(1));
   });
 
-  testWidgets('leaving the flat returns to onboarding', (tester) async {
+  testWidgets('Groceries: add and tick a Grocery item', (tester) async {
     final backend = FakeBackend();
-    // A sole admin may leave.
+    await pumpApp(tester, backend);
+
+    await tapTab(tester, 'Groceries');
+    expect(
+      find.text('The list is empty. The fridge is not our problem yet.'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byType(TextField), 'Milk');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(backend.groceries.single.name, 'Milk');
+    expect(find.text('Milk'), findsOneWidget);
+
+    await tester.tap(find.text('Milk'));
+    await tester.pumpAndSettle();
+    expect(backend.groceries.single.boughtAt, isNotNull);
+    expect(find.text('Ticked off today'), findsOneWidget);
+  });
+
+  testWidgets('Notice board: post a Notice and say Got it', (tester) async {
+    final backend = FakeBackend();
+    backend.notices.add(
+      Notice(
+        id: 1,
+        flatId: 10,
+        mateId: FakeBackend.sam,
+        text: 'Landlord comes Friday',
+        pinned: false,
+        createdAt: DateTime.now(),
+      ),
+    );
+    await pumpApp(tester, backend);
+
+    await tapTab(tester, 'Flat');
+    await scrollTo(tester, find.text('Notice board'));
+    await tester.tap(find.text('Notice board'));
+    await tester.pumpAndSettle();
+    expect(find.text('New'), findsOneWidget);
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
+    expect(backend.notices.single.gotItMateIds, [FakeBackend.priya]);
+    expect(find.text('You got it'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'Party on Saturday!');
+    await tester.tap(find.byTooltip('Post Notice'));
+    await tester.pumpAndSettle();
+    expect(find.text('Party on Saturday!'), findsOneWidget);
+  });
+
+  testWidgets('the Admin is asked to add a new Mate to Chores', (
+    tester,
+  ) async {
+    final backend = FakeBackend()
+      ..addChore('Bins', mateId: FakeBackend.priya)
+      ..addChore('Dishes', mateId: FakeBackend.sam, id: 2);
+    backend.chores[0].rotation = [FakeBackend.priya, FakeBackend.sam];
+    backend.chores[1].rotation = [FakeBackend.priya, FakeBackend.sam];
+    backend.myFlat!.mates.last.welcomed = false; // Alex just joined
+    await pumpApp(tester, backend);
+
+    expect(find.text('Alex joined Elm St'), findsOneWidget);
+    await tester.tap(find.widgetWithText(CheckboxListTile, 'Dishes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add to 1 Chore'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Alex joined Elm St'), findsNothing);
+    expect(backend.chores[0].rotation.last, FakeBackend.alex);
+    expect(backend.chores[1].rotation, isNot(contains(FakeBackend.alex)));
+  });
+
+  testWidgets('the Admin sets the Away rule on the Flat tab', (tester) async {
+    final backend = FakeBackend();
+    await pumpApp(tester, backend);
+
+    await tapTab(tester, 'Flat');
+    expect(find.text('Invite a Mate'), findsOneWidget);
+    await scrollTo(tester, find.text('Skip'));
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(backend.myFlat!.flat.awayRule, AwayRule.skip);
+  });
+
+  testWidgets('back goes to Home, then needs a second press to exit', (
+    tester,
+  ) async {
+    await pumpApp(tester, FakeBackend());
+
+    await tapTab(tester, 'Groceries');
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.text('Hi Priya'), findsOneWidget);
+
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pump();
+    expect(find.text('Press back again to exit'), findsOneWidget);
+  });
+
+  testWidgets('leaving the Flat returns to onboarding', (tester) async {
+    final backend = FakeBackend();
+    // A sole Admin may leave.
     backend.myFlat!.mates.removeRange(1, 3);
     await pumpApp(tester, backend);
 
-    await tester.tap(find.text('Flat'));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Leave flat'), 200);
-    await tester.tap(find.text('Leave flat'));
+    await tapTab(tester, 'Flat');
+    await scrollTo(tester, find.text('Leave the Flat'));
+    await tester.tap(find.text('Leave the Flat'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Leave'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Let\'s set up your home'), findsOneWidget);
+    expect(find.textContaining('Welcome, Priya'), findsOneWidget);
   });
 }

@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../rotation/planner.dart';
 import '../rotation/turn_service.dart';
 
 /// Marking yourself Away.
@@ -29,25 +30,36 @@ class AwayEndpoint extends Endpoint {
     DateTime lastDay,
   ) async {
     final (:me, :flat) = await requireMate(session);
-    startDay = Day.from(startDay);
-    lastDay = Day.from(lastDay);
-    if (startDay.isBefore(Day.today(flat.timezone))) {
-      fail('Away can\'t start in the past.');
-    }
-    if (lastDay.isBefore(startDay)) fail('Away must end after it starts.');
-
+    final days = _days(flat, startDay, lastDay);
     final away = await Away.db.insertRow(
       session,
       Away(
         flatId: flat.id!,
         mateId: me.id!,
-        startDay: startDay,
-        lastDay: lastDay,
+        startDay: days.startDay,
+        lastDay: days.lastDay,
       ),
     );
     await TurnService.applyAway(session, flat, away);
     await broadcast(session, flat.id!, FlatChangeKind.away);
     return away;
+  }
+
+  /// What marking the caller Away for [startDay]..[lastDay] would do to
+  /// their Turns. Saves nothing.
+  Future<List<AwayEffect>> preview(
+    Session session,
+    DateTime startDay,
+    DateTime lastDay,
+  ) async {
+    final (:me, :flat) = await requireMate(session);
+    final days = _days(flat, startDay, lastDay);
+    return TurnService.previewAway(
+      session,
+      flat,
+      me,
+      AwaySpan(me.id!, days.startDay, days.lastDay),
+    );
   }
 
   /// Cancels one of the caller's Away periods before it starts. Covers
@@ -62,4 +74,18 @@ class AwayEndpoint extends Endpoint {
     await Away.db.deleteRow(session, away);
     await broadcast(session, flat.id!, FlatChangeKind.away);
   }
+}
+
+({DateTime startDay, DateTime lastDay}) _days(
+  Flat flat,
+  DateTime startDay,
+  DateTime lastDay,
+) {
+  startDay = Day.from(startDay);
+  lastDay = Day.from(lastDay);
+  if (startDay.isBefore(Day.today(flat.timezone))) {
+    fail('Away can\'t start in the past.');
+  }
+  if (lastDay.isBefore(startDay)) fail('Away must end after it starts.');
+  return (startDay: startDay, lastDay: lastDay);
 }

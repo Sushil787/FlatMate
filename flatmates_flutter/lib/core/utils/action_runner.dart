@@ -1,6 +1,8 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 /// A message fit to show the user for any error from the server.
 String describeError(Object error) => switch (error) {
   FlatmatesException(:final message) => message,
@@ -9,16 +11,16 @@ String describeError(Object error) => switch (error) {
 };
 
 /// Runs a user action, showing its error (or [success]) in a snackbar.
-/// Returns whether it succeeded.
+/// Returns whether it ran and succeeded. An action that returns false (an
+/// [ActionNotifier] that was already running) counts as not run.
 Future<bool> runAction(
   BuildContext context,
-  Future<void> Function() action, {
+  Future<Object?> Function() action, {
   String? success,
 }) async {
   final messenger = ScaffoldMessenger.of(context);
-  final errorColor = Theme.of(context).colorScheme.error;
   try {
-    await action();
+    if (await action() == false) return false;
     if (success != null) {
       messenger.showSnackBar(SnackBar(content: Text(success)));
     }
@@ -26,10 +28,7 @@ Future<bool> runAction(
   } catch (e) {
     debugPrint('Action failed: $e');
     messenger.showSnackBar(
-      SnackBar(
-        content: Text(describeError(e)),
-        backgroundColor: errorColor,
-      ),
+      SnackBar(content: Text(describeError(e))),
     );
     return false;
   }
@@ -43,7 +42,7 @@ Future<bool> confirm(
   required String confirmLabel,
   bool destructive = false,
 }) async {
-  final scheme = Theme.of(context).colorScheme;
+  final fm = context.fm;
   final result = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
@@ -52,16 +51,15 @@ Future<bool> confirm(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
+          style: TextButton.styleFrom(foregroundColor: fm.ink),
           child: const Text('Cancel'),
         ),
         FilledButton(
-          style: destructive
-              ? FilledButton.styleFrom(
-                  backgroundColor: scheme.error,
-                  foregroundColor: scheme.onError,
-                  minimumSize: const Size(0, 44),
-                )
-              : FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(0, 48),
+            backgroundColor: destructive ? fm.dangerFg : null,
+            foregroundColor: destructive ? fm.dangerBg : null,
+          ),
           onPressed: () => Navigator.pop(context, true),
           child: Text(confirmLabel),
         ),

@@ -1,4 +1,4 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/day.dart';
 import '../../away/application/aways_controller.dart';
@@ -8,12 +8,9 @@ import '../../flat/application/mate_directory.dart';
 import '../data/event_repository.dart';
 import '../domain/calendar_entry.dart';
 
-part 'calendar_providers.g.dart';
-
 /// Every calendar entry around the month containing [month]: real and
 /// planned Turns, Events and Away periods.
-@riverpod
-Future<List<CalendarEntry>> calendarMonth(Ref ref, DateTime month) async {
+Future<List<CalendarEntry>> _calendarMonth(Ref ref, DateTime month) async {
   ref.watch(currentFlatIdProvider);
   // Include the neighbouring weeks the month grid shows.
   final from = DateTime(month.year, month.month).subtract(
@@ -38,9 +35,15 @@ Future<List<CalendarEntry>> calendarMonth(Ref ref, DateTime month) async {
   ];
 }
 
+final calendarMonthProvider = FutureProvider.autoDispose
+    .family<List<CalendarEntry>, DateTime>(_calendarMonth);
+
 /// Adding and removing Events.
-@Riverpod(keepAlive: true)
-class EventsController extends _$EventsController {
+final eventsControllerProvider = NotifierProvider<EventsController, void>(
+  EventsController.new,
+);
+
+class EventsController extends Notifier<void> {
   @override
   void build() {}
 
@@ -48,10 +51,20 @@ class EventsController extends _$EventsController {
     required String title,
     String? note,
     required DateTime startsAt,
+    required bool allDay,
+    DateTime? endsAt,
+    required bool tellFlat,
   }) async {
     await ref
         .read(eventRepositoryProvider)
-        .create(title: title, note: note, startsAt: startsAt);
+        .create(
+          title: title,
+          note: note,
+          startsAt: startsAt,
+          allDay: allDay,
+          endsAt: endsAt,
+          tellFlat: tellFlat,
+        );
     ref.invalidate(calendarMonthProvider);
   }
 

@@ -1,109 +1,146 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../theme/app_colors.dart';
+import '../../features/flat/application/mate_directory.dart';
+import '../theme/app_theme.dart';
 
-/// A Mate's initial on their own stable colour.
-class MateAvatar extends StatelessWidget {
-  const MateAvatar({
+/// A coloured circle with an initial. Away draws a dashed outline instead
+/// of a fill; [turn] adds a lime ring for whose Turn it is.
+class Avatar extends StatelessWidget {
+  const Avatar({
     super.key,
-    required this.mateId,
     required this.name,
-    this.size = 40,
-    this.ring = false,
+    required this.colorIndex,
+    this.size = Sizes.avatarMd,
+    this.away = false,
+    this.turn = false,
   });
 
-  final int? mateId;
   final String name;
-  final double size;
 
-  /// Draws a surface-coloured ring, for avatars that overlap.
-  final bool ring;
+  /// Index into [mateColors].
+  final int colorIndex;
+  final double size;
+  final bool away;
+  final bool turn;
 
   @override
   Widget build(BuildContext context) {
-    final color = context.colors.mateColor(mateId);
+    final fm = context.fm;
+    final color = mateColors[colorIndex % mateColors.length];
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [color, Color.lerp(color, Colors.black, 0.18)!],
-        ),
-        border: ring
-            ? Border.all(color: Theme.of(context).colorScheme.surface, width: 2)
-            : null,
+    final label = Text(
+      initial,
+      style: TextStyle(
+        fontFamily: FlatmatesTheme.bodyFont,
+        fontWeight: FontWeight.w700,
+        fontSize: (size * 0.39).roundToDouble(),
+        height: 1,
+        color: away ? fm.awayFg : color.onFill,
       ),
-      child: Text(
-        initial,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w800,
-          fontSize: size * 0.42,
+    );
+    Widget circle = SizedBox.square(
+      dimension: size,
+      child: away
+          ? CustomPaint(
+              painter: _DashedCircle(fm.awayFg),
+              child: Center(child: label),
+            )
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.fill,
+              ),
+              child: Center(child: label),
+            ),
+    );
+    if (turn) {
+      // 3px lime ring, 2px off the avatar.
+      circle = Container(
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: fm.primary, width: 3),
         ),
-      ),
+        child: circle,
+      );
+    }
+    return Semantics(label: name, excludeSemantics: true, child: circle);
+  }
+}
+
+class _DashedCircle extends CustomPainter {
+  _DashedCircle(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 2.0;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke;
+    final rect = (Offset.zero & size).deflate(stroke / 2);
+    const dashes = 12;
+    const sweep = 2 * 3.141592653589793 / dashes;
+    for (var i = 0; i < dashes; i++) {
+      canvas.drawArc(rect, i * sweep, sweep * 0.6, false, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCircle old) => old.color != color;
+}
+
+/// A Mate of the current Flat, by id: their name and colour come from the
+/// [MateDirectory].
+class MateAvatar extends ConsumerWidget {
+  const MateAvatar(
+    this.mateId, {
+    super.key,
+    this.size = Sizes.avatarMd,
+    this.away = false,
+    this.turn = false,
+  });
+
+  final int? mateId;
+  final double size;
+  final bool away;
+  final bool turn;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final directory = ref.watch(mateDirectoryProvider);
+    return Avatar(
+      name: directory.realNameOf(mateId),
+      colorIndex: directory.colorIndexOf(mateId),
+      size: size,
+      away: away,
+      turn: turn,
     );
   }
 }
 
-/// Overlapping avatars, e.g. the Mates in a Rotation.
+/// Small overlapping avatars, e.g. the Mates who said Got it.
 class AvatarStack extends StatelessWidget {
-  const AvatarStack({
-    super.key,
-    required this.mates,
-    this.size = 28,
-    this.max = 5,
-  });
+  const AvatarStack({super.key, required this.mateIds, this.size = 24});
 
-  final List<({int id, String name})> mates;
+  final List<int> mateIds;
   final double size;
-  final int max;
 
   @override
   Widget build(BuildContext context) {
-    final shown = mates.take(max).toList();
-    final extra = mates.length - shown.length;
-    final step = size * 0.68;
-    final count = shown.length + (extra > 0 ? 1 : 0);
+    final step = size * 0.67;
     return SizedBox(
       height: size,
-      width: count == 0 ? 0 : step * (count - 1) + size,
+      width: mateIds.isEmpty ? 0 : step * (mateIds.length - 1) + size,
       child: Stack(
         children: [
-          for (var i = 0; i < shown.length; i++)
+          for (var i = 0; i < mateIds.length; i++)
             Positioned(
               left: i * step,
-              child: MateAvatar(
-                mateId: shown[i].id,
-                name: shown[i].name,
-                size: size,
-                ring: true,
-              ),
-            ),
-          if (extra > 0)
-            Positioned(
-              left: shown.length * step,
-              child: Container(
-                width: size,
-                height: size,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.surface,
-                    width: 2,
-                  ),
-                ),
-                child: Text(
-                  '+$extra',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ),
+              child: MateAvatar(mateIds[i], size: size),
             ),
         ],
       ),

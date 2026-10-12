@@ -1,9 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'my_flat_controller.dart';
-
-part 'mate_directory.g.dart';
 
 /// Who's who in the signed-in user's Flat.
 class MateDirectory {
@@ -27,14 +25,20 @@ class MateDirectory {
   }
 
   /// The Mate's own name, even for the signed-in user.
-  String realNameOf(int? mateId) =>
-      _byId[mateId]?.displayName ?? 'Former mate';
+  String realNameOf(int? mateId) => _byId[mateId]?.displayName ?? 'Former Mate';
+
+  /// Index into the theme's `mateColors`.
+  int colorIndexOf(int? mateId) => _byId[mateId]?.color.index ?? 0;
 }
 
 /// The current [MateDirectory]. Only read it inside the home shell, where
 /// the user is known to be in a Flat.
-@Riverpod(keepAlive: true)
-class MateDirectoryNotifier extends _$MateDirectoryNotifier {
+final mateDirectoryProvider =
+    NotifierProvider<MateDirectoryNotifier, MateDirectory>(
+      MateDirectoryNotifier.new,
+    );
+
+class MateDirectoryNotifier extends Notifier<MateDirectory> {
   @override
   MateDirectory build() {
     final flat = ref.watch(myFlatControllerProvider).value;
@@ -50,6 +54,7 @@ class MateDirectoryNotifier extends _$MateDirectoryNotifier {
 /// The current Flat's id, or null. Data providers watch this so they reload
 /// when the user joins or leaves a Flat; it only notifies when the id
 /// itself changes.
-@Riverpod(keepAlive: true)
-int? currentFlatId(Ref ref) =>
+int? _currentFlatId(Ref ref) =>
     ref.watch(myFlatControllerProvider).value?.flat.id;
+
+final currentFlatIdProvider = Provider<int?>(_currentFlatId);

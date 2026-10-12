@@ -17,6 +17,17 @@ class NoticeEndpoint extends Endpoint {
       where: (t) => t.flatId.equals(flat.id!),
       orderBy: (t) => t.createdAt.desc(),
     );
+    final gotIts = await NoticeGotIt.db.find(
+      session,
+      where: (t) => t.noticeId.inSet(notices.map((n) => n.id!).toSet()),
+      orderBy: (t) => t.createdAt,
+    );
+    for (final n in notices) {
+      n.gotItMateIds = [
+        for (final g in gotIts)
+          if (g.noticeId == n.id) g.mateId,
+      ];
+    }
     return [
       ...notices.where((n) => n.pinned),
       ...notices.where((n) => !n.pinned),
@@ -38,9 +49,10 @@ class NoticeEndpoint extends Endpoint {
     await Notifier.toFlat(
       session,
       flat.id!,
-      title: '${me.displayName} posted a notice',
+      title: '${me.displayName} posted a Notice',
       body: notice.text,
       exceptMateId: me.id,
+      kind: NotifyKind.notice,
     );
     await broadcast(session, flat.id!, FlatChangeKind.notices);
     return notice;
@@ -55,6 +67,24 @@ class NoticeEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.notices);
   }
 
+  /// Says "Got it" on someone else's Notice. Saying it twice is fine.
+  Future<void> gotIt(Session session, int noticeId) async {
+    final (:me, :flat) = await requireMate(session);
+    final notice = await Notice.db.findById(session, noticeId);
+    if (notice == null || notice.flatId != flat.id) fail('Notice not found.');
+    if (notice.mateId == me.id) fail('That\'s your own notice.');
+    final already = await NoticeGotIt.db.count(
+      session,
+      where: (t) => t.noticeId.equals(noticeId) & t.mateId.equals(me.id!),
+    );
+    if (already > 0) return;
+    await NoticeGotIt.db.insertRow(
+      session,
+      NoticeGotIt(noticeId: noticeId, mateId: me.id!),
+    );
+    await broadcast(session, flat.id!, FlatChangeKind.notices);
+  }
+
   /// Deletes a Notice; only its author or the Admin can.
   Future<void> delete(Session session, int noticeId) async {
     final (:me, :flat) = await requireMate(session);
@@ -63,6 +93,10 @@ class NoticeEndpoint extends Endpoint {
     if (notice.mateId != me.id && flat.adminMateId != me.id) {
       fail('Only the author or the admin can delete this.');
     }
+    await NoticeGotIt.db.deleteWhere(
+      session,
+      where: (t) => t.noticeId.equals(noticeId),
+    );
     await Notice.db.deleteRow(session, notice);
     await broadcast(session, flat.id!, FlatChangeKind.notices);
   }

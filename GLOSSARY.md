@@ -14,12 +14,16 @@ _Avoid_: Household, Home, Group
 A member of a Flat. Every Mate, including the Admin, takes part in Chore rotations.
 _Avoid_: Flatmate, Member, User, Roommate
 
+**Mate colour**:
+The colour a Mate is shown in across the app. No two Mates in a Flat share one while there are colours to spare; a Mate can pick any colour no other Mate has.
+_Avoid_: Avatar colour, Theme
+
 **Admin**:
 The one Mate who can invite others, create or edit Chores, and set the Away rule; initially the Mate who created the Flat. A role on top of being a Mate, not a separate kind of person, and it must be handed to another Mate before the Admin can leave.
 _Avoid_: Owner, Landlord, Creator
 
 **Invite**:
-The Flat's single reusable link or code; whoever signs up through it joins the Flat directly as a Mate. Only the Admin can share or regenerate it, and regenerating revokes the old one.
+The Flat's single reusable code; whoever joins with it becomes a Mate of the Flat directly. It works for 7 days from when it was made, then stops working until the Admin makes a new one. Only the Admin can share or regenerate it, and regenerating revokes the old one.
 _Avoid_: Invitation request, Join request
 
 ### Calendar
@@ -81,6 +85,10 @@ _Avoid_: Freeze, Suspend
 **Notice**:
 A text post any Mate puts on the Flat's notice board; the Admin can pin it.
 _Avoid_: Post, Message, Announcement
+
+**Got it**:
+A Mate's acknowledgement that they have read someone else's Notice.
+_Avoid_: Like, Seen, Read receipt, Ack
 
 **Grocery item**:
 Something a Mate adds to the Flat's single shared grocery list for anyone to buy.
