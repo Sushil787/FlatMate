@@ -60,11 +60,9 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
               child: AsyncValueView(
                 value: notices,
                 onRetry: () => ref.invalidate(noticesControllerProvider),
-                loading: const Column(
-                  children: [
-                    Padding(padding: EdgeInsets.all(Space.lg), child: header),
-                    Expanded(child: Center(child: CircularProgressIndicator())),
-                  ],
+                header: const Padding(
+                  padding: EdgeInsets.all(Space.lg),
+                  child: header,
                 ),
                 data: (list) {
                   Notice? newest;

@@ -86,12 +86,13 @@ class ErrorCard extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+        padding: const EdgeInsets.all(Space.lg),
         decoration: BoxDecoration(
           color: fm.dangerBg,
           borderRadius: BorderRadius.circular(Radii.card),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
@@ -122,7 +123,8 @@ class ErrorCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (onDismiss != null || onRetry != null)
+            if (onDismiss != null || onRetry != null) ...[
+              const SizedBox(height: Space.md),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -146,6 +148,7 @@ class ErrorCard extends StatelessWidget {
                   ],
                 ],
               ),
+            ],
           ],
         ),
       ),

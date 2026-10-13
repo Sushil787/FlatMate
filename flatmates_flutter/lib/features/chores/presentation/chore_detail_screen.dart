@@ -80,6 +80,21 @@ class _ChoreDetailScreenState extends ConsumerState<ChoreDetailScreen> {
       body: AsyncValueView(
         value: overview,
         onRetry: () => ref.invalidate(choresControllerProvider),
+        header: const SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              Space.screenMargin,
+              Space.lg,
+              Space.screenMargin,
+              0,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CircleButton.back(tooltip: 'Back to Chores'),
+            ),
+          ),
+        ),
         data: (overview) {
           final chore = overview.choreById(widget.choreId);
           return ScreenList(
