@@ -35,8 +35,9 @@ Future<T?> showAppSheet<T>(BuildContext context, Widget sheet) {
   );
 }
 
-/// A bottom sheet: grabber, title + Cancel, scrolling [children], and the
-/// primary [action] pinned at the bottom in thumb reach.
+/// A bottom sheet: grabber, title, scrolling [children], and the primary
+/// [action] pinned at the bottom in thumb reach. Swipe down or tap outside
+/// to close it.
 class AppSheet extends StatelessWidget {
   const AppSheet({
     super.key,
@@ -72,26 +73,10 @@ class AppSheet extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.sm, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text(title, style: context.text.headlineSmall),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.maybePop(context),
-                    style: TextButton.styleFrom(
-                      foregroundColor: fm.ink,
-                      textStyle: context.text.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+              child: Semantics(
+                header: true,
+                child: Text(title, style: context.text.headlineSmall),
               ),
             ),
             Flexible(

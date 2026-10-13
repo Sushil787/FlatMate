@@ -158,7 +158,7 @@ class _TabsShellState extends ConsumerState<TabsShell> {
               children: [
                 Column(
                   children: [
-                    if (!online) ReconnectingBanner(showingSaved: showingSaved),
+                    if (!online) const ReconnectingBanner(),
                     Expanded(
                       // The banner already sits in the status bar's space.
                       // Read the padding inside the Scaffold, which

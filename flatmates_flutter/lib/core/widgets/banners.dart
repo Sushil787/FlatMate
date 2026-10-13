@@ -6,10 +6,7 @@ import 'app_icon.dart';
 
 /// The ink bar across the top while the live connection is down.
 class ReconnectingBanner extends StatelessWidget {
-  const ReconnectingBanner({super.key, this.showingSaved = false});
-
-  /// Whether screens are showing what was saved on this phone.
-  final bool showingSaved;
+  const ReconnectingBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +32,7 @@ class ReconnectingBanner extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    showingSaved
-                        ? 'Offline · showing saved data'
-                        : 'Reconnecting…',
+                    'Offline',
                     style: context.text.bodyMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
