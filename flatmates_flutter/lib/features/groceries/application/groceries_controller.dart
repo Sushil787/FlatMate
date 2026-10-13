@@ -1,6 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/online_provider.dart';
 import '../../flat/application/mate_directory.dart';
 import '../data/grocery_repository.dart';
 
@@ -25,6 +26,7 @@ class GroceriesController extends AsyncNotifier<List<GroceryItem>> {
   Future<void> refresh() async => state = await AsyncValue.guard(_repo.list);
 
   Future<void> add(String name) async {
+    requireOnline(ref);
     final saved = await _repo.add(name.trim(), null);
     state = AsyncData([...?state.value, saved]);
   }
@@ -65,6 +67,7 @@ class GroceriesController extends AsyncNotifier<List<GroceryItem>> {
     List<GroceryItem> changed,
     Future<void> Function() send,
   ) async {
+    requireOnline(ref);
     final before = state.value;
     if (before == null) return;
     state = AsyncData(changed);

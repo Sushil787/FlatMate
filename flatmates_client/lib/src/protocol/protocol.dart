@@ -17,6 +17,7 @@ import 'package:flatmates_client/src/protocol/chore.dart' as _ipou5iyr;
 import 'package:flatmates_client/src/protocol/event.dart' as _igj22k42;
 import 'package:flatmates_client/src/protocol/grocery_item.dart' as _iy9ydfy6;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
+import 'package:flatmates_client/src/protocol/notice_got_it.dart' as _i8dhtq4g;
 import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
 import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
@@ -25,8 +26,10 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_database/serverpod_database.dart' as _isd;
 import 'away.dart' as _injc6hlm;
 import 'away_effect.dart' as _i3z62lxk;
+import 'cached_read.dart' as _i78xomdp;
 import 'chore.dart' as _imnq0nzy;
 import 'device_token.dart' as _ilggw95u;
 import 'event.dart' as _iu57571s;
@@ -45,6 +48,7 @@ import 'turn.dart' as _i0nsa51h;
 import 'turn_status.dart' as _i5yk6qf9;
 export 'away.dart';
 export 'away_effect.dart';
+export 'cached_read.dart';
 export 'chore.dart';
 export 'device_token.dart';
 export 'event.dart';
@@ -63,12 +67,931 @@ export 'turn.dart';
 export 'turn_status.dart';
 export 'client.dart';
 
-class Protocol extends _isc.SerializationManager {
+class Protocol extends _isd.DatabaseSerializationManager {
   Protocol._();
 
   factory Protocol() => _instance;
 
   static final Protocol _instance = Protocol._().._registerHostProtocols();
+
+  static List<_isd.TableDefinition> get targetTableDefinitions => [
+    _isd.TableDefinition(
+      name: 'away',
+      dartName: 'Away',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'startDay',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'lastDay',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'away_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'cached_read',
+      dartName: 'CachedRead',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isd.ColumnDefinition(
+          name: 'key',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'savedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'cached_read_key_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'key',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'chore',
+      dartName: 'Chore',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'period',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'Duration',
+        ),
+        _isd.ColumnDefinition(
+          name: 'startDay',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'rotation',
+          columnType: _isd.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<UuidValue>',
+        ),
+        _isd.ColumnDefinition(
+          name: 'rotationIndex',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'archived',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'chore_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'flat',
+      dartName: 'Flat',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'timezone',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'adminMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'inviteCode',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'inviteExpiresAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'awayRule',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'flatmates_shared:AwayRule',
+        ),
+        _isd.ColumnDefinition(
+          name: 'morningSummaryAt',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '480',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'flat_invite_code_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'inviteCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'flat_event',
+      dartName: 'FlatEvent',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'title',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'note',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'startsAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'endsAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'allDay',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'flat_event_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'startsAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'grocery_item',
+      dartName: 'GroceryItem',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'note',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'addedByMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'boughtByMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'boughtAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'grocery_item_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'mate',
+      dartName: 'Mate',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'authUserId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'displayName',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'joinedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'leftAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'color',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:MateColor',
+          columnDefault: '\'tomato\'',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyTurnStarts',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyReminder',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyMatesNotDone',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyNotice',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyAddedToRotation',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'welcomed',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'mate_auth_user_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'authUserId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isd.IndexDefinition(
+          indexName: 'mate_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'notice',
+      dartName: 'Notice',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'text',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'pinned',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'notice_flat_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'notice_got_it',
+      dartName: 'NoticeGotIt',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'noticeId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'notice_got_it_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'noticeId',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'mateId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'swap_debt',
+      dartName: 'SwapDebt',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'choreId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'debtorMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'creditorMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'swap_debt_chore_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'choreId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'turn',
+      dartName: 'Turn',
+      schema: 'public',
+      module: 'flatmates',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'flatId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'choreId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'coveringForMateId',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'day',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'lastDay',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'status',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:TurnStatus',
+        ),
+        _isd.ColumnDefinition(
+          name: 'doneAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'turn_chore_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'choreId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isd.IndexDefinition(
+          indexName: 'turn_flat_day_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'flatId',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'day',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    ..._iaic.Protocol() is _isd.DatabaseSerializationManager
+        ? (_iaic.Protocol() as _isd.DatabaseSerializationManager)
+              .getTargetTableDefinitions()
+        : [],
+    ..._iacc.Protocol() is _isd.DatabaseSerializationManager
+        ? (_iacc.Protocol() as _isd.DatabaseSerializationManager)
+              .getTargetTableDefinitions()
+        : [],
+    ..._ij0lpv6z.Protocol() is _isd.DatabaseSerializationManager
+        ? (_ij0lpv6z.Protocol() as _isd.DatabaseSerializationManager)
+              .getTargetTableDefinitions()
+        : [],
+  ];
 
   static String? getClassNameFromObjectJson(dynamic data) {
     if (data is! Map) return null;
@@ -102,6 +1025,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i3z62lxk.AwayEffect) {
       return _i3z62lxk.AwayEffect.fromJson(data) as T;
+    }
+    if (t == _i78xomdp.CachedRead) {
+      return _i78xomdp.CachedRead.fromJson(data) as T;
     }
     if (t == _imnq0nzy.Chore) {
       return _imnq0nzy.Chore.fromJson(data) as T;
@@ -156,6 +1082,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_i3z62lxk.AwayEffect?>()) {
       return (data != null ? _i3z62lxk.AwayEffect.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i78xomdp.CachedRead?>()) {
+      return (data != null ? _i78xomdp.CachedRead.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_imnq0nzy.Chore?>()) {
       return (data != null ? _imnq0nzy.Chore.fromJson(data) : null) as T;
@@ -269,6 +1198,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i8dhtq4g.NoticeGotIt>) {
+      return (data as List)
+              .map((e) => deserialize<_i8dhtq4g.NoticeGotIt>(e))
+              .toList()
+          as T;
+    }
     try {
       return _iaic.Protocol().deserialize<T>(data, t);
     } on _isc.DeserializationTypeNotFoundException catch (_) {}
@@ -285,6 +1220,7 @@ class Protocol extends _isc.SerializationManager {
     return switch (type) {
       _injc6hlm.Away => 'Away',
       _i3z62lxk.AwayEffect => 'AwayEffect',
+      _i78xomdp.CachedRead => 'CachedRead',
       _imnq0nzy.Chore => 'Chore',
       _ilggw95u.DeviceToken => 'DeviceToken',
       _iu57571s.FlatEvent => 'FlatEvent',
@@ -319,6 +1255,8 @@ class Protocol extends _isc.SerializationManager {
         return 'Away';
       case _i3z62lxk.AwayEffect():
         return 'AwayEffect';
+      case _i78xomdp.CachedRead():
+        return 'CachedRead';
       case _imnq0nzy.Chore():
         return 'Chore';
       case _ilggw95u.DeviceToken():
@@ -384,6 +1322,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'AwayEffect') {
       return deserialize<_i3z62lxk.AwayEffect>(data['data']);
+    }
+    if (dataClassName == 'CachedRead') {
+      return deserialize<_i78xomdp.CachedRead>(data['data']);
     }
     if (dataClassName == 'Chore') {
       return deserialize<_imnq0nzy.Chore>(data['data']);
@@ -453,6 +1394,66 @@ class Protocol extends _isc.SerializationManager {
     _iacc.Protocol().registerHostProtocol('flatmates', this);
     _ij0lpv6z.Protocol().registerHostProtocol('flatmates', this);
   }
+
+  @override
+  _isd.Table? getTableForType(Type t) {
+    {
+      var protocol = _iaic.Protocol();
+      var table = protocol is _isd.DatabaseSerializationManager
+          ? (protocol as _isd.DatabaseSerializationManager).getTableForType(t)
+          : null;
+      if (table != null) {
+        return table;
+      }
+    }
+    {
+      var protocol = _iacc.Protocol();
+      var table = protocol is _isd.DatabaseSerializationManager
+          ? (protocol as _isd.DatabaseSerializationManager).getTableForType(t)
+          : null;
+      if (table != null) {
+        return table;
+      }
+    }
+    {
+      var protocol = _ij0lpv6z.Protocol();
+      var table = protocol is _isd.DatabaseSerializationManager
+          ? (protocol as _isd.DatabaseSerializationManager).getTableForType(t)
+          : null;
+      if (table != null) {
+        return table;
+      }
+    }
+    switch (t) {
+      case _injc6hlm.Away:
+        return _injc6hlm.Away.t;
+      case _i78xomdp.CachedRead:
+        return _i78xomdp.CachedRead.t;
+      case _imnq0nzy.Chore:
+        return _imnq0nzy.Chore.t;
+      case _iu57571s.FlatEvent:
+        return _iu57571s.FlatEvent.t;
+      case _io7qq7p8.Flat:
+        return _io7qq7p8.Flat.t;
+      case _idc9is2h.GroceryItem:
+        return _idc9is2h.GroceryItem.t;
+      case _itahn62i.Mate:
+        return _itahn62i.Mate.t;
+      case _i8bpb14y.Notice:
+        return _i8bpb14y.Notice.t;
+      case _ia5ed1vr.NoticeGotIt:
+        return _ia5ed1vr.NoticeGotIt.t;
+      case _ijdri2o7.SwapDebt:
+        return _ijdri2o7.SwapDebt.t;
+      case _i0nsa51h.Turn:
+        return _i0nsa51h.Turn.t;
+    }
+    return null;
+  }
+
+  @override
+  List<_isd.TableDefinition> getTargetTableDefinitions() =>
+      targetTableDefinitions;
 
   @override
   String getModuleName() => 'flatmates';

@@ -1,7 +1,9 @@
-import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_client/flatmates_client.dart' hide FlatRepository;
 import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/online_provider.dart';
+import '../../../core/providers/read_cache.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/flat_repository.dart';
 
@@ -42,6 +44,7 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
 
   Future<void> leave() async {
     await _repo.leave();
+    await ref.read(readCacheProvider.notifier).clearAll();
     state = const AsyncData(null);
   }
 
@@ -84,6 +87,7 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
     Mate Function(Mate me) change,
     Future<Mate> Function(Mate me) save,
   ) async {
+    requireOnline(ref);
     final before = state.value;
     if (before == null) return;
     final me = change(before.me);

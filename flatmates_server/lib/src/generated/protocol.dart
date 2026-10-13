@@ -17,6 +17,7 @@ import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/grocery_item.dart' as _itw5ie4o;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
+import 'package:flatmates_server/src/generated/notice_got_it.dart' as _i2ir1nq4;
 import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
 import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
@@ -28,6 +29,7 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'away.dart' as _injc6hlm;
 import 'away_effect.dart' as _i3z62lxk;
+import 'cached_read.dart' as _i78xomdp;
 import 'chore.dart' as _imnq0nzy;
 import 'device_token.dart' as _ilggw95u;
 import 'event.dart' as _iu57571s;
@@ -51,6 +53,7 @@ import 'turn.dart' as _i0nsa51h;
 import 'turn_status.dart' as _i5yk6qf9;
 export 'away.dart';
 export 'away_effect.dart';
+export 'cached_read.dart';
 export 'chore.dart';
 export 'device_token.dart';
 export 'event.dart';
@@ -1049,6 +1052,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i3z62lxk.AwayEffect) {
       return _i3z62lxk.AwayEffect.fromJson(data) as T;
     }
+    if (t == _i78xomdp.CachedRead) {
+      return _i78xomdp.CachedRead.fromJson(data) as T;
+    }
     if (t == _imnq0nzy.Chore) {
       return _imnq0nzy.Chore.fromJson(data) as T;
     }
@@ -1111,6 +1117,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_i3z62lxk.AwayEffect?>()) {
       return (data != null ? _i3z62lxk.AwayEffect.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i78xomdp.CachedRead?>()) {
+      return (data != null ? _i78xomdp.CachedRead.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_imnq0nzy.Chore?>()) {
       return (data != null ? _imnq0nzy.Chore.fromJson(data) : null) as T;
@@ -1242,6 +1251,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i2ir1nq4.NoticeGotIt>) {
+      return (data as List)
+              .map((e) => deserialize<_i2ir1nq4.NoticeGotIt>(e))
+              .toList()
+          as T;
+    }
     try {
       return _iais.Protocol().deserialize<T>(data, t);
     } on _is.DeserializationTypeNotFoundException catch (_) {}
@@ -1261,6 +1276,7 @@ class Protocol extends _is.DatabaseSerializationManager {
     return switch (type) {
       _injc6hlm.Away => 'Away',
       _i3z62lxk.AwayEffect => 'AwayEffect',
+      _i78xomdp.CachedRead => 'CachedRead',
       _imnq0nzy.Chore => 'Chore',
       _ilggw95u.DeviceToken => 'DeviceToken',
       _iu57571s.FlatEvent => 'FlatEvent',
@@ -1298,6 +1314,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Away';
       case _i3z62lxk.AwayEffect():
         return 'AwayEffect';
+      case _i78xomdp.CachedRead():
+        return 'CachedRead';
       case _imnq0nzy.Chore():
         return 'Chore';
       case _ilggw95u.DeviceToken():
@@ -1373,6 +1391,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'AwayEffect') {
       return deserialize<_i3z62lxk.AwayEffect>(data['data']);
+    }
+    if (dataClassName == 'CachedRead') {
+      return deserialize<_i78xomdp.CachedRead>(data['data']);
     }
     if (dataClassName == 'Chore') {
       return deserialize<_imnq0nzy.Chore>(data['data']);

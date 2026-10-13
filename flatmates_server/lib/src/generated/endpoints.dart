@@ -971,6 +971,16 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
               ),
         ),
+        'gotIts': _is.MethodConnector(
+          name: 'gotIts',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['notice'] as _iaw8zfqb.NoticeEndpoint)
+                  .gotIts(session),
+        ),
         'post': _is.MethodConnector(
           name: 'post',
           params: {

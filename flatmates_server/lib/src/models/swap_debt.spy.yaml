@@ -1,6 +1,7 @@
 ### A Turn owed back under the Swap rule: [debtorMateId] takes [creditorMateId]'s next Turn.
 class: SwapDebt
 table: swap_debt
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   choreId: UuidValue

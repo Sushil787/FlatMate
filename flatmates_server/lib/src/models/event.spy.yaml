@@ -1,6 +1,7 @@
 ### A one-off happening on the Flat's shared calendar.
 class: FlatEvent
 table: flat_event
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue

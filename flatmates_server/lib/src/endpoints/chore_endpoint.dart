@@ -29,8 +29,7 @@ class ChoreEndpoint extends Endpoint {
     final turns = await Turn.db.find(
       session,
       where: (t) =>
-          t.flatId.equals(flat.id!) &
-          (t.lastDay >= Day.today(flat.timezone)),
+          t.flatId.equals(flat.id!) & (t.lastDay >= Day.today(flat.timezone)),
       orderBy: (t) => t.day,
     );
     return {for (final t in turns) t.choreId: t}.values.toList();

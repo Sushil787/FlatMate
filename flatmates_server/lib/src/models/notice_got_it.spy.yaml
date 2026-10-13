@@ -1,6 +1,7 @@
 ### A Mate saying "Got it" on a Notice: they've read it.
 class: NoticeGotIt
 table: notice_got_it
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   noticeId: UuidValue

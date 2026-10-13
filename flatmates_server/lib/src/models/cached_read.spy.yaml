@@ -1,0 +1,14 @@
+### The app's offline cache: one row per read call whose answer is saved
+### in the mirrored tables. Only on the phone; a read without one has
+### nothing saved, even if some of its rows are there from other reads.
+class: CachedRead
+table: cached_read
+database: client
+fields:
+  ### The read call and its arguments, e.g. "turn:2026-10-01:2026-11-07".
+  key: String
+  savedAt: DateTime
+indexes:
+  cached_read_key_idx:
+    fields: key
+    unique: true

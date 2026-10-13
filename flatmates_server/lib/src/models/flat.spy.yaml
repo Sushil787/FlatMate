@@ -1,6 +1,7 @@
 ### The shared home; the boundary for everything else.
 class: Flat
 table: flat
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   name: String

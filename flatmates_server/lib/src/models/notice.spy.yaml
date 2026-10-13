@@ -1,13 +1,14 @@
 ### A text post on the Flat's notice board.
 class: Notice
 table: notice
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue
   mateId: UuidValue
   text: String
   pinned: bool
-  ### Mates who said "Got it"; filled in by list().
+  ### Mates who said "Got it"; the app fills it in from notice.gotIts().
   gotItMateIds: List<UuidValue>?, !persist
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now

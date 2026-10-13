@@ -1,6 +1,7 @@
 ### A member of a Flat. A Mate with [leftAt] set has left the Flat.
 class: Mate
 table: mate
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue

@@ -64,7 +64,11 @@ class GroceryEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.groceries);
   }
 
-  Future<GroceryItem> _find(Session session, Flat flat, UuidValue itemId) async {
+  Future<GroceryItem> _find(
+    Session session,
+    Flat flat,
+    UuidValue itemId,
+  ) async {
     final item = await GroceryItem.db.findById(session, itemId);
     if (item == null || item.flatId != flat.id) fail('Item not found.');
     return item;

@@ -31,6 +31,7 @@ import 'package:flatmates_server/src/generated/mate.dart' as _ia7hvzvd;
 import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
 import 'package:flatmates_server/src/generated/my_flat.dart' as _isxy0ptp;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
+import 'package:flatmates_server/src/generated/notice_got_it.dart' as _i2ir1nq4;
 import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
 import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
@@ -1660,6 +1661,36 @@ class _NoticeEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<List<_ikw41nt5.Notice>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_i2ir1nq4.NoticeGotIt>> gotIts(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notice',
+            method: 'gotIts',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notice',
+          methodName: 'gotIts',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i2ir1nq4.NoticeGotIt>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

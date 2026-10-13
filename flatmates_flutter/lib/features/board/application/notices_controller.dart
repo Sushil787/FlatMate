@@ -1,4 +1,4 @@
-import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_client/flatmates_client.dart' hide NoticeRepository;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../flat/application/mate_directory.dart';

@@ -77,7 +77,7 @@ abstract class Notice
 
   bool pinned;
 
-  /// Mates who said "Got it"; filled in by list().
+  /// Mates who said "Got it"; the app fills it in from notice.gotIts().
   List<_is.UuidValue>? gotItMateIds;
 
   DateTime createdAt;

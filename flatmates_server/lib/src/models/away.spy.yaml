@@ -2,6 +2,7 @@
 ### Days are stored as 12:00 UTC on that date (see day.dart).
 class: Away
 table: away
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue

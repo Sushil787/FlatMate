@@ -6,7 +6,10 @@ import 'app_icon.dart';
 
 /// The ink bar across the top while the live connection is down.
 class ReconnectingBanner extends StatelessWidget {
-  const ReconnectingBanner({super.key});
+  const ReconnectingBanner({super.key, this.showingSaved = false});
+
+  /// Whether screens are showing what was saved on this phone.
+  final bool showingSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,9 @@ class ReconnectingBanner extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Reconnecting…',
+                    showingSaved
+                        ? 'Offline · showing saved data'
+                        : 'Reconnecting…',
                     style: context.text.bodyMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -47,6 +52,22 @@ class ReconnectingBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A thin line under the status bar while saved data is on screen and
+/// the server's answer is on its way.
+class UpdatingBar extends StatelessWidget {
+  const UpdatingBar({super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: 'Updating',
+    child: LinearProgressIndicator(
+      minHeight: 2,
+      color: context.fm.primary,
+      backgroundColor: Colors.transparent,
+    ),
+  );
 }
 
 /// A danger-tint card for an action the server refused.

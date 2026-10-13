@@ -1,6 +1,7 @@
 ### A recurring responsibility passed round-robin through [rotation].
 class: Chore
 table: chore
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue

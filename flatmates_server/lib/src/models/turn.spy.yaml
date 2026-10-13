@@ -1,6 +1,7 @@
 ### One Mate's responsibility for a Chore for one day.
 class: Turn
 table: turn
+database: all
 fields:
   id: UuidValue?, defaultPersist=random_v7
   flatId: UuidValue

@@ -47,6 +47,7 @@ grocery:
   - delete:
 notice:
   - list:
+  - gotIts:
   - post:
   - setPinned:
   - gotIt:

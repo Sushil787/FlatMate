@@ -10,6 +10,8 @@ class NoticeEndpoint extends Endpoint {
   bool get requireLogin => true;
 
   /// Pinned Notices first, then newest first.
+  /// The Flat's Notices, pinned first, then newest first. Who said Got it
+  /// comes from [gotIts].
   Future<List<Notice>> list(Session session) async {
     final (:me, :flat) = await requireMate(session);
     final notices = await Notice.db.find(
@@ -17,21 +19,24 @@ class NoticeEndpoint extends Endpoint {
       where: (t) => t.flatId.equals(flat.id!),
       orderBy: (t) => t.createdAt.desc(),
     );
-    final gotIts = await NoticeGotIt.db.find(
-      session,
-      where: (t) => t.noticeId.inSet(notices.map((n) => n.id!).toSet()),
-      orderBy: (t) => t.createdAt,
-    );
-    for (final n in notices) {
-      n.gotItMateIds = [
-        for (final g in gotIts)
-          if (g.noticeId == n.id) g.mateId,
-      ];
-    }
     return [
       ...notices.where((n) => n.pinned),
       ...notices.where((n) => !n.pinned),
     ];
+  }
+
+  /// Every Got it on the Flat's Notices, oldest first.
+  Future<List<NoticeGotIt>> gotIts(Session session) async {
+    final (:me, :flat) = await requireMate(session);
+    final notices = await Notice.db.find(
+      session,
+      where: (t) => t.flatId.equals(flat.id!),
+    );
+    return NoticeGotIt.db.find(
+      session,
+      where: (t) => t.noticeId.inSet({for (final n in notices) n.id!}),
+      orderBy: (t) => t.createdAt,
+    );
   }
 
   Future<Notice> post(Session session, String text) async {
@@ -58,7 +63,11 @@ class NoticeEndpoint extends Endpoint {
     return notice;
   }
 
-  Future<void> setPinned(Session session, UuidValue noticeId, bool pinned) async {
+  Future<void> setPinned(
+    Session session,
+    UuidValue noticeId,
+    bool pinned,
+  ) async {
     final (:me, :flat) = await requireAdmin(session);
     final notice = await Notice.db.findById(session, noticeId);
     if (notice == null || notice.flatId != flat.id) fail('Notice not found.');

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import '../../../core/providers/client_provider.dart';
+import '../../../core/providers/read_cache.dart';
 
 /// Whether a user is signed in. Follows the Serverpod auth session.
 final authControllerProvider = NotifierProvider<AuthController, bool>(
@@ -12,7 +13,12 @@ class AuthController extends Notifier<bool> {
   @override
   bool build() {
     final auth = ref.watch(clientProvider).auth;
-    void onChange() => state = auth.isAuthenticated;
+    void onChange() {
+      state = auth.isAuthenticated;
+      // Signed out: what this phone saved was theirs.
+      if (!state) ref.read(readCacheProvider.notifier).clearAll();
+    }
+
     auth.authInfoListenable.addListener(onChange);
     ref.onDispose(() => auth.authInfoListenable.removeListener(onChange));
     return auth.isAuthenticated;

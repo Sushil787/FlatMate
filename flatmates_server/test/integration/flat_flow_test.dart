@@ -396,9 +396,12 @@ void main() {
       final notice = await endpoints.notice.post(sam, 'Boiler check Friday');
       await endpoints.notice.gotIt(alex, notice.id!);
       await endpoints.notice.gotIt(alex, notice.id!);
-      expect((await endpoints.notice.list(priya)).single.gotItMateIds, [
-        alexId,
-      ]);
+      expect(
+        [for (final g in await endpoints.notice.gotIts(priya)) g.mateId],
+        [
+          alexId,
+        ],
+      );
       await expectLater(
         endpoints.notice.gotIt(sam, notice.id!),
         throwsA(isA<FlatmatesException>()),

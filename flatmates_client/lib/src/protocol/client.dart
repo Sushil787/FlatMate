@@ -22,6 +22,7 @@ import 'package:flatmates_client/src/protocol/mate.dart' as _iynws3fs;
 import 'package:flatmates_client/src/protocol/mate_color.dart' as _ioi9k01f;
 import 'package:flatmates_client/src/protocol/my_flat.dart' as _i9fyr2h8;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
+import 'package:flatmates_client/src/protocol/notice_got_it.dart' as _i8dhtq4g;
 import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
 import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
@@ -31,7 +32,9 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_database/serverpod_database.dart' as _isd;
 import 'protocol.dart' as _il2as5qe;
+import 'package:flatmates_client/migrations/migration_registry.dart';
 
 /// Makes Google sign-in available to the app.
 /// {@category Endpoint}
@@ -566,10 +569,20 @@ class EndpointNotice extends _isc.EndpointRef {
   String get name => 'notice';
 
   /// Pinned Notices first, then newest first.
+  /// The Flat's Notices, pinned first, then newest first. Who said Got it
+  /// comes from [gotIts].
   _ida.Future<List<_iynhw2wx.Notice>> list() =>
       caller.callServerEndpoint<List<_iynhw2wx.Notice>>(
         'notice',
         'list',
+        {},
+      );
+
+  /// Every Got it on the Flat's Notices, oldest first.
+  _ida.Future<List<_i8dhtq4g.NoticeGotIt>> gotIts() =>
+      caller.callServerEndpoint<List<_i8dhtq4g.NoticeGotIt>>(
+        'notice',
+        'gotIts',
         {},
       );
 
@@ -693,4 +706,31 @@ class Client extends _isc.ServerpodClientShared {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };
+
+  /// Creates a new client-side database session for the given path.
+  ///
+  /// The [path] is the file path to the SQLite database file. Since SQLite uses
+  /// WAL mode, note that `[path]-shm` and `[path]-wal` files might also exist
+  /// transiently for the database while the session is open.
+  ///
+  /// If [runMigrations] is true, pending migrations will be applied when
+  /// opening the database. Be careful when setting this to false, as it might
+  /// lead to inconsistencies between the models and the database.
+  ///
+  /// If [isDebugMode] is true, the database integrity will be verified after
+  /// the migrations are applied to provide feedback of possible issues. On a
+  /// Flutter application, this should be set to [kDebugMode].
+  _ida.Future<_isd.ClientDatabaseSession> createSession(
+    String path, {
+    bool runMigrations = true,
+    bool isDebugMode = false,
+  }) async {
+    return await _isd.ClientDatabaseSession.open(
+      path,
+      _il2as5qe.Protocol(),
+      clientMigrations: MigrationRegistry.migrations,
+      runMigrations: runMigrations,
+      isDebugMode: isDebugMode,
+    );
+  }
 }
