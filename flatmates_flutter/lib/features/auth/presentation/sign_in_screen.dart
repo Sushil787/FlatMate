@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
@@ -24,6 +25,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
   )..addListener(() => setState(() {}));
+
+  void _emailSignIn() => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (sheet) => Padding(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        24 + MediaQuery.viewInsetsOf(sheet).bottom,
+      ),
+      child: EmailSignInWidget(
+        client: ref.read(clientProvider),
+        startScreen: EmailFlowScreen.login,
+        onAuthenticated: () => Navigator.of(sheet).pop(),
+        onError: (error) => ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
+      ),
+    ),
+  );
 
   @override
   void dispose() {
@@ -111,6 +133,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       background: FlatmatesColors.light.primary,
                       foreground: ink,
                     ),
+                    // Debug builds only: the seeded email accounts (see the
+                    // server's dev/seed.dart). The server only has email
+                    // sign-in in development.
+                    if (kDebugMode)
+                      Center(
+                        child: TextButton(
+                          onPressed: _emailSignIn,
+                          style: TextButton.styleFrom(foregroundColor: white),
+                          child: const Text('Sign in with email (debug)'),
+                        ),
+                      ),
                     const SizedBox(height: 16),
                     Text.rich(
                       TextSpan(
