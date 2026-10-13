@@ -12,7 +12,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
-import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/grocery_item.dart' as _itw5ie4o;
@@ -1207,12 +1206,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == List<_icx3t1f1.Away>) {
       return (data as List).map((e) => deserialize<_icx3t1f1.Away>(e)).toList()
-          as T;
-    }
-    if (t == List<_i8nyq5gw.AwayEffect>) {
-      return (data as List)
-              .map((e) => deserialize<_i8nyq5gw.AwayEffect>(e))
-              .toList()
           as T;
     }
     if (t == List<_ij1nfwf4.Chore>) {

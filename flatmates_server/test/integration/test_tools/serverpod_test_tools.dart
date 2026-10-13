@@ -14,7 +14,6 @@
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
-import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/flat.dart' as _i7obirgc;
@@ -740,41 +739,6 @@ class _AwayEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_icx3t1f1.Away>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _ida.Future<List<_i8nyq5gw.AwayEffect>> preview(
-    _ist.TestSessionBuilder sessionBuilder,
-    DateTime startDay,
-    DateTime lastDay,
-  ) async {
-    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'away',
-            method: 'preview',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'away',
-          methodName: 'preview',
-          parameters: _ist.testObjectToJson({
-            'startDay': startDay,
-            'lastDay': lastDay,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _ida.Future<List<_i8nyq5gw.AwayEffect>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

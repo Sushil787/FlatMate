@@ -662,35 +662,5 @@ void main() {
         throwsA(isA<FlatmatesException>()),
       );
     });
-
-    test('the Away preview shows covers and paused turns', () async {
-      await endpoints.chore.create(
-        priya,
-        'Bins',
-        week,
-        today(),
-        [samId, alexId, priyaId],
-      );
-      final bins = (await onlyActiveTurn()).choreId;
-
-      // Sam's open Turn today, covered by Alex under Swap.
-      var effects = await endpoints.away.preview(sam, today(), today(1));
-      expect(
-        effects.map((e) => (e.choreId, e.day, e.coverMateId, e.newDay)),
-        [(bins, today(), alexId, null)],
-      );
-
-      // Alex's projected Turn next week waits under Pause.
-      await endpoints.flat.setAwayRule(priya, AwayRule.pause);
-      effects = await endpoints.away.preview(alex, today(7), today(8));
-      expect(
-        effects.map((e) => (e.day, e.awayRule, e.coverMateId, e.newDay)),
-        [(today(7), AwayRule.pause, null, today(9))],
-      );
-
-      // Nothing was saved.
-      expect(await endpoints.away.list(priya), isEmpty);
-      expect((await onlyActiveTurn()).mateId, samId);
-    });
   });
 }

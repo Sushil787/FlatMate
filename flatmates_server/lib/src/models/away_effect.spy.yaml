@@ -1,4 +1,5 @@
 ### What a planned Away would do to one of the Mate's Turns (Away preview).
+### The app works it out; no endpoint sends it.
 class: AwayEffect
 fields:
   choreId: UuidValue

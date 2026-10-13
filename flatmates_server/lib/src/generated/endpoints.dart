@@ -404,30 +404,6 @@ class Endpoints extends _is.EndpointDispatch {
                 params['lastDay'],
               ),
         ),
-        'preview': _is.MethodConnector(
-          name: 'preview',
-          params: {
-            'startDay': _is.ParameterDescription(
-              name: 'startDay',
-              type: _is.getType<DateTime>(),
-              nullable: false,
-            ),
-            'lastDay': _is.ParameterDescription(
-              name: 'lastDay',
-              type: _is.getType<DateTime>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['away'] as _im6g9gk0.AwayEndpoint).preview(
-                session,
-                params['startDay'],
-                params['lastDay'],
-              ),
-        ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
           params: {

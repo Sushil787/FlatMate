@@ -33,8 +33,5 @@ class AwayRepository {
   Future<Away> create(DateTime startDay, DateTime lastDay) =>
       _client.away.create(startDay, lastDay);
 
-  Future<List<AwayEffect>> preview(DateTime startDay, DateTime lastDay) =>
-      _client.away.preview(startDay, lastDay);
-
   Future<void> cancel(UuidValue awayId) => _client.away.cancel(awayId);
 }

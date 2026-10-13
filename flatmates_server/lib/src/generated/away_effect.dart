@@ -14,6 +14,7 @@ import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
 
 /// What a planned Away would do to one of the Mate's Turns (Away preview).
+/// The app works it out; no endpoint sends it.
 abstract class AwayEffect
     implements _is.SerializableModel, _is.ProtocolSerialization {
   AwayEffect._({

@@ -16,7 +16,6 @@ jwtRefresh:
 away:
   - list:
   - create:
-  - preview:
   - cancel:
 chore:
   - list:

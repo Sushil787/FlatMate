@@ -21,13 +21,11 @@ class TurnService {
   // ---------------------------------------------------------------------------
   // Planning
 
-  /// [extraAway] adds an Away that isn't saved, for the Away preview.
   static Future<PlannerState> plannerState(
     Session session,
     Flat flat,
-    Chore chore, {
-    AwaySpan? extraAway,
-  }) async {
+    Chore chore,
+  ) async {
     final mates = await activeMates(session, flat.id!);
     final aways = await Away.db.find(
       session,
@@ -44,7 +42,6 @@ class TurnService {
       activeMateIds: mates.map((m) => m.id!).toSet(),
       aways: [
         for (final a in aways) AwaySpan(a.mateId, a.startDay, a.lastDay),
-        ?extraAway,
       ],
       debts: [
         for (final d in debts) Debt(d.debtorMateId, d.creditorMateId),
@@ -130,57 +127,6 @@ class TurnService {
     await _schedule(session, flat, turn);
     await broadcast(session, flat.id!, FlatChangeKind.chores);
     return turn;
-  }
-
-  /// Projects upcoming Turns for every Chore in the Flat up to the day
-  /// [until], starting after each Chore's latest real Turn. Projected Turns
-  /// have no id.
-  static Future<List<Turn>> projectTurns(
-    Session session,
-    Flat flat,
-    DateTime until, {
-    AwaySpan? extraAway,
-  }) async {
-    final chores = await Chore.db.find(
-      session,
-      where: (t) => t.flatId.equals(flat.id!) & t.archived.equals(false),
-    );
-    final projected = <Turn>[];
-    for (final chore in chores) {
-      final latest = await Turn.db.findFirstRow(
-        session,
-        where: (t) => t.choreId.equals(chore.id!),
-        orderBy: (t) => t.day.desc(),
-      );
-      if (latest == null) continue;
-      final state = await plannerState(
-        session,
-        flat,
-        chore,
-        extraAway: extraAway,
-      );
-      for (final plan in projectChoreTurns(
-        state,
-        rotationIndex: chore.rotationIndex,
-        period: chore.period,
-        day: latest.day,
-        lastDay: latest.lastDay,
-        until: until,
-      )) {
-        projected.add(
-          Turn(
-            flatId: flat.id!,
-            choreId: chore.id!,
-            mateId: plan.mateId,
-            coveringForMateId: plan.coveringForMateId,
-            day: plan.day,
-            lastDay: plan.lastDay,
-            status: TurnStatus.active,
-          ),
-        );
-      }
-    }
-    return projected;
   }
 
   // ---------------------------------------------------------------------------
@@ -647,97 +593,6 @@ class TurnService {
     if (turns.isNotEmpty) {
       await broadcast(session, flat.id!, FlatChangeKind.chores);
     }
-  }
-
-  /// What marking [me] Away for [away] would do to their Turns, without
-  /// saving anything: their open Turns as [applyAway] would treat them, then
-  /// projected ones, each matched with the Turn in the same place in the
-  /// projection with the Away.
-  // ponytail: ignores knock-on effects of changing an open Turn on the
-  // projected ones after it; good enough for a preview.
-  static Future<List<AwayEffect>> previewAway(
-    Session session,
-    Flat flat,
-    Mate me,
-    AwaySpan away,
-  ) async {
-    final today = Day.today(flat.timezone);
-    final effects = <AwayEffect>[];
-    // Who does the Turn on which days once the Away is in.
-    AwayEffect effect(
-      UuidValue choreId,
-      DateTime day,
-      UuidValue mateId,
-      DateTime newDay,
-      DateTime newLastDay,
-    ) {
-      final moved = mateId == me.id;
-      return AwayEffect(
-        choreId: choreId,
-        day: day,
-        awayRule: flat.awayRule,
-        coverMateId: moved ? null : mateId,
-        newDay: moved ? newDay : null,
-        newLastDay: moved ? newLastDay : null,
-      );
-    }
-
-    final open = await Turn.db.find(
-      session,
-      where: (t) =>
-          t.mateId.equals(me.id!) &
-          t.status.equals(TurnStatus.active) &
-          (t.day <= away.lastDay) &
-          (t.lastDay >= away.startDay),
-      orderBy: (t) => t.day,
-    );
-    for (final turn in open) {
-      final chore = await Chore.db.findById(session, turn.choreId);
-      if (chore == null) continue;
-      final state = await plannerState(session, flat, chore, extraAway: away);
-      final outcome = awayOutcome(
-        state,
-        chore.rotationIndex,
-        me.id!,
-        turn.day,
-        turn.lastDay,
-        canMoveStart: turn.day.isAfter(today),
-      );
-      effects.add(
-        effect(
-          chore.id!,
-          turn.day,
-          outcome.cover?.mateId ?? me.id!,
-          outcome.day,
-          outcome.lastDay,
-        ),
-      );
-    }
-
-    // Pause can push a Turn back by at most the Away's length.
-    final length = Day.between(away.startDay, away.lastDay) + 1;
-    final before = await projectTurns(session, flat, away.lastDay);
-    final after = await projectTurns(
-      session,
-      flat,
-      Day.add(away.lastDay, length),
-      extraAway: away,
-    );
-    for (final choreId in before.map((t) => t.choreId).toSet()) {
-      final was = before.where((t) => t.choreId == choreId).toList();
-      final now = after.where((t) => t.choreId == choreId).toList();
-      for (var i = 0; i < was.length; i++) {
-        final turn = was[i];
-        if (turn.mateId != me.id || !away.overlaps(turn.day, turn.lastDay)) {
-          continue;
-        }
-        if (i >= now.length) continue;
-        effects.add(
-          effect(choreId, turn.day, now[i].mateId, now[i].day, now[i].lastDay),
-        );
-      }
-    }
-    return effects;
   }
 
   static Future<void> _reassign(

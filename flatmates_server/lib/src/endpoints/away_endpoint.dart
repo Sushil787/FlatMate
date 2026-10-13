@@ -1,4 +1,3 @@
-import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';
@@ -43,23 +42,6 @@ class AwayEndpoint extends Endpoint {
     await TurnService.applyAway(session, flat, away);
     await broadcast(session, flat.id!, FlatChangeKind.away);
     return away;
-  }
-
-  /// What marking the caller Away for [startDay]..[lastDay] would do to
-  /// their Turns. Saves nothing.
-  Future<List<AwayEffect>> preview(
-    Session session,
-    DateTime startDay,
-    DateTime lastDay,
-  ) async {
-    final (:me, :flat) = await requireMate(session);
-    final days = _days(flat, startDay, lastDay);
-    return TurnService.previewAway(
-      session,
-      flat,
-      me,
-      AwaySpan(me.id!, days.startDay, days.lastDay),
-    );
   }
 
   /// Cancels one of the caller's Away periods before it starts. Covers

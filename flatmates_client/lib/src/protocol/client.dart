@@ -12,7 +12,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:flatmates_client/src/protocol/away.dart' as _irs4lusq;
-import 'package:flatmates_client/src/protocol/away_effect.dart' as _ivmd14y1;
 import 'package:flatmates_client/src/protocol/chore.dart' as _ipou5iyr;
 import 'package:flatmates_client/src/protocol/event.dart' as _igj22k42;
 import 'package:flatmates_client/src/protocol/flat.dart' as _iy3ygg88;
@@ -339,20 +338,6 @@ class EndpointAway extends _isc.EndpointRef {
   ) => caller.callServerEndpoint<_irs4lusq.Away>(
     'away',
     'create',
-    {
-      'startDay': startDay,
-      'lastDay': lastDay,
-    },
-  );
-
-  /// What marking the caller Away for [startDay]..[lastDay] would do to
-  /// their Turns. Saves nothing.
-  _ida.Future<List<_ivmd14y1.AwayEffect>> preview(
-    DateTime startDay,
-    DateTime lastDay,
-  ) => caller.callServerEndpoint<List<_ivmd14y1.AwayEffect>>(
-    'away',
-    'preview',
     {
       'startDay': startDay,
       'lastDay': lastDay,

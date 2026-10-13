@@ -279,10 +279,6 @@ class _AwayRepo implements AwayRepository {
   }
 
   @override
-  Future<List<AwayEffect>> preview(DateTime startDay, DateTime lastDay) async =>
-      [];
-
-  @override
   Future<void> cancel(UuidValue awayId) async =>
       b.aways.removeWhere((a) => a.id == awayId);
 }
