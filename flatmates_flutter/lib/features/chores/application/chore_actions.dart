@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/action_notifier.dart';
@@ -16,7 +17,7 @@ class SaveChore extends ActionNotifier {
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) => guard(
     () => _chores.create(
       name: name,
@@ -27,10 +28,10 @@ class SaveChore extends ActionNotifier {
   );
 
   Future<bool> save({
-    required int choreId,
+    required UuidValue choreId,
     required String name,
     required Duration period,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) => guard(
     () => _chores.save(
       choreId: choreId,
@@ -43,12 +44,12 @@ class SaveChore extends ActionNotifier {
 
 /// Deleting (archiving) a Chore, by Chore id.
 final archiveChoreProvider = AsyncNotifierProvider.autoDispose
-    .family<ArchiveChore, void, int>(ArchiveChore.new);
+    .family<ArchiveChore, void, UuidValue>(ArchiveChore.new);
 
 class ArchiveChore extends ActionNotifier {
   ArchiveChore(this.choreId);
 
-  final int choreId;
+  final UuidValue choreId;
 
   Future<bool> run() => guard(
     () => ref.read(choresControllerProvider.notifier).archive(choreId),
@@ -57,12 +58,12 @@ class ArchiveChore extends ActionNotifier {
 
 /// Marking a Turn Done, by Turn id.
 final markDoneProvider = AsyncNotifierProvider.autoDispose
-    .family<MarkDone, void, int>(MarkDone.new);
+    .family<MarkDone, void, UuidValue>(MarkDone.new);
 
 class MarkDone extends ActionNotifier {
   MarkDone(this.turnId);
 
-  final int turnId;
+  final UuidValue turnId;
 
   Future<bool> run() => guard(
     () => ref.read(choresNowProvider.notifier).markDone(turnId),
@@ -71,12 +72,12 @@ class MarkDone extends ActionNotifier {
 
 /// Taking back a Done, by Turn id.
 final undoDoneProvider = AsyncNotifierProvider.autoDispose
-    .family<UndoDone, void, int>(UndoDone.new);
+    .family<UndoDone, void, UuidValue>(UndoDone.new);
 
 class UndoDone extends ActionNotifier {
   UndoDone(this.turnId);
 
-  final int turnId;
+  final UuidValue turnId;
 
   Future<bool> run() => guard(
     () => ref.read(choresNowProvider.notifier).undoDone(turnId),

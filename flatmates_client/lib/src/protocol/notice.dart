@@ -29,26 +29,28 @@ abstract class Notice
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Notice({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required String text,
     required bool pinned,
-    List<int>? gotItMateIds,
+    List<_isc.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _NoticeImpl;
 
   factory Notice.fromJson(Map<String, dynamic> jsonSerialization) {
     return Notice(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       text: jsonSerialization['text'] as String,
       pinned: _isc.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
       gotItMateIds: jsonSerialization['gotItMateIds'] == null
           ? null
-          : _iyp1dgna.Protocol().deserialize<List<int>>(
+          : _iyp1dgna.Protocol().deserialize<List<_isc.UuidValue>>(
               jsonSerialization['gotItMateIds'],
             ),
       createdAt: jsonSerialization['createdAt'] == null
@@ -63,18 +65,18 @@ abstract class Notice
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
-  int mateId;
+  _isc.UuidValue mateId;
 
   String text;
 
   bool pinned;
 
   /// Mates who said "Got it"; filled in by list().
-  List<int>? gotItMateIds;
+  List<_isc.UuidValue>? gotItMateIds;
 
   DateTime createdAt;
 
@@ -84,12 +86,12 @@ abstract class Notice
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Notice copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     String? text,
     bool? pinned,
-    List<int>? gotItMateIds,
+    List<_isc.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -97,12 +99,13 @@ abstract class Notice
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Notice',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'text': text,
       'pinned': pinned,
-      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
+      if (gotItMateIds != null)
+        'gotItMateIds': gotItMateIds?.toJson(valueToJson: (v) => v.toJson()),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -112,12 +115,13 @@ abstract class Notice
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Notice',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'text': text,
       'pinned': pinned,
-      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
+      if (gotItMateIds != null)
+        'gotItMateIds': gotItMateIds?.toJson(valueToJson: (v) => v.toJson()),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -133,12 +137,12 @@ class _Undefined {}
 
 class _NoticeImpl extends Notice {
   _NoticeImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required String text,
     required bool pinned,
-    List<int>? gotItMateIds,
+    List<_isc.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -158,8 +162,8 @@ class _NoticeImpl extends Notice {
   @override
   Notice copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     String? text,
     bool? pinned,
     Object? gotItMateIds = _Undefined,
@@ -167,12 +171,12 @@ class _NoticeImpl extends Notice {
     DateTime? updatedAt,
   }) {
     return Notice(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
-      gotItMateIds: gotItMateIds is List<int>?
+      gotItMateIds: gotItMateIds is List<_isc.UuidValue>?
           ? gotItMateIds
           : this.gotItMateIds?.map((e0) => e0).toList(),
       createdAt: createdAt ?? this.createdAt,

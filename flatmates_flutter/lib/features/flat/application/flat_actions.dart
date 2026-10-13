@@ -84,37 +84,37 @@ class SetMorningSummary extends ActionNotifier {
 
 /// Answering the new-Mate dialog: adding them to Chores, or not, by Mate id.
 final welcomeMateProvider = AsyncNotifierProvider.autoDispose
-    .family<WelcomeMate, void, int>(WelcomeMate.new);
+    .family<WelcomeMate, void, UuidValue>(WelcomeMate.new);
 
 class WelcomeMate extends ActionNotifier {
   WelcomeMate(this.mateId);
 
-  final int mateId;
+  final UuidValue mateId;
 
-  Future<bool> run(List<int> choreIds) =>
+  Future<bool> run(List<UuidValue> choreIds) =>
       guard(() => _flat(ref).welcomeMate(mateId, choreIds));
 }
 
 /// Handing the Admin role to a Mate, by Mate id.
 final makeAdminProvider = AsyncNotifierProvider.autoDispose
-    .family<MakeAdmin, void, int>(MakeAdmin.new);
+    .family<MakeAdmin, void, UuidValue>(MakeAdmin.new);
 
 class MakeAdmin extends ActionNotifier {
   MakeAdmin(this.mateId);
 
-  final int mateId;
+  final UuidValue mateId;
 
   Future<bool> run() => guard(() => _flat(ref).transferAdmin(mateId));
 }
 
 /// Removing a Mate from the Flat, by Mate id.
 final removeMateProvider = AsyncNotifierProvider.autoDispose
-    .family<RemoveMate, void, int>(RemoveMate.new);
+    .family<RemoveMate, void, UuidValue>(RemoveMate.new);
 
 class RemoveMate extends ActionNotifier {
   RemoveMate(this.mateId);
 
-  final int mateId;
+  final UuidValue mateId;
 
   Future<bool> run() => guard(() => _flat(ref).removeMate(mateId));
 }

@@ -86,19 +86,19 @@ class ChoreHistory {
 
   bool isToday(Turn t) => !t.day.isAfter(today) && !t.lastDay.isBefore(today);
 
-  int doneBy(int mateId) => turns
+  int doneBy(UuidValue mateId) => turns
       .where((t) => t.mateId == mateId && t.status == TurnStatus.done)
       .length;
 
   /// The day [mateId]'s next Turn starts, today included.
-  DateTime? nextDayOf(int mateId) => turns
+  DateTime? nextDayOf(UuidValue mateId) => turns
       .where((t) => t.mateId == mateId && !t.lastDay.isBefore(today))
       .firstOrNull
       ?.day;
 }
 
 /// [mateId]'s Away covering [today], if any.
-Away? awayOn(Iterable<Away>? aways, int mateId, DateTime today) => aways
+Away? awayOn(Iterable<Away>? aways, UuidValue mateId, DateTime today) => aways
     ?.where(
       (a) =>
           a.mateId == mateId &&

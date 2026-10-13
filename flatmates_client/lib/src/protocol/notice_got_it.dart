@@ -23,17 +23,21 @@ abstract class NoticeGotIt
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory NoticeGotIt({
-    int? id,
-    required int noticeId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue noticeId,
+    required _isc.UuidValue mateId,
     DateTime? createdAt,
   }) = _NoticeGotItImpl;
 
   factory NoticeGotIt.fromJson(Map<String, dynamic> jsonSerialization) {
     return NoticeGotIt(
-      id: jsonSerialization['id'] as int?,
-      noticeId: jsonSerialization['noticeId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      noticeId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['noticeId'],
+      ),
+      mateId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -43,11 +47,11 @@ abstract class NoticeGotIt
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int noticeId;
+  _isc.UuidValue noticeId;
 
-  int mateId;
+  _isc.UuidValue mateId;
 
   DateTime createdAt;
 
@@ -55,18 +59,18 @@ abstract class NoticeGotIt
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   NoticeGotIt copyWith({
-    int? id,
-    int? noticeId,
-    int? mateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? noticeId,
+    _isc.UuidValue? mateId,
     DateTime? createdAt,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'NoticeGotIt',
-      if (id != null) 'id': id,
-      'noticeId': noticeId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'noticeId': noticeId.toJson(),
+      'mateId': mateId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -75,9 +79,9 @@ abstract class NoticeGotIt
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'NoticeGotIt',
-      if (id != null) 'id': id,
-      'noticeId': noticeId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'noticeId': noticeId.toJson(),
+      'mateId': mateId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -92,9 +96,9 @@ class _Undefined {}
 
 class _NoticeGotItImpl extends NoticeGotIt {
   _NoticeGotItImpl({
-    int? id,
-    required int noticeId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue noticeId,
+    required _isc.UuidValue mateId,
     DateTime? createdAt,
   }) : super._(
          id: id,
@@ -109,12 +113,12 @@ class _NoticeGotItImpl extends NoticeGotIt {
   @override
   NoticeGotIt copyWith({
     Object? id = _Undefined,
-    int? noticeId,
-    int? mateId,
+    _isc.UuidValue? noticeId,
+    _isc.UuidValue? mateId,
     DateTime? createdAt,
   }) {
     return NoticeGotIt(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       noticeId: noticeId ?? this.noticeId,
       mateId: mateId ?? this.mateId,
       createdAt: createdAt ?? this.createdAt,

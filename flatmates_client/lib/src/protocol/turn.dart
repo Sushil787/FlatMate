@@ -32,11 +32,11 @@ abstract class Turn
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Turn({
-    int? id,
-    required int flatId,
-    required int choreId,
-    required int mateId,
-    int? coveringForMateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue choreId,
+    required _isc.UuidValue mateId,
+    _isc.UuidValue? coveringForMateId,
     required DateTime day,
     required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
@@ -47,11 +47,19 @@ abstract class Turn
 
   factory Turn.fromJson(Map<String, dynamic> jsonSerialization) {
     return Turn(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      choreId: jsonSerialization['choreId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
-      coveringForMateId: jsonSerialization['coveringForMateId'] as int?,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      choreId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
+      mateId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
+      coveringForMateId: jsonSerialization['coveringForMateId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['coveringForMateId'],
+            ),
       day: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
       lastDay: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['lastDay'],
@@ -74,16 +82,16 @@ abstract class Turn
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
-  int choreId;
+  _isc.UuidValue choreId;
 
-  int mateId;
+  _isc.UuidValue mateId;
 
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
-  int? coveringForMateId;
+  _isc.UuidValue? coveringForMateId;
 
   /// The Turn's day (12:00 UTC on that date, see day.dart).
   DateTime day;
@@ -103,11 +111,11 @@ abstract class Turn
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Turn copyWith({
-    int? id,
-    int? flatId,
-    int? choreId,
-    int? mateId,
-    int? coveringForMateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? choreId,
+    _isc.UuidValue? mateId,
+    _isc.UuidValue? coveringForMateId,
     DateTime? day,
     DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
@@ -119,11 +127,12 @@ abstract class Turn
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Turn',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'choreId': choreId,
-      'mateId': mateId,
-      if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'choreId': choreId.toJson(),
+      'mateId': mateId.toJson(),
+      if (coveringForMateId != null)
+        'coveringForMateId': coveringForMateId?.toJson(),
       'day': day.toJson(),
       'lastDay': lastDay.toJson(),
       'status': status.toJson(),
@@ -137,11 +146,12 @@ abstract class Turn
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Turn',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'choreId': choreId,
-      'mateId': mateId,
-      if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'choreId': choreId.toJson(),
+      'mateId': mateId.toJson(),
+      if (coveringForMateId != null)
+        'coveringForMateId': coveringForMateId?.toJson(),
       'day': day.toJson(),
       'lastDay': lastDay.toJson(),
       'status': status.toJson(),
@@ -161,11 +171,11 @@ class _Undefined {}
 
 class _TurnImpl extends Turn {
   _TurnImpl({
-    int? id,
-    required int flatId,
-    required int choreId,
-    required int mateId,
-    int? coveringForMateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue choreId,
+    required _isc.UuidValue mateId,
+    _isc.UuidValue? coveringForMateId,
     required DateTime day,
     required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
@@ -192,9 +202,9 @@ class _TurnImpl extends Turn {
   @override
   Turn copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? choreId,
-    int? mateId,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? choreId,
+    _isc.UuidValue? mateId,
     Object? coveringForMateId = _Undefined,
     DateTime? day,
     DateTime? lastDay,
@@ -204,11 +214,11 @@ class _TurnImpl extends Turn {
     DateTime? updatedAt,
   }) {
     return Turn(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       choreId: choreId ?? this.choreId,
       mateId: mateId ?? this.mateId,
-      coveringForMateId: coveringForMateId is int?
+      coveringForMateId: coveringForMateId is _isc.UuidValue?
           ? coveringForMateId
           : this.coveringForMateId,
       day: day ?? this.day,

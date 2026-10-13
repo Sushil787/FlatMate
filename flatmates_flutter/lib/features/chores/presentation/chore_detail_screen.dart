@@ -25,9 +25,10 @@ import 'chore_editor_sheet.dart';
 /// A Chore's Rotation, Turns done per Mate, and Turn history.
 @RoutePage()
 class ChoreDetailScreen extends ConsumerStatefulWidget {
-  const ChoreDetailScreen({super.key, @PathParam() required this.choreId});
+  const ChoreDetailScreen({super.key, required this.choreId});
 
-  final int choreId;
+  /// Typed, so only a real Chore id can be passed in; not in the URL.
+  final UuidValue choreId;
 
   @override
   ConsumerState<ChoreDetailScreen> createState() => _ChoreDetailScreenState();
@@ -44,7 +45,7 @@ class _ChoreDetailScreenState extends ConsumerState<ChoreDetailScreen> {
     }
   }
 
-  void _markDone(int turnId) =>
+  void _markDone(UuidValue turnId) =>
       runAction(context, ref.read(markDoneProvider(turnId).notifier).run);
 
   @override
@@ -167,7 +168,7 @@ class _RotationCard extends ConsumerWidget {
     final debts = ref.watch(swapDebtsProvider).value ?? const [];
     final current = history.current;
 
-    Widget cell(int id) {
+    Widget cell(UuidValue id) {
       final away = awayOn(aways, id, history.today) != null;
       final now =
           current != null && current.mateId == id && history.isToday(current);

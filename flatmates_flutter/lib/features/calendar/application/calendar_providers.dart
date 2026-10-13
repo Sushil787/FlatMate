@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/day.dart';
@@ -68,7 +69,7 @@ class EventsController extends Notifier<void> {
     ref.invalidate(calendarMonthProvider);
   }
 
-  Future<void> delete(int eventId) async {
+  Future<void> delete(UuidValue eventId) async {
     await ref.read(eventRepositoryProvider).delete(eventId);
     ref.invalidate(calendarMonthProvider);
   }

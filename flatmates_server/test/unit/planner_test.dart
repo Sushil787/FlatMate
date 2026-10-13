@@ -1,22 +1,25 @@
 import 'package:flatmates_server/src/day.dart';
 import 'package:flatmates_server/src/generated/protocol.dart';
 import 'package:flatmates_server/src/rotation/planner.dart';
+import 'package:serverpod/serverpod.dart' show UuidValue;
 import 'package:test/test.dart';
 
-const priya = 1, sam = 2, alex = 3;
+final priya = UuidValue.fromString('00000000-0000-7000-8000-000000000001'),
+    sam = UuidValue.fromString('00000000-0000-7000-8000-000000000002'),
+    alex = UuidValue.fromString('00000000-0000-7000-8000-000000000003');
 const week = Duration(days: 7);
 final d0 = Day.of(2026, 10, 5);
 DateTime day(int n) => Day.add(d0, n);
 
 PlannerState state({
-  List<int> rotation = const [priya, sam, alex],
+  List<UuidValue>? rotation,
   AwayRule rule = AwayRule.swap,
-  Set<int> active = const {priya, sam, alex},
+  Set<UuidValue>? active,
   List<AwaySpan> aways = const [],
 }) => PlannerState(
-  rotation: rotation,
+  rotation: rotation ?? [priya, sam, alex],
   awayRule: rule,
-  activeMateIds: active,
+  activeMateIds: active ?? {priya, sam, alex},
   aways: aways,
   debts: [],
 );

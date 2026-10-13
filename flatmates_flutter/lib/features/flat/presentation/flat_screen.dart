@@ -181,7 +181,7 @@ class FlatScreen extends ConsumerWidget {
   }
 
   /// "Away · back in 3 days" for a Mate who is Away today, else null.
-  static String? _awayLabel(List<Away> aways, int mateId) {
+  static String? _awayLabel(List<Away> aways, UuidValue mateId) {
     final today = Day.fromLocal(DateTime.now());
     DateTime? last;
     for (final a in aways) {

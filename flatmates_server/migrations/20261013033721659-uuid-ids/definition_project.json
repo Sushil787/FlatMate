@@ -14,26 +14,26 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "mateId",
           "fieldName": "mateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -100,18 +100,18 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -143,7 +143,7 @@
           "fieldName": "rotation",
           "columnType": 8,
           "isNullable": false,
-          "dartType": "List<int>"
+          "dartType": "List<UuidValue>"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -294,10 +294,10 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -319,9 +319,9 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "adminMateId",
           "fieldName": "adminMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": true,
-          "dartType": "int?"
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -333,11 +333,28 @@
         },
         {
           "__className__": "serverpod.ColumnDefinition",
+          "name": "inviteExpiresAt",
+          "fieldName": "inviteExpiresAt",
+          "columnType": 4,
+          "isNullable": false,
+          "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
           "name": "awayRule",
           "fieldName": "awayRule",
           "columnType": 0,
           "isNullable": false,
           "dartType": "protocol:AwayRule"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "morningSummaryAt",
+          "fieldName": "morningSummaryAt",
+          "columnType": 6,
+          "isNullable": false,
+          "columnDefault": "480",
+          "dartType": "int"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -388,26 +405,26 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "mateId",
           "fieldName": "mateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -432,6 +449,23 @@
           "columnType": 4,
           "isNullable": false,
           "dartType": "DateTime"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "endsAt",
+          "fieldName": "endsAt",
+          "columnType": 4,
+          "isNullable": true,
+          "dartType": "DateTime?"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "allDay",
+          "fieldName": "allDay",
+          "columnType": 1,
+          "isNullable": false,
+          "columnDefault": "false",
+          "dartType": "bool"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -487,18 +521,18 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -520,17 +554,17 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "addedByMateId",
           "fieldName": "addedByMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "boughtByMateId",
           "fieldName": "boughtByMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": true,
-          "dartType": "int?"
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -589,18 +623,18 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -663,8 +697,8 @@
         },
         {
           "__className__": "serverpod.ColumnDefinition",
-          "name": "notifyMissed",
-          "fieldName": "notifyMissed",
+          "name": "notifyMatesNotDone",
+          "fieldName": "notifyMatesNotDone",
           "columnType": 1,
           "isNullable": false,
           "columnDefault": "true",
@@ -683,6 +717,15 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "notifyAddedToRotation",
           "fieldName": "notifyAddedToRotation",
+          "columnType": 1,
+          "isNullable": false,
+          "columnDefault": "true",
+          "dartType": "bool"
+        },
+        {
+          "__className__": "serverpod.ColumnDefinition",
+          "name": "welcomed",
+          "fieldName": "welcomed",
           "columnType": 1,
           "isNullable": false,
           "columnDefault": "true",
@@ -751,26 +794,26 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "mateId",
           "fieldName": "mateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -837,26 +880,26 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "noticeId",
           "fieldName": "noticeId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "mateId",
           "fieldName": "mateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -903,34 +946,34 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "choreId",
           "fieldName": "choreId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "debtorMateId",
           "fieldName": "debtorMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "creditorMateId",
           "fieldName": "creditorMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
@@ -981,42 +1024,42 @@
           "__className__": "serverpod.ColumnDefinition",
           "name": "id",
           "fieldName": "id",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "columnDefault": "serial",
-          "dartType": "int?"
+          "columnDefault": "random_v7",
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "flatId",
           "fieldName": "flatId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "choreId",
           "fieldName": "choreId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "mateId",
           "fieldName": "mateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": false,
-          "dartType": "int"
+          "dartType": "UuidValue"
         },
         {
           "__className__": "serverpod.ColumnDefinition",
           "name": "coveringForMateId",
           "fieldName": "coveringForMateId",
-          "columnType": 6,
+          "columnType": 7,
           "isNullable": true,
-          "dartType": "int?"
+          "dartType": "UuidValue?"
         },
         {
           "__className__": "serverpod.ColumnDefinition",

@@ -2,11 +2,12 @@
 class: Turn
 table: turn
 fields:
-  flatId: int
-  choreId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
+  choreId: UuidValue
+  mateId: UuidValue
   ### Set when [mateId] is doing this Turn on someone else's behalf (Swap).
-  coveringForMateId: int?
+  coveringForMateId: UuidValue?
   ### The Turn's day (12:00 UTC on that date, see day.dart).
   day: DateTime
   ### Inclusive; later than [day] only when Pause extended the Turn.

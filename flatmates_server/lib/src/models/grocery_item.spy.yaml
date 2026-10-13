@@ -2,11 +2,12 @@
 class: GroceryItem
 table: grocery_item
 fields:
-  flatId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
   name: String
   note: String?
-  addedByMateId: int
-  boughtByMateId: int?
+  addedByMateId: UuidValue
+  boughtByMateId: UuidValue?
   boughtAt: DateTime?
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now

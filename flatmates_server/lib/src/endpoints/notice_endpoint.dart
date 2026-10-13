@@ -58,7 +58,7 @@ class NoticeEndpoint extends Endpoint {
     return notice;
   }
 
-  Future<void> setPinned(Session session, int noticeId, bool pinned) async {
+  Future<void> setPinned(Session session, UuidValue noticeId, bool pinned) async {
     final (:me, :flat) = await requireAdmin(session);
     final notice = await Notice.db.findById(session, noticeId);
     if (notice == null || notice.flatId != flat.id) fail('Notice not found.');
@@ -68,7 +68,7 @@ class NoticeEndpoint extends Endpoint {
   }
 
   /// Says "Got it" on someone else's Notice. Saying it twice is fine.
-  Future<void> gotIt(Session session, int noticeId) async {
+  Future<void> gotIt(Session session, UuidValue noticeId) async {
     final (:me, :flat) = await requireMate(session);
     final notice = await Notice.db.findById(session, noticeId);
     if (notice == null || notice.flatId != flat.id) fail('Notice not found.');
@@ -86,7 +86,7 @@ class NoticeEndpoint extends Endpoint {
   }
 
   /// Deletes a Notice; only its author or the Admin can.
-  Future<void> delete(Session session, int noticeId) async {
+  Future<void> delete(Session session, UuidValue noticeId) async {
     final (:me, :flat) = await requireMate(session);
     final notice = await Notice.db.findById(session, noticeId);
     if (notice == null || notice.flatId != flat.id) fail('Notice not found.');

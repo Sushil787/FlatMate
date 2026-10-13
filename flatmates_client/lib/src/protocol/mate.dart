@@ -43,8 +43,8 @@ abstract class Mate
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Mate({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required _isc.UuidValue authUserId,
     required String displayName,
     required DateTime joinedAt,
@@ -62,8 +62,10 @@ abstract class Mate
 
   factory Mate.fromJson(Map<String, dynamic> jsonSerialization) {
     return Mate(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       authUserId: _isc.UuidValueJsonExtension.fromJson(
         jsonSerialization['authUserId'],
       ),
@@ -117,9 +119,9 @@ abstract class Mate
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
   _isc.UuidValue authUserId;
 
@@ -155,8 +157,8 @@ abstract class Mate
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Mate copyWith({
-    int? id,
-    int? flatId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
     _isc.UuidValue? authUserId,
     String? displayName,
     DateTime? joinedAt,
@@ -175,8 +177,8 @@ abstract class Mate
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Mate',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'authUserId': authUserId.toJson(),
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
@@ -197,8 +199,8 @@ abstract class Mate
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Mate',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'authUserId': authUserId.toJson(),
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
@@ -225,8 +227,8 @@ class _Undefined {}
 
 class _MateImpl extends Mate {
   _MateImpl({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required _isc.UuidValue authUserId,
     required String displayName,
     required DateTime joinedAt,
@@ -264,7 +266,7 @@ class _MateImpl extends Mate {
   @override
   Mate copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _isc.UuidValue? flatId,
     _isc.UuidValue? authUserId,
     String? displayName,
     DateTime? joinedAt,
@@ -280,7 +282,7 @@ class _MateImpl extends Mate {
     DateTime? updatedAt,
   }) {
     return Mate(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       authUserId: authUserId ?? this.authUserId,
       displayName: displayName ?? this.displayName,

@@ -229,7 +229,7 @@ class _DoneToday extends ConsumerWidget {
 class _UndoButton extends ConsumerWidget {
   const _UndoButton(this.turnId);
 
-  final int turnId;
+  final UuidValue turnId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -262,7 +262,7 @@ class _NoTurnCard extends StatelessWidget {
   const _NoTurnCard({required this.overview, required this.me});
 
   final ChoresOverview overview;
-  final int me;
+  final UuidValue me;
 
   @override
   Widget build(BuildContext context) {

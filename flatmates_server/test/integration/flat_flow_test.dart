@@ -3,6 +3,7 @@ import 'package:flatmates_server/src/generated/protocol.dart';
 import 'package:flatmates_server/src/notify/notifier.dart';
 import 'package:flatmates_server/src/rotation/turn_service.dart';
 import 'package:flatmates_server/src/updated_at.dart';
+import 'package:serverpod/serverpod.dart' show UuidValue;
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
@@ -22,7 +23,7 @@ void main() {
     final alex = as('00000000-0000-4000-8000-000000000003');
 
     late MyFlat flat;
-    late int priyaId, samId, alexId;
+    late UuidValue priyaId, samId, alexId;
 
     setUp(() async {
       flat = await endpoints.flat.create(priya, 'Elm St', 'Priya', tz);
@@ -436,7 +437,7 @@ void main() {
 
       /// Runs every active Turn's scheduled [call], as at its time.
       Future<void> runAll(
-        Future<void> Function(TestSessionBuilder, int) call,
+        Future<void> Function(TestSessionBuilder, UuidValue) call,
       ) async {
         for (final t in await endpoints.chore.activeTurns(priya)) {
           await call(sessionBuilder, t.id!);

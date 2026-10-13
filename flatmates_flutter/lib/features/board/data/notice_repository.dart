@@ -17,10 +17,10 @@ class NoticeRepository {
 
   Future<Notice> post(String text) => _client.notice.post(text);
 
-  Future<void> setPinned(int noticeId, bool pinned) =>
+  Future<void> setPinned(UuidValue noticeId, bool pinned) =>
       _client.notice.setPinned(noticeId, pinned);
 
-  Future<void> gotIt(int noticeId) => _client.notice.gotIt(noticeId);
+  Future<void> gotIt(UuidValue noticeId) => _client.notice.gotIt(noticeId);
 
-  Future<void> delete(int noticeId) => _client.notice.delete(noticeId);
+  Future<void> delete(UuidValue noticeId) => _client.notice.delete(noticeId);
 }

@@ -246,7 +246,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'awayId': _is.ParameterDescription(
               name: 'awayId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -330,7 +330,7 @@ class Endpoints extends _is.EndpointDispatch {
             ),
             'rotation': _is.ParameterDescription(
               name: 'rotation',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -351,7 +351,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'choreId': _is.ParameterDescription(
               name: 'choreId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'name': _is.ParameterDescription(
@@ -366,7 +366,7 @@ class Endpoints extends _is.EndpointDispatch {
             ),
             'rotation': _is.ParameterDescription(
               name: 'rotation',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -387,7 +387,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'choreId': _is.ParameterDescription(
               name: 'choreId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -406,7 +406,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'turnId': _is.ParameterDescription(
               name: 'turnId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -425,7 +425,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'turnId': _is.ParameterDescription(
               name: 'turnId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -533,7 +533,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'eventId': _is.ParameterDescription(
               name: 'eventId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -749,12 +749,12 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'choreIds': _is.ParameterDescription(
               name: 'choreIds',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -793,7 +793,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -812,7 +812,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -915,7 +915,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'itemId': _is.ParameterDescription(
               name: 'itemId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'bought': _is.ParameterDescription(
@@ -940,7 +940,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'itemId': _is.ParameterDescription(
               name: 'itemId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -994,7 +994,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'pinned': _is.ParameterDescription(
@@ -1019,7 +1019,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -1038,7 +1038,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },

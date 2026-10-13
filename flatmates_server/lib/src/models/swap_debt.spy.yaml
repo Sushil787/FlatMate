@@ -2,9 +2,10 @@
 class: SwapDebt
 table: swap_debt
 fields:
-  choreId: int
-  debtorMateId: int
-  creditorMateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  choreId: UuidValue
+  debtorMateId: UuidValue
+  creditorMateId: UuidValue
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

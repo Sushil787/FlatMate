@@ -66,7 +66,7 @@ class EventEndpoint extends Endpoint {
   }
 
   /// Deletes an Event; only its creator or the Admin can.
-  Future<void> delete(Session session, int eventId) async {
+  Future<void> delete(Session session, UuidValue eventId) async {
     final (:me, :flat) = await requireMate(session);
     final event = await FlatEvent.db.findById(session, eventId);
     if (event == null || event.flatId != flat.id) fail('Event not found.');

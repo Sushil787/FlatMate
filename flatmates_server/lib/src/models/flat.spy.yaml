@@ -2,10 +2,11 @@
 class: Flat
 table: flat
 fields:
+  id: UuidValue?, defaultPersist=random_v7
   name: String
   ### IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   timezone: String
-  adminMateId: int?
+  adminMateId: UuidValue?
   inviteCode: String
   ### When [inviteCode] stops working; 7 days after it was made.
   inviteExpiresAt: DateTime

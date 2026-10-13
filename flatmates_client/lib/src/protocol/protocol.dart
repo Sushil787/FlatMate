@@ -214,16 +214,19 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i5yk6qf9.TurnStatus?>()) {
       return (data != null ? _i5yk6qf9.TurnStatus.fromJson(data) : null) as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    if (t == List<_isc.UuidValue>) {
+      return (data as List).map((e) => deserialize<_isc.UuidValue>(e)).toList()
+          as T;
     }
     if (t == List<_itahn62i.Mate>) {
       return (data as List).map((e) => deserialize<_itahn62i.Mate>(e)).toList()
           as T;
     }
-    if (t == _isc.getType<List<int>?>()) {
+    if (t == _isc.getType<List<_isc.UuidValue>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              ? (data as List)
+                    .map((e) => deserialize<_isc.UuidValue>(e))
+                    .toList()
               : null)
           as T;
     }
@@ -245,8 +248,9 @@ class Protocol extends _isc.SerializationManager {
       return (data as List).map((e) => deserialize<_i4k8bhoi.Turn>(e)).toList()
           as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    if (t == List<_isc.UuidValue>) {
+      return (data as List).map((e) => deserialize<_isc.UuidValue>(e)).toList()
+          as T;
     }
     if (t == List<_icdhy1dj.SwapDebt>) {
       return (data as List)

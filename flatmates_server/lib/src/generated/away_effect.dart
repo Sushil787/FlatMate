@@ -26,22 +26,28 @@ abstract class AwayEffect
   });
 
   factory AwayEffect({
-    required int choreId,
+    required _is.UuidValue choreId,
     required DateTime day,
     required _isc380kv.AwayRule awayRule,
-    int? coverMateId,
+    _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   }) = _AwayEffectImpl;
 
   factory AwayEffect.fromJson(Map<String, dynamic> jsonSerialization) {
     return AwayEffect(
-      choreId: jsonSerialization['choreId'] as int,
+      choreId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
       day: _is.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
       awayRule: _isc380kv.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
-      coverMateId: jsonSerialization['coverMateId'] as int?,
+      coverMateId: jsonSerialization['coverMateId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['coverMateId'],
+            ),
       newDay: jsonSerialization['newDay'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['newDay']),
@@ -51,7 +57,7 @@ abstract class AwayEffect
     );
   }
 
-  int choreId;
+  _is.UuidValue choreId;
 
   /// The Turn's day as planned now.
   DateTime day;
@@ -59,7 +65,7 @@ abstract class AwayEffect
   _isc380kv.AwayRule awayRule;
 
   /// Swap/Skip: the Mate who takes the Turn.
-  int? coverMateId;
+  _is.UuidValue? coverMateId;
 
   /// Pause, or nobody free to cover: the Turn's new days.
   DateTime? newDay;
@@ -70,10 +76,10 @@ abstract class AwayEffect
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   AwayEffect copyWith({
-    int? choreId,
+    _is.UuidValue? choreId,
     DateTime? day,
     _isc380kv.AwayRule? awayRule,
-    int? coverMateId,
+    _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   });
@@ -81,10 +87,10 @@ abstract class AwayEffect
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'AwayEffect',
-      'choreId': choreId,
+      'choreId': choreId.toJson(),
       'day': day.toJson(),
       'awayRule': awayRule.toJson(),
-      if (coverMateId != null) 'coverMateId': coverMateId,
+      if (coverMateId != null) 'coverMateId': coverMateId?.toJson(),
       if (newDay != null) 'newDay': newDay?.toJson(),
       if (newLastDay != null) 'newLastDay': newLastDay?.toJson(),
     };
@@ -94,10 +100,10 @@ abstract class AwayEffect
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'AwayEffect',
-      'choreId': choreId,
+      'choreId': choreId.toJson(),
       'day': day.toJson(),
       'awayRule': awayRule.toJson(),
-      if (coverMateId != null) 'coverMateId': coverMateId,
+      if (coverMateId != null) 'coverMateId': coverMateId?.toJson(),
       if (newDay != null) 'newDay': newDay?.toJson(),
       if (newLastDay != null) 'newLastDay': newLastDay?.toJson(),
     };
@@ -113,10 +119,10 @@ class _Undefined {}
 
 class _AwayEffectImpl extends AwayEffect {
   _AwayEffectImpl({
-    required int choreId,
+    required _is.UuidValue choreId,
     required DateTime day,
     required _isc380kv.AwayRule awayRule,
-    int? coverMateId,
+    _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   }) : super._(
@@ -133,7 +139,7 @@ class _AwayEffectImpl extends AwayEffect {
   @_is.useResult
   @override
   AwayEffect copyWith({
-    int? choreId,
+    _is.UuidValue? choreId,
     DateTime? day,
     _isc380kv.AwayRule? awayRule,
     Object? coverMateId = _Undefined,
@@ -144,7 +150,9 @@ class _AwayEffectImpl extends AwayEffect {
       choreId: choreId ?? this.choreId,
       day: day ?? this.day,
       awayRule: awayRule ?? this.awayRule,
-      coverMateId: coverMateId is int? ? coverMateId : this.coverMateId,
+      coverMateId: coverMateId is _is.UuidValue?
+          ? coverMateId
+          : this.coverMateId,
       newDay: newDay is DateTime? ? newDay : this.newDay,
       newLastDay: newLastDay is DateTime? ? newLastDay : this.newLastDay,
     );

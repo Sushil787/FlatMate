@@ -176,11 +176,12 @@ class EndpointAway extends _isc.EndpointRef {
 
   /// Cancels one of the caller's Away periods before it starts. Covers
   /// already arranged for it stay as they are.
-  _ida.Future<void> cancel(int awayId) => caller.callServerEndpoint<void>(
-    'away',
-    'cancel',
-    {'awayId': awayId},
-  );
+  _ida.Future<void> cancel(_isc.UuidValue awayId) =>
+      caller.callServerEndpoint<void>(
+        'away',
+        'cancel',
+        {'awayId': awayId},
+      );
 }
 
 /// Chores, their Rotations and Turns.
@@ -224,7 +225,7 @@ class EndpointChore extends _isc.EndpointRef {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<_isc.UuidValue> rotation,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'create',
@@ -239,10 +240,10 @@ class EndpointChore extends _isc.EndpointRef {
   /// Edits a Chore. The current Turn finishes as planned; changes apply
   /// from the next Turn.
   _ida.Future<_ipou5iyr.Chore> update(
-    int choreId,
+    _isc.UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<_isc.UuidValue> rotation,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'update',
@@ -254,20 +255,21 @@ class EndpointChore extends _isc.EndpointRef {
     },
   );
 
-  _ida.Future<void> archive(int choreId) => caller.callServerEndpoint<void>(
-    'chore',
-    'archive',
-    {'choreId': choreId},
-  );
+  _ida.Future<void> archive(_isc.UuidValue choreId) =>
+      caller.callServerEndpoint<void>(
+        'chore',
+        'archive',
+        {'choreId': choreId},
+      );
 
-  _ida.Future<_i4k8bhoi.Turn> markDone(int turnId) =>
+  _ida.Future<_i4k8bhoi.Turn> markDone(_isc.UuidValue turnId) =>
       caller.callServerEndpoint<_i4k8bhoi.Turn>(
         'chore',
         'markDone',
         {'turnId': turnId},
       );
 
-  _ida.Future<_i4k8bhoi.Turn> undoDone(int turnId) =>
+  _ida.Future<_i4k8bhoi.Turn> undoDone(_isc.UuidValue turnId) =>
       caller.callServerEndpoint<_i4k8bhoi.Turn>(
         'chore',
         'undoDone',
@@ -325,11 +327,12 @@ class EndpointEvent extends _isc.EndpointRef {
   );
 
   /// Deletes an Event; only its creator or the Admin can.
-  _ida.Future<void> delete(int eventId) => caller.callServerEndpoint<void>(
-    'event',
-    'delete',
-    {'eventId': eventId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue eventId) =>
+      caller.callServerEndpoint<void>(
+        'event',
+        'delete',
+        {'eventId': eventId},
+      );
 }
 
 /// Creating, joining and running a Flat.
@@ -436,8 +439,8 @@ class EndpointFlat extends _isc.EndpointRef {
   /// of each of [choreIds]' Rotations. Does nothing if they were already
   /// welcomed (say, from the Admin's other phone).
   _ida.Future<void> welcomeMate(
-    int mateId,
-    List<int> choreIds,
+    _isc.UuidValue mateId,
+    List<_isc.UuidValue> choreIds,
   ) => caller.callServerEndpoint<void>(
     'flat',
     'welcomeMate',
@@ -457,7 +460,7 @@ class EndpointFlat extends _isc.EndpointRef {
       );
 
   /// Hands the Admin role to another Mate.
-  _ida.Future<void> transferAdmin(int mateId) =>
+  _ida.Future<void> transferAdmin(_isc.UuidValue mateId) =>
       caller.callServerEndpoint<void>(
         'flat',
         'transferAdmin',
@@ -467,11 +470,12 @@ class EndpointFlat extends _isc.EndpointRef {
   /// Removes a Mate from the Flat. The Admin can remove anyone; anyone can
   /// remove themselves. The Admin must hand over the role before leaving,
   /// unless they're the last Mate.
-  _ida.Future<void> removeMate(int mateId) => caller.callServerEndpoint<void>(
-    'flat',
-    'removeMate',
-    {'mateId': mateId},
-  );
+  _ida.Future<void> removeMate(_isc.UuidValue mateId) =>
+      caller.callServerEndpoint<void>(
+        'flat',
+        'removeMate',
+        {'mateId': mateId},
+      );
 
   /// Leaves the caller's Flat.
   _ida.Future<void> leave() => caller.callServerEndpoint<void>(
@@ -533,7 +537,7 @@ class EndpointGrocery extends _isc.EndpointRef {
 
   /// Ticks an item as bought by the caller, or unticks it.
   _ida.Future<_iy9ydfy6.GroceryItem> setBought(
-    int itemId,
+    _isc.UuidValue itemId,
     bool bought,
   ) => caller.callServerEndpoint<_iy9ydfy6.GroceryItem>(
     'grocery',
@@ -544,11 +548,12 @@ class EndpointGrocery extends _isc.EndpointRef {
     },
   );
 
-  _ida.Future<void> delete(int itemId) => caller.callServerEndpoint<void>(
-    'grocery',
-    'delete',
-    {'itemId': itemId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue itemId) =>
+      caller.callServerEndpoint<void>(
+        'grocery',
+        'delete',
+        {'itemId': itemId},
+      );
 }
 
 /// The Flat's notice board.
@@ -575,7 +580,7 @@ class EndpointNotice extends _isc.EndpointRef {
       );
 
   _ida.Future<void> setPinned(
-    int noticeId,
+    _isc.UuidValue noticeId,
     bool pinned,
   ) => caller.callServerEndpoint<void>(
     'notice',
@@ -587,18 +592,20 @@ class EndpointNotice extends _isc.EndpointRef {
   );
 
   /// Says "Got it" on someone else's Notice. Saying it twice is fine.
-  _ida.Future<void> gotIt(int noticeId) => caller.callServerEndpoint<void>(
-    'notice',
-    'gotIt',
-    {'noticeId': noticeId},
-  );
+  _ida.Future<void> gotIt(_isc.UuidValue noticeId) =>
+      caller.callServerEndpoint<void>(
+        'notice',
+        'gotIt',
+        {'noticeId': noticeId},
+      );
 
   /// Deletes a Notice; only its author or the Admin can.
-  _ida.Future<void> delete(int noticeId) => caller.callServerEndpoint<void>(
-    'notice',
-    'delete',
-    {'noticeId': noticeId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue noticeId) =>
+      caller.callServerEndpoint<void>(
+        'notice',
+        'delete',
+        {'noticeId': noticeId},
+      );
 }
 
 class Modules {

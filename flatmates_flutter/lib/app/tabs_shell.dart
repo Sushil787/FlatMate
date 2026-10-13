@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
@@ -76,7 +77,7 @@ class _TabsShellState extends ConsumerState<TabsShell> {
   }
 
   /// New Mates the Admin was already asked about while the app is open.
-  final _askedAbout = <int>{};
+  final _askedAbout = <UuidValue>{};
   bool _asking = false;
 
   /// Admin only: asks about each Mate who joined and hasn't been welcomed,

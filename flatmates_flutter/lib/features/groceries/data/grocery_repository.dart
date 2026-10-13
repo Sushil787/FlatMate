@@ -20,8 +20,8 @@ class GroceryRepository {
   Future<GroceryItem> add(String name, String? note) =>
       _client.grocery.add(name, note);
 
-  Future<GroceryItem> setBought(int itemId, bool bought) =>
+  Future<GroceryItem> setBought(UuidValue itemId, bool bought) =>
       _client.grocery.setBought(itemId, bought);
 
-  Future<void> delete(int itemId) => _client.grocery.delete(itemId);
+  Future<void> delete(UuidValue itemId) => _client.grocery.delete(itemId);
 }

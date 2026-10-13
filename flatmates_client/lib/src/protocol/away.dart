@@ -28,9 +28,9 @@ abstract class Away
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Away({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required DateTime startDay,
     required DateTime lastDay,
     DateTime? createdAt,
@@ -39,9 +39,11 @@ abstract class Away
 
   factory Away.fromJson(Map<String, dynamic> jsonSerialization) {
     return Away(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       startDay: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['startDay'],
       ),
@@ -60,11 +62,11 @@ abstract class Away
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
-  int mateId;
+  _isc.UuidValue mateId;
 
   DateTime startDay;
 
@@ -79,9 +81,9 @@ abstract class Away
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Away copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     DateTime? startDay,
     DateTime? lastDay,
     DateTime? createdAt,
@@ -91,9 +93,9 @@ abstract class Away
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Away',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'startDay': startDay.toJson(),
       'lastDay': lastDay.toJson(),
       'createdAt': createdAt.toJson(),
@@ -105,9 +107,9 @@ abstract class Away
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Away',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'startDay': startDay.toJson(),
       'lastDay': lastDay.toJson(),
       'createdAt': createdAt.toJson(),
@@ -125,9 +127,9 @@ class _Undefined {}
 
 class _AwayImpl extends Away {
   _AwayImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required DateTime startDay,
     required DateTime lastDay,
     DateTime? createdAt,
@@ -148,15 +150,15 @@ class _AwayImpl extends Away {
   @override
   Away copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     DateTime? startDay,
     DateTime? lastDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Away(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       startDay: startDay ?? this.startDay,

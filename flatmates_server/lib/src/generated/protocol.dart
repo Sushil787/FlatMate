@@ -85,22 +85,22 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'mateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'startDay',
@@ -155,16 +155,16 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'name',
@@ -188,7 +188,7 @@ class Protocol extends _is.DatabaseSerializationManager {
           name: 'rotation',
           columnType: _isp.ColumnType.json,
           isNullable: false,
-          dartType: 'List<int>',
+          dartType: 'List<UuidValue>',
         ),
         _isp.ColumnDefinition(
           name: 'rotationIndex',
@@ -314,10 +314,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'name',
@@ -333,9 +333,9 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'adminMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: true,
-          dartType: 'int?',
+          dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
           name: 'inviteCode',
@@ -403,22 +403,22 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'mateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'title',
@@ -496,16 +496,16 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'name',
@@ -521,15 +521,15 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'addedByMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'boughtByMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: true,
-          dartType: 'int?',
+          dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
           name: 'boughtAt',
@@ -578,16 +578,16 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'authUserId',
@@ -716,22 +716,22 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'mateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'text',
@@ -786,22 +786,22 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'noticeId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'mateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -841,28 +841,28 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'choreId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'debtorMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'creditorMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -905,34 +905,34 @@ class Protocol extends _is.DatabaseSerializationManager {
       columns: [
         _isp.ColumnDefinition(
           name: 'id',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'serial',
+          dartType: 'UuidValue?',
+          columnDefault: 'random_v7',
         ),
         _isp.ColumnDefinition(
           name: 'flatId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'choreId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'mateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: false,
-          dartType: 'int',
+          dartType: 'UuidValue',
         ),
         _isp.ColumnDefinition(
           name: 'coveringForMateId',
-          columnType: _isp.ColumnType.bigint,
+          columnType: _isp.ColumnType.uuid,
           isNullable: true,
-          dartType: 'int?',
+          dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
           name: 'day',
@@ -1183,16 +1183,19 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i5yk6qf9.TurnStatus?>()) {
       return (data != null ? _i5yk6qf9.TurnStatus.fromJson(data) : null) as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    if (t == List<_is.UuidValue>) {
+      return (data as List).map((e) => deserialize<_is.UuidValue>(e)).toList()
+          as T;
     }
     if (t == List<_itahn62i.Mate>) {
       return (data as List).map((e) => deserialize<_itahn62i.Mate>(e)).toList()
           as T;
     }
-    if (t == _is.getType<List<int>?>()) {
+    if (t == _is.getType<List<_is.UuidValue>?>()) {
       return (data != null
-              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              ? (data as List)
+                    .map((e) => deserialize<_is.UuidValue>(e))
+                    .toList()
               : null)
           as T;
     }
@@ -1214,8 +1217,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data as List).map((e) => deserialize<_ij03rvz2.Turn>(e)).toList()
           as T;
     }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    if (t == List<_is.UuidValue>) {
+      return (data as List).map((e) => deserialize<_is.UuidValue>(e)).toList()
+          as T;
     }
     if (t == List<_implyx9l.SwapDebt>) {
       return (data as List)

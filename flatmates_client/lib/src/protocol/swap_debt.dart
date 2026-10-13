@@ -26,20 +26,28 @@ abstract class SwapDebt
        updatedAt = updatedAt ?? DateTime.now();
 
   factory SwapDebt({
-    int? id,
-    required int choreId,
-    required int debtorMateId,
-    required int creditorMateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue choreId,
+    required _isc.UuidValue debtorMateId,
+    required _isc.UuidValue creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _SwapDebtImpl;
 
   factory SwapDebt.fromJson(Map<String, dynamic> jsonSerialization) {
     return SwapDebt(
-      id: jsonSerialization['id'] as int?,
-      choreId: jsonSerialization['choreId'] as int,
-      debtorMateId: jsonSerialization['debtorMateId'] as int,
-      creditorMateId: jsonSerialization['creditorMateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      choreId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
+      debtorMateId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['debtorMateId'],
+      ),
+      creditorMateId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['creditorMateId'],
+      ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -52,13 +60,13 @@ abstract class SwapDebt
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int choreId;
+  _isc.UuidValue choreId;
 
-  int debtorMateId;
+  _isc.UuidValue debtorMateId;
 
-  int creditorMateId;
+  _isc.UuidValue creditorMateId;
 
   DateTime createdAt;
 
@@ -68,10 +76,10 @@ abstract class SwapDebt
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   SwapDebt copyWith({
-    int? id,
-    int? choreId,
-    int? debtorMateId,
-    int? creditorMateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? choreId,
+    _isc.UuidValue? debtorMateId,
+    _isc.UuidValue? creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -79,10 +87,10 @@ abstract class SwapDebt
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'SwapDebt',
-      if (id != null) 'id': id,
-      'choreId': choreId,
-      'debtorMateId': debtorMateId,
-      'creditorMateId': creditorMateId,
+      if (id != null) 'id': id?.toJson(),
+      'choreId': choreId.toJson(),
+      'debtorMateId': debtorMateId.toJson(),
+      'creditorMateId': creditorMateId.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -92,10 +100,10 @@ abstract class SwapDebt
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'SwapDebt',
-      if (id != null) 'id': id,
-      'choreId': choreId,
-      'debtorMateId': debtorMateId,
-      'creditorMateId': creditorMateId,
+      if (id != null) 'id': id?.toJson(),
+      'choreId': choreId.toJson(),
+      'debtorMateId': debtorMateId.toJson(),
+      'creditorMateId': creditorMateId.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -111,10 +119,10 @@ class _Undefined {}
 
 class _SwapDebtImpl extends SwapDebt {
   _SwapDebtImpl({
-    int? id,
-    required int choreId,
-    required int debtorMateId,
-    required int creditorMateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue choreId,
+    required _isc.UuidValue debtorMateId,
+    required _isc.UuidValue creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -132,14 +140,14 @@ class _SwapDebtImpl extends SwapDebt {
   @override
   SwapDebt copyWith({
     Object? id = _Undefined,
-    int? choreId,
-    int? debtorMateId,
-    int? creditorMateId,
+    _isc.UuidValue? choreId,
+    _isc.UuidValue? debtorMateId,
+    _isc.UuidValue? creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return SwapDebt(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       choreId: choreId ?? this.choreId,
       debtorMateId: debtorMateId ?? this.debtorMateId,
       creditorMateId: creditorMateId ?? this.creditorMateId,

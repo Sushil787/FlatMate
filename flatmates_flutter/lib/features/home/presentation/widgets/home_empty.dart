@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -16,7 +17,7 @@ class InviteCard extends StatelessWidget {
     required this.inviteCode,
   });
 
-  final int meId;
+  final UuidValue meId;
   final String flatName;
   final String inviteCode;
 

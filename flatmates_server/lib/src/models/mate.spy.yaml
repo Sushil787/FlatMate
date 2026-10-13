@@ -2,7 +2,8 @@
 class: Mate
 table: mate
 fields:
-  flatId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
   authUserId: UuidValue
   displayName: String
   joinedAt: DateTime

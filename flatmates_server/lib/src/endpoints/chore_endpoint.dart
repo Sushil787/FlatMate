@@ -61,7 +61,7 @@ class ChoreEndpoint extends Endpoint {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     await _validate(session, flat, name, period, rotation);
@@ -91,10 +91,10 @@ class ChoreEndpoint extends Endpoint {
   /// from the next Turn.
   Future<Chore> update(
     Session session,
-    int choreId,
+    UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
@@ -122,7 +122,7 @@ class ChoreEndpoint extends Endpoint {
     return chore;
   }
 
-  Future<void> archive(Session session, int choreId) async {
+  Future<void> archive(Session session, UuidValue choreId) async {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
     chore.archived = true;
@@ -131,13 +131,13 @@ class ChoreEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.chores);
   }
 
-  Future<Turn> markDone(Session session, int turnId) async {
+  Future<Turn> markDone(Session session, UuidValue turnId) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
     return TurnService.markDone(session, flat, me, turnId);
   }
 
-  Future<Turn> undoDone(Session session, int turnId) async {
+  Future<Turn> undoDone(Session session, UuidValue turnId) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
     return TurnService.undoDone(session, flat, me, turnId);
@@ -162,7 +162,7 @@ class ChoreEndpoint extends Endpoint {
     Session session,
     Mate me,
     Chore chore,
-    Iterable<int> mateIds,
+    Iterable<UuidValue> mateIds,
   ) => Notifier.toMates(
     session,
     mateIds.where((id) => id != me.id),
@@ -171,7 +171,7 @@ class ChoreEndpoint extends Endpoint {
     kind: NotifyKind.addedToRotation,
   );
 
-  Future<Chore> _find(Session session, Flat flat, int choreId) async {
+  Future<Chore> _find(Session session, Flat flat, UuidValue choreId) async {
     final chore = await Chore.db.findById(session, choreId);
     if (chore == null || chore.flatId != flat.id || chore.archived) {
       fail('Chore not found.');
@@ -184,7 +184,7 @@ class ChoreEndpoint extends Endpoint {
     Flat flat,
     String name,
     Duration period,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     if (name.trim().isEmpty) fail('Give the chore a name.');
     if (period < const Duration(days: 1) || period.inHours % 24 != 0) {

@@ -30,7 +30,7 @@ class AwaysController extends AsyncNotifier<List<Away>> {
     ]);
   }
 
-  Future<void> cancel(int awayId) async {
+  Future<void> cancel(UuidValue awayId) async {
     await _repo.cancel(awayId);
     await refresh();
   }

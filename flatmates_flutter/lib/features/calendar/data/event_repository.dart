@@ -32,5 +32,5 @@ class EventRepository {
     tellFlat: tellFlat,
   );
 
-  Future<void> delete(int eventId) => _client.event.delete(eventId);
+  Future<void> delete(UuidValue eventId) => _client.event.delete(eventId);
 }

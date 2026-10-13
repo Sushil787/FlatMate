@@ -2,12 +2,13 @@
 class: Notice
 table: notice
 fields:
-  flatId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
+  mateId: UuidValue
   text: String
   pinned: bool
   ### Mates who said "Got it"; filled in by list().
-  gotItMateIds: List<int>?, !persist
+  gotItMateIds: List<UuidValue>?, !persist
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

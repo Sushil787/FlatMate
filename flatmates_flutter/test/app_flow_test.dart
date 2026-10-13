@@ -81,7 +81,7 @@ void main() {
 
     await tester.tap(find.text('Mark Done'));
     await tester.pumpAndSettle();
-    expect(backend.doneTurnIds, [100]);
+    expect(backend.doneTurnIds, [uid(100)]);
     expect(find.text('Undo'), findsOneWidget);
 
     await tester.tap(find.text('Undo'));
@@ -109,7 +109,7 @@ void main() {
       // The server answers; the reloads bring the same state.
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(backend.doneTurnIds, [100]);
+      expect(backend.doneTurnIds, [uid(100)]);
       expect(find.text('Done today'), findsOneWidget);
 
       await tester.tap(find.text('Undo'));
@@ -154,7 +154,7 @@ void main() {
     await tester.tap(find.text('Mark Done'));
     await tester.tap(find.text('Mark Done'));
     await tester.pumpAndSettle();
-    expect(backend.doneTurnIds, [100]);
+    expect(backend.doneTurnIds, [uid(100)]);
     expect(find.text('Done today'), findsOneWidget);
 
     await tapTab(tester, 'Chores');
@@ -195,8 +195,8 @@ void main() {
     final backend = FakeBackend();
     backend.notices.add(
       Notice(
-        id: 1,
-        flatId: 10,
+        id: uid(1),
+        flatId: uid(10),
         mateId: FakeBackend.sam,
         text: 'Landlord comes Friday',
         pinned: false,

@@ -2,8 +2,9 @@
 class: NoticeGotIt
 table: notice_got_it
 fields:
-  noticeId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  noticeId: UuidValue
+  mateId: UuidValue
   createdAt: DateTime, default=now
 indexes:
   notice_got_it_idx:

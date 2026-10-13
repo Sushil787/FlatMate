@@ -14,7 +14,7 @@ import 'package:serverpod/serverpod.dart' as _is;
 
 /// A Turn owed back under the Swap rule: [debtorMateId] takes [creditorMateId]'s next Turn.
 abstract class SwapDebt
-    implements _is.TableRow<int?>, _is.ProtocolSerialization {
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   SwapDebt._({
     this.id,
     required this.choreId,
@@ -26,20 +26,28 @@ abstract class SwapDebt
        updatedAt = updatedAt ?? DateTime.now();
 
   factory SwapDebt({
-    int? id,
-    required int choreId,
-    required int debtorMateId,
-    required int creditorMateId,
+    _is.UuidValue? id,
+    required _is.UuidValue choreId,
+    required _is.UuidValue debtorMateId,
+    required _is.UuidValue creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _SwapDebtImpl;
 
   factory SwapDebt.fromJson(Map<String, dynamic> jsonSerialization) {
     return SwapDebt(
-      id: jsonSerialization['id'] as int?,
-      choreId: jsonSerialization['choreId'] as int,
-      debtorMateId: jsonSerialization['debtorMateId'] as int,
-      creditorMateId: jsonSerialization['creditorMateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      choreId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
+      debtorMateId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['debtorMateId'],
+      ),
+      creditorMateId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['creditorMateId'],
+      ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -54,29 +62,29 @@ abstract class SwapDebt
   static const db = SwapDebtRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int choreId;
+  _is.UuidValue choreId;
 
-  int debtorMateId;
+  _is.UuidValue debtorMateId;
 
-  int creditorMateId;
+  _is.UuidValue creditorMateId;
 
   DateTime createdAt;
 
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [SwapDebt]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   SwapDebt copyWith({
-    int? id,
-    int? choreId,
-    int? debtorMateId,
-    int? creditorMateId,
+    _is.UuidValue? id,
+    _is.UuidValue? choreId,
+    _is.UuidValue? debtorMateId,
+    _is.UuidValue? creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -84,10 +92,10 @@ abstract class SwapDebt
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'SwapDebt',
-      if (id != null) 'id': id,
-      'choreId': choreId,
-      'debtorMateId': debtorMateId,
-      'creditorMateId': creditorMateId,
+      if (id != null) 'id': id?.toJson(),
+      'choreId': choreId.toJson(),
+      'debtorMateId': debtorMateId.toJson(),
+      'creditorMateId': creditorMateId.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -97,10 +105,10 @@ abstract class SwapDebt
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'SwapDebt',
-      if (id != null) 'id': id,
-      'choreId': choreId,
-      'debtorMateId': debtorMateId,
-      'creditorMateId': creditorMateId,
+      if (id != null) 'id': id?.toJson(),
+      'choreId': choreId.toJson(),
+      'debtorMateId': debtorMateId.toJson(),
+      'creditorMateId': creditorMateId.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -138,10 +146,10 @@ class _Undefined {}
 
 class _SwapDebtImpl extends SwapDebt {
   _SwapDebtImpl({
-    int? id,
-    required int choreId,
-    required int debtorMateId,
-    required int creditorMateId,
+    _is.UuidValue? id,
+    required _is.UuidValue choreId,
+    required _is.UuidValue debtorMateId,
+    required _is.UuidValue creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -159,14 +167,14 @@ class _SwapDebtImpl extends SwapDebt {
   @override
   SwapDebt copyWith({
     Object? id = _Undefined,
-    int? choreId,
-    int? debtorMateId,
-    int? creditorMateId,
+    _is.UuidValue? choreId,
+    _is.UuidValue? debtorMateId,
+    _is.UuidValue? creditorMateId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return SwapDebt(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       choreId: choreId ?? this.choreId,
       debtorMateId: debtorMateId ?? this.debtorMateId,
       creditorMateId: creditorMateId ?? this.creditorMateId,
@@ -179,17 +187,22 @@ class _SwapDebtImpl extends SwapDebt {
 class SwapDebtUpdateTable extends _is.UpdateTable<SwapDebtTable> {
   SwapDebtUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> choreId(int value) => _is.ColumnValue(
-    table.choreId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> choreId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.choreId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> debtorMateId(int value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> debtorMateId(
+    _is.UuidValue value,
+  ) => _is.ColumnValue(
     table.debtorMateId,
     value,
   );
 
-  _is.ColumnValue<int, int> creditorMateId(int value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> creditorMateId(
+    _is.UuidValue value,
+  ) => _is.ColumnValue(
     table.creditorMateId,
     value,
   );
@@ -207,18 +220,18 @@ class SwapDebtUpdateTable extends _is.UpdateTable<SwapDebtTable> {
       );
 }
 
-class SwapDebtTable extends _is.Table<int?> {
+class SwapDebtTable extends _is.Table<_is.UuidValue?> {
   SwapDebtTable({super.tableRelation}) : super(tableName: 'swap_debt') {
     updateTable = SwapDebtUpdateTable(this);
-    choreId = _is.ColumnInt(
+    choreId = _is.ColumnUuid(
       'choreId',
       this,
     );
-    debtorMateId = _is.ColumnInt(
+    debtorMateId = _is.ColumnUuid(
       'debtorMateId',
       this,
     );
-    creditorMateId = _is.ColumnInt(
+    creditorMateId = _is.ColumnUuid(
       'creditorMateId',
       this,
     );
@@ -236,11 +249,11 @@ class SwapDebtTable extends _is.Table<int?> {
 
   late final SwapDebtUpdateTable updateTable;
 
-  late final _is.ColumnInt choreId;
+  late final _is.ColumnUuid choreId;
 
-  late final _is.ColumnInt debtorMateId;
+  late final _is.ColumnUuid debtorMateId;
 
-  late final _is.ColumnInt creditorMateId;
+  late final _is.ColumnUuid creditorMateId;
 
   late final _is.ColumnDateTime createdAt;
 
@@ -264,7 +277,7 @@ class SwapDebtInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => SwapDebt.t;
+  _is.Table<_is.UuidValue?> get table => SwapDebt.t;
 }
 
 class SwapDebtIncludeList extends _is.IncludeList {
@@ -283,7 +296,7 @@ class SwapDebtIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => SwapDebt.t;
+  _is.Table<_is.UuidValue?> get table => SwapDebt.t;
 }
 
 class SwapDebtRepository {
@@ -375,7 +388,7 @@ class SwapDebtRepository {
   /// Finds a single [SwapDebt] by its [id] or null if no such row exists.
   Future<SwapDebt?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -544,7 +557,7 @@ class SwapDebtRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<SwapDebt?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<SwapDebtUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

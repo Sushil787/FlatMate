@@ -64,7 +64,7 @@ class AwayEndpoint extends Endpoint {
 
   /// Cancels one of the caller's Away periods before it starts. Covers
   /// already arranged for it stay as they are.
-  Future<void> cancel(Session session, int awayId) async {
+  Future<void> cancel(Session session, UuidValue awayId) async {
     final (:me, :flat) = await requireMate(session);
     final away = await Away.db.findById(session, awayId);
     if (away == null || away.mateId != me.id) fail('Away not found.');

@@ -29,12 +29,12 @@ abstract class GroceryItem
        updatedAt = updatedAt ?? DateTime.now();
 
   factory GroceryItem({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required String name,
     String? note,
-    required int addedByMateId,
-    int? boughtByMateId,
+    required _isc.UuidValue addedByMateId,
+    _isc.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -42,12 +42,20 @@ abstract class GroceryItem
 
   factory GroceryItem.fromJson(Map<String, dynamic> jsonSerialization) {
     return GroceryItem(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       name: jsonSerialization['name'] as String,
       note: jsonSerialization['note'] as String?,
-      addedByMateId: jsonSerialization['addedByMateId'] as int,
-      boughtByMateId: jsonSerialization['boughtByMateId'] as int?,
+      addedByMateId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['addedByMateId'],
+      ),
+      boughtByMateId: jsonSerialization['boughtByMateId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['boughtByMateId'],
+            ),
       boughtAt: jsonSerialization['boughtAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['boughtAt']),
@@ -63,17 +71,17 @@ abstract class GroceryItem
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
   String name;
 
   String? note;
 
-  int addedByMateId;
+  _isc.UuidValue addedByMateId;
 
-  int? boughtByMateId;
+  _isc.UuidValue? boughtByMateId;
 
   DateTime? boughtAt;
 
@@ -85,12 +93,12 @@ abstract class GroceryItem
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   GroceryItem copyWith({
-    int? id,
-    int? flatId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
     String? name,
     String? note,
-    int? addedByMateId,
-    int? boughtByMateId,
+    _isc.UuidValue? addedByMateId,
+    _isc.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -99,12 +107,12 @@ abstract class GroceryItem
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'GroceryItem',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       if (note != null) 'note': note,
-      'addedByMateId': addedByMateId,
-      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
+      'addedByMateId': addedByMateId.toJson(),
+      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId?.toJson(),
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -115,12 +123,12 @@ abstract class GroceryItem
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'GroceryItem',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       if (note != null) 'note': note,
-      'addedByMateId': addedByMateId,
-      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
+      'addedByMateId': addedByMateId.toJson(),
+      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId?.toJson(),
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -137,12 +145,12 @@ class _Undefined {}
 
 class _GroceryItemImpl extends GroceryItem {
   _GroceryItemImpl({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required String name,
     String? note,
-    required int addedByMateId,
-    int? boughtByMateId,
+    required _isc.UuidValue addedByMateId,
+    _isc.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -164,22 +172,22 @@ class _GroceryItemImpl extends GroceryItem {
   @override
   GroceryItem copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _isc.UuidValue? flatId,
     String? name,
     Object? note = _Undefined,
-    int? addedByMateId,
+    _isc.UuidValue? addedByMateId,
     Object? boughtByMateId = _Undefined,
     Object? boughtAt = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return GroceryItem(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       note: note is String? ? note : this.note,
       addedByMateId: addedByMateId ?? this.addedByMateId,
-      boughtByMateId: boughtByMateId is int?
+      boughtByMateId: boughtByMateId is _isc.UuidValue?
           ? boughtByMateId
           : this.boughtByMateId,
       boughtAt: boughtAt is DateTime? ? boughtAt : this.boughtAt,

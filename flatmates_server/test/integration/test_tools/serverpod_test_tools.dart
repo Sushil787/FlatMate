@@ -501,7 +501,7 @@ class _AwayEndpoint {
 
   _ida.Future<void> cancel(
     _ist.TestSessionBuilder sessionBuilder,
-    int awayId,
+    _is.UuidValue awayId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -641,7 +641,7 @@ class _ChoreEndpoint {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<_is.UuidValue> rotation,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -677,10 +677,10 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij1nfwf4.Chore> update(
     _ist.TestSessionBuilder sessionBuilder,
-    int choreId,
+    _is.UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<_is.UuidValue> rotation,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -716,7 +716,7 @@ class _ChoreEndpoint {
 
   _ida.Future<void> archive(
     _ist.TestSessionBuilder sessionBuilder,
-    int choreId,
+    _is.UuidValue choreId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -747,7 +747,7 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij03rvz2.Turn> markDone(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -778,7 +778,7 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij03rvz2.Turn> undoDone(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -928,7 +928,7 @@ class _EventEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int eventId,
+    _is.UuidValue eventId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1267,8 +1267,8 @@ class _FlatEndpoint {
 
   _ida.Future<void> welcomeMate(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
-    List<int> choreIds,
+    _is.UuidValue mateId,
+    List<_is.UuidValue> choreIds,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1333,7 +1333,7 @@ class _FlatEndpoint {
 
   _ida.Future<void> transferAdmin(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
+    _is.UuidValue mateId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1364,7 +1364,7 @@ class _FlatEndpoint {
 
   _ida.Future<void> removeMate(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
+    _is.UuidValue mateId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1562,7 +1562,7 @@ class _GroceryEndpoint {
 
   _ida.Future<_itw5ie4o.GroceryItem> setBought(
     _ist.TestSessionBuilder sessionBuilder,
-    int itemId,
+    _is.UuidValue itemId,
     bool bought,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1597,7 +1597,7 @@ class _GroceryEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int itemId,
+    _is.UuidValue itemId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1700,7 +1700,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> setPinned(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
     bool pinned,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1735,7 +1735,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> gotIt(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1766,7 +1766,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1799,7 +1799,7 @@ class _NoticeEndpoint {
 class _TurnCallsFutureCall {
   Future<void> started(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _i844uiph.TurnCallsStartedModel(turnId: turnId);
     var _localUniqueSession =
@@ -1816,7 +1816,7 @@ class _TurnCallsFutureCall {
 
   Future<void> reminder(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _im9nzdpf.TurnCallsReminderModel(turnId: turnId);
     var _localUniqueSession =
@@ -1833,7 +1833,7 @@ class _TurnCallsFutureCall {
 
   Future<void> ended(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _imiauk18.TurnCallsEndedModel(turnId: turnId);
     var _localUniqueSession =

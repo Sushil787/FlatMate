@@ -52,12 +52,13 @@ class FlatRepository {
     addedToRotation: me.notifyAddedToRotation,
   );
 
-  Future<void> welcomeMate(int mateId, List<int> choreIds) =>
+  Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) =>
       _client.flat.welcomeMate(mateId, choreIds);
 
-  Future<void> transferAdmin(int mateId) => _client.flat.transferAdmin(mateId);
+  Future<void> transferAdmin(UuidValue mateId) =>
+      _client.flat.transferAdmin(mateId);
 
-  Future<void> removeMate(int mateId) => _client.flat.removeMate(mateId);
+  Future<void> removeMate(UuidValue mateId) => _client.flat.removeMate(mateId);
 
   Future<void> leave() => _client.flat.leave();
 

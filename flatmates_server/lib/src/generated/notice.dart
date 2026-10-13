@@ -14,7 +14,8 @@ import 'package:flatmates_server/src/generated/protocol.dart' as _ikjds9rx;
 import 'package:serverpod/serverpod.dart' as _is;
 
 /// A text post on the Flat's notice board.
-abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Notice
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Notice._({
     this.id,
     required this.flatId,
@@ -28,26 +29,28 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Notice({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required String text,
     required bool pinned,
-    List<int>? gotItMateIds,
+    List<_is.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _NoticeImpl;
 
   factory Notice.fromJson(Map<String, dynamic> jsonSerialization) {
     return Notice(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       text: jsonSerialization['text'] as String,
       pinned: _is.BoolJsonExtension.fromJson(jsonSerialization['pinned']),
       gotItMateIds: jsonSerialization['gotItMateIds'] == null
           ? null
-          : _ikjds9rx.Protocol().deserialize<List<int>>(
+          : _ikjds9rx.Protocol().deserialize<List<_is.UuidValue>>(
               jsonSerialization['gotItMateIds'],
             ),
       createdAt: jsonSerialization['createdAt'] == null
@@ -64,36 +67,36 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = NoticeRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
-  int mateId;
+  _is.UuidValue mateId;
 
   String text;
 
   bool pinned;
 
   /// Mates who said "Got it"; filled in by list().
-  List<int>? gotItMateIds;
+  List<_is.UuidValue>? gotItMateIds;
 
   DateTime createdAt;
 
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Notice]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Notice copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     String? text,
     bool? pinned,
-    List<int>? gotItMateIds,
+    List<_is.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -101,12 +104,13 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Notice',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'text': text,
       'pinned': pinned,
-      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
+      if (gotItMateIds != null)
+        'gotItMateIds': gotItMateIds?.toJson(valueToJson: (v) => v.toJson()),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -116,12 +120,13 @@ abstract class Notice implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Notice',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'text': text,
       'pinned': pinned,
-      if (gotItMateIds != null) 'gotItMateIds': gotItMateIds?.toJson(),
+      if (gotItMateIds != null)
+        'gotItMateIds': gotItMateIds?.toJson(valueToJson: (v) => v.toJson()),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -159,12 +164,12 @@ class _Undefined {}
 
 class _NoticeImpl extends Notice {
   _NoticeImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required String text,
     required bool pinned,
-    List<int>? gotItMateIds,
+    List<_is.UuidValue>? gotItMateIds,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -184,8 +189,8 @@ class _NoticeImpl extends Notice {
   @override
   Notice copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     String? text,
     bool? pinned,
     Object? gotItMateIds = _Undefined,
@@ -193,12 +198,12 @@ class _NoticeImpl extends Notice {
     DateTime? updatedAt,
   }) {
     return Notice(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       text: text ?? this.text,
       pinned: pinned ?? this.pinned,
-      gotItMateIds: gotItMateIds is List<int>?
+      gotItMateIds: gotItMateIds is List<_is.UuidValue>?
           ? gotItMateIds
           : this.gotItMateIds?.map((e0) => e0).toList(),
       createdAt: createdAt ?? this.createdAt,
@@ -210,15 +215,17 @@ class _NoticeImpl extends Notice {
 class NoticeUpdateTable extends _is.UpdateTable<NoticeTable> {
   NoticeUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> mateId(int value) => _is.ColumnValue(
-    table.mateId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mateId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.mateId,
+        value,
+      );
 
   _is.ColumnValue<String, String> text(String value) => _is.ColumnValue(
     table.text,
@@ -243,14 +250,14 @@ class NoticeUpdateTable extends _is.UpdateTable<NoticeTable> {
       );
 }
 
-class NoticeTable extends _is.Table<int?> {
+class NoticeTable extends _is.Table<_is.UuidValue?> {
   NoticeTable({super.tableRelation}) : super(tableName: 'notice') {
     updateTable = NoticeUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
-    mateId = _is.ColumnInt(
+    mateId = _is.ColumnUuid(
       'mateId',
       this,
     );
@@ -276,9 +283,9 @@ class NoticeTable extends _is.Table<int?> {
 
   late final NoticeUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
-  late final _is.ColumnInt mateId;
+  late final _is.ColumnUuid mateId;
 
   late final _is.ColumnString text;
 
@@ -307,7 +314,7 @@ class NoticeInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Notice.t;
+  _is.Table<_is.UuidValue?> get table => Notice.t;
 }
 
 class NoticeIncludeList extends _is.IncludeList {
@@ -326,7 +333,7 @@ class NoticeIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Notice.t;
+  _is.Table<_is.UuidValue?> get table => Notice.t;
 }
 
 class NoticeRepository {
@@ -418,7 +425,7 @@ class NoticeRepository {
   /// Finds a single [Notice] by its [id] or null if no such row exists.
   Future<Notice?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -587,7 +594,7 @@ class NoticeRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Notice?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<NoticeUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

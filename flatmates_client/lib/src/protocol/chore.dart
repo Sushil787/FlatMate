@@ -31,12 +31,12 @@ abstract class Chore
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Chore({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<_isc.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
     DateTime? createdAt,
@@ -45,14 +45,16 @@ abstract class Chore
 
   factory Chore.fromJson(Map<String, dynamic> jsonSerialization) {
     return Chore(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       name: jsonSerialization['name'] as String,
       period: _isc.DurationJsonExtension.fromJson(jsonSerialization['period']),
       startDay: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['startDay'],
       ),
-      rotation: _iyp1dgna.Protocol().deserialize<List<int>>(
+      rotation: _iyp1dgna.Protocol().deserialize<List<_isc.UuidValue>>(
         jsonSerialization['rotation'],
       ),
       rotationIndex: jsonSerialization['rotationIndex'] as int,
@@ -69,9 +71,9 @@ abstract class Chore
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
   String name;
 
@@ -82,7 +84,7 @@ abstract class Chore
   DateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
-  List<int> rotation;
+  List<_isc.UuidValue> rotation;
 
   /// Index in [rotation] of the slot the latest Turn was taken from.
   int rotationIndex;
@@ -97,12 +99,12 @@ abstract class Chore
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Chore copyWith({
-    int? id,
-    int? flatId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
     String? name,
     Duration? period,
     DateTime? startDay,
-    List<int>? rotation,
+    List<_isc.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
     DateTime? createdAt,
@@ -112,12 +114,12 @@ abstract class Chore
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Chore',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       'period': period.toJson(),
       'startDay': startDay.toJson(),
-      'rotation': rotation.toJson(),
+      'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
       'createdAt': createdAt.toJson(),
@@ -129,12 +131,12 @@ abstract class Chore
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Chore',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       'period': period.toJson(),
       'startDay': startDay.toJson(),
-      'rotation': rotation.toJson(),
+      'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
       'createdAt': createdAt.toJson(),
@@ -152,12 +154,12 @@ class _Undefined {}
 
 class _ChoreImpl extends Chore {
   _ChoreImpl({
-    int? id,
-    required int flatId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<_isc.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
     DateTime? createdAt,
@@ -181,18 +183,18 @@ class _ChoreImpl extends Chore {
   @override
   Chore copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _isc.UuidValue? flatId,
     String? name,
     Duration? period,
     DateTime? startDay,
-    List<int>? rotation,
+    List<_isc.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Chore(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       period: period ?? this.period,

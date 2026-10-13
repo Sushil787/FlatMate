@@ -2,8 +2,9 @@
 class: FlatEvent
 table: flat_event
 fields:
-  flatId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
+  mateId: UuidValue
   title: String
   note: String?
   startsAt: DateTime

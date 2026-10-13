@@ -31,9 +31,9 @@ abstract class FlatEvent
        updatedAt = updatedAt ?? DateTime.now();
 
   factory FlatEvent({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required String title,
     String? note,
     required DateTime startsAt,
@@ -45,9 +45,11 @@ abstract class FlatEvent
 
   factory FlatEvent.fromJson(Map<String, dynamic> jsonSerialization) {
     return FlatEvent(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _isc.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       title: jsonSerialization['title'] as String,
       note: jsonSerialization['note'] as String?,
       startsAt: _isc.DateTimeJsonExtension.fromJson(
@@ -71,11 +73,11 @@ abstract class FlatEvent
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
-  int flatId;
+  _isc.UuidValue flatId;
 
-  int mateId;
+  _isc.UuidValue mateId;
 
   String title;
 
@@ -98,9 +100,9 @@ abstract class FlatEvent
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   FlatEvent copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? id,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     String? title,
     String? note,
     DateTime? startsAt,
@@ -113,9 +115,9 @@ abstract class FlatEvent
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'FlatEvent',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
@@ -130,9 +132,9 @@ abstract class FlatEvent
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'FlatEvent',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
@@ -153,9 +155,9 @@ class _Undefined {}
 
 class _FlatEventImpl extends FlatEvent {
   _FlatEventImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _isc.UuidValue? id,
+    required _isc.UuidValue flatId,
+    required _isc.UuidValue mateId,
     required String title,
     String? note,
     required DateTime startsAt,
@@ -182,8 +184,8 @@ class _FlatEventImpl extends FlatEvent {
   @override
   FlatEvent copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _isc.UuidValue? flatId,
+    _isc.UuidValue? mateId,
     String? title,
     Object? note = _Undefined,
     DateTime? startsAt,
@@ -193,7 +195,7 @@ class _FlatEventImpl extends FlatEvent {
     DateTime? updatedAt,
   }) {
     return FlatEvent(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       title: title ?? this.title,

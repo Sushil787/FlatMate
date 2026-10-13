@@ -32,10 +32,10 @@ abstract class Flat
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Flat({
-    int? id,
+    _isc.UuidValue? id,
     required String name,
     required String timezone,
-    int? adminMateId,
+    _isc.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
@@ -46,10 +46,16 @@ abstract class Flat
 
   factory Flat.fromJson(Map<String, dynamic> jsonSerialization) {
     return Flat(
-      id: jsonSerialization['id'] as int?,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
       name: jsonSerialization['name'] as String,
       timezone: jsonSerialization['timezone'] as String,
-      adminMateId: jsonSerialization['adminMateId'] as int?,
+      adminMateId: jsonSerialization['adminMateId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['adminMateId'],
+            ),
       inviteCode: jsonSerialization['inviteCode'] as String,
       inviteExpiresAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['inviteExpiresAt'],
@@ -70,14 +76,14 @@ abstract class Flat
   /// The database id, set if the object has been inserted into the
   /// database or if it has been fetched from the database. Otherwise,
   /// the id will be null.
-  int? id;
+  _isc.UuidValue? id;
 
   String name;
 
   /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   String timezone;
 
-  int? adminMateId;
+  _isc.UuidValue? adminMateId;
 
   String inviteCode;
 
@@ -98,10 +104,10 @@ abstract class Flat
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   Flat copyWith({
-    int? id,
+    _isc.UuidValue? id,
     String? name,
     String? timezone,
-    int? adminMateId,
+    _isc.UuidValue? adminMateId,
     String? inviteCode,
     DateTime? inviteExpiresAt,
     _isc380kv.AwayRule? awayRule,
@@ -113,10 +119,10 @@ abstract class Flat
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Flat',
-      if (id != null) 'id': id,
+      if (id != null) 'id': id?.toJson(),
       'name': name,
       'timezone': timezone,
-      if (adminMateId != null) 'adminMateId': adminMateId,
+      if (adminMateId != null) 'adminMateId': adminMateId?.toJson(),
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
@@ -130,10 +136,10 @@ abstract class Flat
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Flat',
-      if (id != null) 'id': id,
+      if (id != null) 'id': id?.toJson(),
       'name': name,
       'timezone': timezone,
-      if (adminMateId != null) 'adminMateId': adminMateId,
+      if (adminMateId != null) 'adminMateId': adminMateId?.toJson(),
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
@@ -153,10 +159,10 @@ class _Undefined {}
 
 class _FlatImpl extends Flat {
   _FlatImpl({
-    int? id,
+    _isc.UuidValue? id,
     required String name,
     required String timezone,
-    int? adminMateId,
+    _isc.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
     required _isc380kv.AwayRule awayRule,
@@ -193,10 +199,12 @@ class _FlatImpl extends Flat {
     DateTime? updatedAt,
   }) {
     return Flat(
-      id: id is int? ? id : this.id,
+      id: id is _isc.UuidValue? ? id : this.id,
       name: name ?? this.name,
       timezone: timezone ?? this.timezone,
-      adminMateId: adminMateId is int? ? adminMateId : this.adminMateId,
+      adminMateId: adminMateId is _isc.UuidValue?
+          ? adminMateId
+          : this.adminMateId,
       inviteCode: inviteCode ?? this.inviteCode,
       inviteExpiresAt: inviteExpiresAt ?? this.inviteExpiresAt,
       awayRule: awayRule ?? this.awayRule,

@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/action_notifier.dart';
@@ -32,12 +33,12 @@ class AddEvent extends ActionNotifier {
 
 /// Deleting an Event, by Event id.
 final deleteEventProvider = AsyncNotifierProvider.autoDispose
-    .family<DeleteEvent, void, int>(DeleteEvent.new);
+    .family<DeleteEvent, void, UuidValue>(DeleteEvent.new);
 
 class DeleteEvent extends ActionNotifier {
   DeleteEvent(this.eventId);
 
-  final int eventId;
+  final UuidValue eventId;
 
   Future<bool> run() =>
       guard(() => ref.read(eventsControllerProvider.notifier).delete(eventId));

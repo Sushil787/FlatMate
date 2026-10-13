@@ -47,21 +47,21 @@ class ChoresNowController extends AsyncNotifier<List<ChoreNow>> {
   /// Marks the Turn Done on screen straight away, then on the server; puts
   /// it back if the server refuses. The reload that follows brings the same
   /// state, so the screen moves once.
-  Future<void> markDone(int turnId) => _change(
+  Future<void> markDone(UuidValue turnId) => _change(
     turnId,
     (t) => t.copyWith(status: TurnStatus.done, doneAt: DateTime.now().toUtc()),
     () => ref.read(choresControllerProvider.notifier).markDone(turnId),
   );
 
   /// Takes a Done back, the same way.
-  Future<void> undoDone(int turnId) => _change(
+  Future<void> undoDone(UuidValue turnId) => _change(
     turnId,
     (t) => t.copyWith(status: TurnStatus.active, doneAt: null),
     () => ref.read(choresControllerProvider.notifier).undoDone(turnId),
   );
 
   Future<void> _change(
-    int turnId,
+    UuidValue turnId,
     Turn Function(Turn) change,
     Future<void> Function() send,
   ) async {
@@ -93,7 +93,7 @@ Future<List<SwapDebt>> _swapDebts(Ref ref) async {
 final swapDebtsProvider = FutureProvider<List<SwapDebt>>(_swapDebts);
 
 /// [choreId]'s Turns over the last 8 weeks and one Rotation ahead.
-Future<ChoreHistory> _choreHistory(Ref ref, int choreId) async {
+Future<ChoreHistory> _choreHistory(Ref ref, UuidValue choreId) async {
   final overview = await ref.watch(choresControllerProvider.future);
   final chore = overview.choreById(choreId);
   final today = Day.fromLocal(DateTime.now());
@@ -110,4 +110,4 @@ Future<ChoreHistory> _choreHistory(Ref ref, int choreId) async {
 }
 
 final choreHistoryProvider = FutureProvider.autoDispose
-    .family<ChoreHistory, int>(_choreHistory);
+    .family<ChoreHistory, UuidValue>(_choreHistory);

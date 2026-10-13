@@ -26,21 +26,21 @@ class ChoreRepository {
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) => _client.chore.create(name, period, startDay, rotation);
 
   Future<Chore> update({
-    required int choreId,
+    required UuidValue choreId,
     required String name,
     required Duration period,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) => _client.chore.update(choreId, name, period, rotation);
 
-  Future<void> archive(int choreId) => _client.chore.archive(choreId);
+  Future<void> archive(UuidValue choreId) => _client.chore.archive(choreId);
 
-  Future<Turn> markDone(int turnId) => _client.chore.markDone(turnId);
+  Future<Turn> markDone(UuidValue turnId) => _client.chore.markDone(turnId);
 
-  Future<Turn> undoDone(int turnId) => _client.chore.undoDone(turnId);
+  Future<Turn> undoDone(UuidValue turnId) => _client.chore.undoDone(turnId);
 
   Future<List<SwapDebt>> swapDebts() => _client.chore.swapDebts();
 }

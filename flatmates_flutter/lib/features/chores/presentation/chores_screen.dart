@@ -183,7 +183,7 @@ class _ChoreCard extends ConsumerWidget {
     );
   }
 
-  static String _owes(MateDirectory d, int debtor, int creditor) {
+  static String _owes(MateDirectory d, UuidValue debtor, UuidValue creditor) {
     if (d.isMe(debtor)) return 'You owe ${d.realNameOf(creditor)}';
     if (d.isMe(creditor)) return '${d.realNameOf(debtor)} owes you';
     return '${d.realNameOf(debtor)} owes ${d.realNameOf(creditor)}';
@@ -258,7 +258,7 @@ class _Swap extends ConsumerWidget {
   const _Swap({required this.turn, required this.covered});
 
   final Turn turn;
-  final int covered;
+  final UuidValue covered;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

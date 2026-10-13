@@ -14,7 +14,7 @@ final groceriesControllerProvider =
 
 class GroceriesController extends AsyncNotifier<List<GroceryItem>> {
   GroceryRepository get _repo => ref.read(groceryRepositoryProvider);
-  int get _me => ref.read(mateDirectoryProvider).me.id!;
+  UuidValue get _me => ref.read(mateDirectoryProvider).me.id!;
 
   @override
   Future<List<GroceryItem>> build() {

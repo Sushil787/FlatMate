@@ -1,3 +1,5 @@
+import 'package:serverpod/serverpod.dart' show UuidValue;
+
 import '../day.dart';
 import '../generated/protocol.dart';
 
@@ -10,7 +12,7 @@ DateTime nextTurnDay(DateTime day, DateTime lastDay, Duration period) =>
 
 /// Days a Mate is Away.
 class AwaySpan {
-  final int mateId;
+  final UuidValue mateId;
   final DateTime startDay;
   final DateTime lastDay;
 
@@ -22,17 +24,17 @@ class AwaySpan {
 
 /// A Turn owed back under the Swap rule.
 class Debt {
-  final int debtorMateId;
-  final int creditorMateId;
+  final UuidValue debtorMateId;
+  final UuidValue creditorMateId;
 
   const Debt(this.debtorMateId, this.creditorMateId);
 }
 
 /// Everything the planner needs to know about a Chore and its Flat.
 class PlannerState {
-  final List<int> rotation;
+  final List<UuidValue> rotation;
   final AwayRule awayRule;
-  final Set<int> activeMateIds;
+  final Set<UuidValue> activeMateIds;
   final List<AwaySpan> aways;
   final List<Debt> debts;
 
@@ -44,15 +46,15 @@ class PlannerState {
     required List<Debt> debts,
   }) : debts = List.of(debts);
 
-  bool isAway(int mateId, DateTime from, DateTime to) =>
+  bool isAway(UuidValue mateId, DateTime from, DateTime to) =>
       aways.any((a) => a.mateId == mateId && a.overlaps(from, to));
 }
 
 /// The outcome of planning one Turn.
 class PlannedTurn {
   final int rotationIndex;
-  final int mateId;
-  final int? coveringForMateId;
+  final UuidValue mateId;
+  final UuidValue? coveringForMateId;
   final DateTime day;
   final DateTime lastDay;
 
@@ -157,11 +159,11 @@ PlannedTurn? planNextTurn(
 /// What the Away rule does to an existing Turn of [mateId] that an Away
 /// overlaps: someone covers it, or (Pause, or nobody free) it moves to
 /// new days.
-({({int index, int mateId})? cover, DateTime day, DateTime lastDay})
+({({int index, UuidValue mateId})? cover, DateTime day, DateTime lastDay})
 awayOutcome(
   PlannerState state,
   int rotationIndex,
-  int mateId,
+  UuidValue mateId,
   DateTime day,
   DateTime lastDay, {
   required bool canMoveStart,
@@ -182,10 +184,10 @@ awayOutcome(
 
 /// The next Mate after [index] in the Rotation who is in the Flat, is not
 /// [excludeMateId] and is not Away during the Turn.
-({int index, int mateId})? findCover(
+({int index, UuidValue mateId})? findCover(
   PlannerState state,
   int index,
-  int excludeMateId,
+  UuidValue excludeMateId,
   DateTime start,
   DateTime end,
 ) {
@@ -206,7 +208,7 @@ awayOutcome(
 /// is extended by the Away days.
 ({DateTime day, DateTime lastDay}) pauseSpan(
   PlannerState state,
-  int mateId,
+  UuidValue mateId,
   DateTime day,
   DateTime lastDay, {
   required bool canMoveStart,

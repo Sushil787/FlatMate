@@ -100,17 +100,17 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
     }
   }
 
-  Future<void> welcomeMate(int mateId, List<int> choreIds) async {
+  Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) async {
     await _repo.welcomeMate(mateId, choreIds);
     await refresh();
   }
 
-  Future<void> transferAdmin(int mateId) async {
+  Future<void> transferAdmin(UuidValue mateId) async {
     await _repo.transferAdmin(mateId);
     await refresh();
   }
 
-  Future<void> removeMate(int mateId) async {
+  Future<void> removeMate(UuidValue mateId) async {
     await _repo.removeMate(mateId);
     await refresh();
   }

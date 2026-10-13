@@ -3,8 +3,9 @@
 class: Away
 table: away
 fields:
-  flatId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
+  mateId: UuidValue
   startDay: DateTime
   ### Inclusive.
   lastDay: DateTime

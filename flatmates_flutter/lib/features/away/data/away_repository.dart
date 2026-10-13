@@ -21,5 +21,5 @@ class AwayRepository {
   Future<List<AwayEffect>> preview(DateTime startDay, DateTime lastDay) =>
       _client.away.preview(startDay, lastDay);
 
-  Future<void> cancel(int awayId) => _client.away.cancel(awayId);
+  Future<void> cancel(UuidValue awayId) => _client.away.cancel(awayId);
 }

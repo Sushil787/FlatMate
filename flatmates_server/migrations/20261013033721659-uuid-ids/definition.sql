@@ -33,9 +33,9 @@ volatile;
 -- Class Away as table away
 --
 CREATE TABLE "away" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
-    "mateId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
+    "mateId" uuid NOT NULL,
     "startDay" timestamp without time zone NOT NULL,
     "lastDay" timestamp without time zone NOT NULL,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -49,8 +49,8 @@ CREATE INDEX "away_flat_idx" ON "away" USING btree ("flatId");
 -- Class Chore as table chore
 --
 CREATE TABLE "chore" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
     "name" text NOT NULL,
     "period" bigint NOT NULL,
     "startDay" timestamp without time zone NOT NULL,
@@ -83,12 +83,14 @@ CREATE INDEX "device_token_user_idx" ON "device_token" USING btree ("authUserId"
 -- Class Flat as table flat
 --
 CREATE TABLE "flat" (
-    "id" bigserial PRIMARY KEY,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
     "name" text NOT NULL,
     "timezone" text NOT NULL,
-    "adminMateId" bigint,
+    "adminMateId" uuid,
     "inviteCode" text NOT NULL,
+    "inviteExpiresAt" timestamp without time zone NOT NULL,
     "awayRule" text NOT NULL,
+    "morningSummaryAt" bigint NOT NULL DEFAULT 480,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -100,12 +102,14 @@ CREATE UNIQUE INDEX "flat_invite_code_idx" ON "flat" USING btree ("inviteCode");
 -- Class FlatEvent as table flat_event
 --
 CREATE TABLE "flat_event" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
-    "mateId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
+    "mateId" uuid NOT NULL,
     "title" text NOT NULL,
     "note" text,
     "startsAt" timestamp without time zone NOT NULL,
+    "endsAt" timestamp without time zone,
+    "allDay" boolean NOT NULL DEFAULT false,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -117,12 +121,12 @@ CREATE INDEX "flat_event_flat_idx" ON "flat_event" USING btree ("flatId", "start
 -- Class GroceryItem as table grocery_item
 --
 CREATE TABLE "grocery_item" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
     "name" text NOT NULL,
     "note" text,
-    "addedByMateId" bigint NOT NULL,
-    "boughtByMateId" bigint,
+    "addedByMateId" uuid NOT NULL,
+    "boughtByMateId" uuid,
     "boughtAt" timestamp without time zone,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -135,12 +139,19 @@ CREATE INDEX "grocery_item_flat_idx" ON "grocery_item" USING btree ("flatId");
 -- Class Mate as table mate
 --
 CREATE TABLE "mate" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
     "authUserId" uuid NOT NULL,
     "displayName" text NOT NULL,
     "joinedAt" timestamp without time zone NOT NULL,
     "leftAt" timestamp without time zone,
+    "color" text NOT NULL DEFAULT 'tomato'::text,
+    "notifyTurnStarts" boolean NOT NULL DEFAULT true,
+    "notifyReminder" boolean NOT NULL DEFAULT true,
+    "notifyMatesNotDone" boolean NOT NULL DEFAULT true,
+    "notifyNotice" boolean NOT NULL DEFAULT true,
+    "notifyAddedToRotation" boolean NOT NULL DEFAULT true,
+    "welcomed" boolean NOT NULL DEFAULT true,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -153,9 +164,9 @@ CREATE INDEX "mate_flat_idx" ON "mate" USING btree ("flatId");
 -- Class Notice as table notice
 --
 CREATE TABLE "notice" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
-    "mateId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
+    "mateId" uuid NOT NULL,
     "text" text NOT NULL,
     "pinned" boolean NOT NULL,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -166,13 +177,26 @@ CREATE TABLE "notice" (
 CREATE INDEX "notice_flat_idx" ON "notice" USING btree ("flatId");
 
 --
+-- Class NoticeGotIt as table notice_got_it
+--
+CREATE TABLE "notice_got_it" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "noticeId" uuid NOT NULL,
+    "mateId" uuid NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE UNIQUE INDEX "notice_got_it_idx" ON "notice_got_it" USING btree ("noticeId", "mateId");
+
+--
 -- Class SwapDebt as table swap_debt
 --
 CREATE TABLE "swap_debt" (
-    "id" bigserial PRIMARY KEY,
-    "choreId" bigint NOT NULL,
-    "debtorMateId" bigint NOT NULL,
-    "creditorMateId" bigint NOT NULL,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "choreId" uuid NOT NULL,
+    "debtorMateId" uuid NOT NULL,
+    "creditorMateId" uuid NOT NULL,
     "createdAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -184,11 +208,11 @@ CREATE INDEX "swap_debt_chore_idx" ON "swap_debt" USING btree ("choreId");
 -- Class Turn as table turn
 --
 CREATE TABLE "turn" (
-    "id" bigserial PRIMARY KEY,
-    "flatId" bigint NOT NULL,
-    "choreId" bigint NOT NULL,
-    "mateId" bigint NOT NULL,
-    "coveringForMateId" bigint,
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid_v7(),
+    "flatId" uuid NOT NULL,
+    "choreId" uuid NOT NULL,
+    "mateId" uuid NOT NULL,
+    "coveringForMateId" uuid,
     "day" timestamp without time zone NOT NULL,
     "lastDay" timestamp without time zone NOT NULL,
     "status" text NOT NULL,
@@ -940,9 +964,9 @@ ALTER TABLE ONLY "serverpod_auth_core_session"
 -- MIGRATION VERSION FOR flatmates
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('flatmates', '20261006072730843', now())
+    VALUES ('flatmates', '20261013033721659-uuid-ids', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261006072730843', "timestamp" = now();
+    DO UPDATE SET "version" = '20261013033721659-uuid-ids', "timestamp" = now();
 
 --
 -- MIGRATION VERSION FOR serverpod
