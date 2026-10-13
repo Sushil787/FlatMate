@@ -293,6 +293,17 @@ void main() {
       );
     });
 
+    test('a Mate can\'t be Away twice on the same day', () async {
+      await endpoints.away.create(sam, today(3), today(5));
+      await expectLater(
+        endpoints.away.create(sam, today(5), today(6)),
+        throwsA(isA<FlatmatesException>()),
+      );
+      // Someone else's Away on those days is fine.
+      await endpoints.away.create(alex, today(3), today(5));
+      expect(await endpoints.away.list(priya), hasLength(2));
+    });
+
     test(
       'turnsBetween lists real Turns only; currentTurns the latest',
       () async {

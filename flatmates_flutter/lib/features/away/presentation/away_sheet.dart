@@ -173,7 +173,16 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
     final inRange = !d.isBefore(_from) && !d.isAfter(_lastDay);
     final isStart = DateUtils.isSameDay(d, _from);
     final isEnd = DateUtils.isSameDay(d, _lastDay);
-    final past = d.isBefore(_today);
+    // Days already in one of my Aways can't be picked again either.
+    final me = ref.watch(mateDirectoryProvider).me.id;
+    final day = Day.fromLocal(d);
+    final taken = (ref.watch(awaysControllerProvider).value ?? const []).any(
+      (a) =>
+          a.mateId == me &&
+          !day.isBefore(a.startDay) &&
+          !day.isAfter(a.lastDay),
+    );
+    final past = d.isBefore(_today) || taken;
     const round = Radius.circular(20);
     return Semantics(
       button: !past,

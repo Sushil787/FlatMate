@@ -22,7 +22,7 @@ class AwayEndpoint extends Endpoint {
   }
 
   /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
-  /// Away can't start in the past.
+  /// Away can't start in the past, nor overlap one of the caller's Aways.
   Future<Away> create(
     Session session,
     DateTime startDay,
@@ -30,6 +30,14 @@ class AwayEndpoint extends Endpoint {
   ) async {
     final (:me, :flat) = await requireMate(session);
     final days = _days(flat, startDay, lastDay);
+    final overlapping = await Away.db.count(
+      session,
+      where: (t) =>
+          t.mateId.equals(me.id!) &
+          (t.startDay <= days.lastDay) &
+          (t.lastDay >= days.startDay),
+    );
+    if (overlapping > 0) fail('You\'re already Away on some of these days.');
     final away = await Away.db.insertRow(
       session,
       Away(
