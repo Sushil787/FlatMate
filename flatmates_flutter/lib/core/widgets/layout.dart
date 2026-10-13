@@ -208,31 +208,41 @@ class AppRow extends StatelessWidget {
       constraints: BoxConstraints(minHeight: minHeight),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: Space.sm),
-        child: Row(
-          children: [
-            if (leading != null) ...[leading!, const SizedBox(width: Space.md)],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DefaultTextStyle.merge(
-                    style: context.text.titleSmall,
-                    child: title,
-                  ),
-                  if (meta != null)
+        child: LayoutBuilder(
+          builder: (context, box) => Row(
+            children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: Space.md),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     DefaultTextStyle.merge(
-                      style: context.text.bodySmall,
-                      child: meta!,
+                      style: context.text.titleSmall,
+                      child: title,
                     ),
-                ],
+                    if (meta != null)
+                      DefaultTextStyle.merge(
+                        style: context.text.bodySmall,
+                        child: meta!,
+                      ),
+                  ],
+                ),
               ),
-            ),
-            if (trailing != null) ...[
-              const SizedBox(width: Space.md),
-              trailing!,
+              if (trailing != null) ...[
+                const SizedBox(width: Space.md),
+                // Capped so a wide tag (large text, small phone) wraps
+                // instead of pushing the title out of the row.
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: box.maxWidth * 0.4),
+                  child: trailing,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
