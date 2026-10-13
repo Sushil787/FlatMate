@@ -1,4 +1,6 @@
 import 'dart:async';
+// Riverpod has an AsyncError too, which wins over dart:async's unprefixed.
+import 'dart:async' as async show AsyncError;
 import 'dart:io';
 
 import 'package:flatmates_client/flatmates_client.dart';
@@ -21,16 +23,24 @@ bool isUnreachable(Object error) => switch (firstError(error)) {
 /// The error behind [error]: the first one inside a [ParallelWaitError]
 /// from `(a, b).wait`, which otherwise hides that a call was offline.
 Object firstError(Object error) => switch (error) {
-  ParallelWaitError(errors: (AsyncError? a, AsyncError? b)) => firstError(
-    (a ?? b)!.error,
-  ),
-  ParallelWaitError(errors: (AsyncError? a, AsyncError? b, AsyncError? c)) =>
+  ParallelWaitError(errors: (async.AsyncError? a, async.AsyncError? b)) =>
+    firstError(
+      (a ?? b)!.error,
+    ),
+  ParallelWaitError(
+    errors: (async.AsyncError? a, async.AsyncError? b, async.AsyncError? c),
+  ) =>
     firstError((a ?? b ?? c)!.error),
   ParallelWaitError(
-    errors: (AsyncError? a, AsyncError? b, AsyncError? c, AsyncError? d),
+    errors: (
+      async.AsyncError? a,
+      async.AsyncError? b,
+      async.AsyncError? c,
+      async.AsyncError? d,
+    ),
   ) =>
     firstError((a ?? b ?? c ?? d)!.error),
-  ParallelWaitError(errors: List<AsyncError?> errors) => firstError(
+  ParallelWaitError(errors: List<async.AsyncError?> errors) => firstError(
     errors.nonNulls.first.error,
   ),
   _ => error,

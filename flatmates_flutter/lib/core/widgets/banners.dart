@@ -32,7 +32,7 @@ class ReconnectingBanner extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Offline',
+                    'Offline • Reconnecting',
                     style: context.text.bodyMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

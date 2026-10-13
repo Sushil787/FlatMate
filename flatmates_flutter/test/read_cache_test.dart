@@ -57,7 +57,8 @@ void main() {
     },
   );
 
-  Future<List<GroceryItem>> offline() =>
+  // Async, like a real call: `.wait` then wraps it in a ParallelWaitError.
+  Future<List<GroceryItem>> offline() async =>
       throw const ServerpodClientNetworkException('offline');
 
   test('offline, a read answers with what the server last said', () async {
