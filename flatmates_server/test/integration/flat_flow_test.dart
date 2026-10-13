@@ -53,7 +53,7 @@ void main() {
     }
 
     Future<Turn> onlyActiveTurn() async {
-      final turns = await endpoints.chore.activeTurns(priya);
+      final turns = await endpoints.chore.currentTurns(priya);
       expect(turns, hasLength(1));
       return turns.single;
     }
@@ -293,23 +293,34 @@ void main() {
       );
     });
 
-    test('the calendar includes projected turns', () async {
-      await endpoints.chore.create(
-        priya,
-        'Bins',
-        week,
-        today(),
-        [priyaId, samId, alexId],
-      );
-      final turns = await endpoints.chore.turnsBetween(
-        priya,
-        today(),
-        today(27),
-      );
-      expect(turns.map((t) => t.mateId), [priyaId, samId, alexId, priyaId]);
-      expect(turns.first.id, isNotNull);
-      expect(turns.skip(1).every((t) => t.id == null), isTrue);
-    });
+    test(
+      'turnsBetween lists real Turns only; currentTurns the latest',
+      () async {
+        final bins = await endpoints.chore.create(
+          priya,
+          'Bins',
+          week,
+          today(),
+          [priyaId, samId, alexId],
+        );
+        final turns = await endpoints.chore.turnsBetween(
+          priya,
+          today(),
+          today(27),
+        );
+        expect(turns.map((t) => t.mateId), [priyaId]);
+        expect(turns.single.id, isNotNull);
+
+        final current = await endpoints.chore.currentTurns(priya);
+        expect(current.single.choreId, bins.id);
+        await endpoints.chore.markDone(priya, current.single.id!);
+        // Still today's Turn once it's Done: the app projects from it.
+        expect(
+          (await endpoints.chore.currentTurns(priya)).single.status,
+          TurnStatus.done,
+        );
+      },
+    );
 
     test('the admin can\'t leave without handing over the role', () async {
       await expectLater(
@@ -440,7 +451,7 @@ void main() {
       Future<void> runAll(
         Future<void> Function(TestSessionBuilder, UuidValue) call,
       ) async {
-        for (final t in await endpoints.chore.activeTurns(priya)) {
+        for (final t in await endpoints.chore.currentTurns(priya)) {
           await call(sessionBuilder, t.id!);
         }
       }
@@ -493,7 +504,7 @@ void main() {
             [mate],
           );
         }
-        final mopTurn = (await endpoints.chore.activeTurns(
+        final mopTurn = (await endpoints.chore.currentTurns(
           alex,
         )).singleWhere((t) => t.choreId == mop.id);
         await endpoints.chore.markDone(alex, mopTurn.id!);

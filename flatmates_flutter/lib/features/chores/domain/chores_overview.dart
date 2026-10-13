@@ -4,10 +4,17 @@ import '../../../core/utils/day.dart';
 
 /// The Flat's Chores with their open Turns.
 class ChoresOverview {
-  ChoresOverview({required this.chores, required List<Turn> activeTurns})
-    : _turnByChore = {for (final t in activeTurns) t.choreId: t};
+  ChoresOverview({required this.chores, required this.currentTurns})
+    : _turnByChore = {
+        for (final t in currentTurns)
+          if (t.status == TurnStatus.active) t.choreId: t,
+      };
 
   final List<Chore> chores;
+
+  /// Each Chore's latest Turn, open or Done today; planned Turns follow it.
+  final List<Turn> currentTurns;
+
   final Map<UuidValue, Turn> _turnByChore;
 
   Turn? turnFor(Chore chore) => _turnByChore[chore.id];

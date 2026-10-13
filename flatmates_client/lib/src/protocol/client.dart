@@ -199,16 +199,17 @@ class EndpointChore extends _isc.EndpointRef {
         {},
       );
 
-  /// Every open Turn in the Flat: in progress, or waiting to start.
-  _ida.Future<List<_i4k8bhoi.Turn>> activeTurns() =>
+  /// Each Chore's latest Turn: the open one, or today's once it's Done.
+  /// The app projects the planned Turns that follow from these.
+  _ida.Future<List<_i4k8bhoi.Turn>> currentTurns() =>
       caller.callServerEndpoint<List<_i4k8bhoi.Turn>>(
         'chore',
-        'activeTurns',
+        'currentTurns',
         {},
       );
 
-  /// Turns on the days [from]..[to] (inclusive): real ones, plus projected
-  /// future ones (which have no id).
+  /// Real Turns on the days [from]..[to] (inclusive). Planned ones are
+  /// projected by the app with the shared planner.
   _ida.Future<List<_i4k8bhoi.Turn>> turnsBetween(
     DateTime from,
     DateTime to,

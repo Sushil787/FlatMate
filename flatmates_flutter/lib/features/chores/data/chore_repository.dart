@@ -16,7 +16,7 @@ class ChoreRepository {
 
   Future<List<Chore>> list() => _client.chore.list();
 
-  Future<List<Turn>> activeTurns() => _client.chore.activeTurns();
+  Future<List<Turn>> currentTurns() => _client.chore.currentTurns();
 
   /// Turns on the days [from]..[to] (see day.dart).
   Future<List<Turn>> turnsBetween(DateTime from, DateTime to) =>

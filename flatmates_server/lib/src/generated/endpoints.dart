@@ -275,15 +275,15 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['chore'] as _ikknmojt.ChoreEndpoint).list(session),
         ),
-        'activeTurns': _is.MethodConnector(
-          name: 'activeTurns',
+        'currentTurns': _is.MethodConnector(
+          name: 'currentTurns',
           params: {},
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['chore'] as _ikknmojt.ChoreEndpoint)
-                  .activeTurns(session),
+                  .currentTurns(session),
         ),
         'turnsBetween': _is.MethodConnector(
           name: 'turnsBetween',

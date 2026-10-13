@@ -1,4 +1,3 @@
-import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../../core/widgets/app_icon.dart';

@@ -20,20 +20,24 @@ class ChoreEndpoint extends Endpoint {
     );
   }
 
-  /// Every open Turn in the Flat: in progress, or waiting to start.
-  Future<List<Turn>> activeTurns(Session session) async {
+  /// Each Chore's latest Turn: the open one, or today's once it's Done.
+  /// The app projects the planned Turns that follow from these.
+  Future<List<Turn>> currentTurns(Session session) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
-    return Turn.db.find(
+    // After catchUp only a Chore's latest Turn can still reach today.
+    final turns = await Turn.db.find(
       session,
       where: (t) =>
-          t.flatId.equals(flat.id!) & t.status.equals(TurnStatus.active),
-      orderBy: (t) => t.lastDay,
+          t.flatId.equals(flat.id!) &
+          (t.lastDay >= Day.today(flat.timezone)),
+      orderBy: (t) => t.day,
     );
+    return {for (final t in turns) t.choreId: t}.values.toList();
   }
 
-  /// Turns on the days [from]..[to] (inclusive): real ones, plus projected
-  /// future ones (which have no id).
+  /// Real Turns on the days [from]..[to] (inclusive). Planned ones are
+  /// projected by the app with the shared planner.
   Future<List<Turn>> turnsBetween(
     Session session,
     DateTime from,
@@ -43,17 +47,12 @@ class ChoreEndpoint extends Endpoint {
     await TurnService.catchUp(session, flat);
     from = Day.from(from);
     to = Day.from(to);
-    final real = await Turn.db.find(
+    return Turn.db.find(
       session,
       where: (t) =>
           t.flatId.equals(flat.id!) & (t.day <= to) & (t.lastDay >= from),
       orderBy: (t) => t.day,
     );
-    final projected = await TurnService.projectTurns(session, flat, to);
-    return [
-      ...real,
-      ...projected.where((t) => !t.lastDay.isBefore(from)),
-    ];
   }
 
   Future<Chore> create(

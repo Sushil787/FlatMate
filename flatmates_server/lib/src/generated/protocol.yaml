@@ -11,7 +11,7 @@ away:
   - cancel:
 chore:
   - list:
-  - activeTurns:
+  - currentTurns:
   - turnsBetween:
   - create:
   - update:

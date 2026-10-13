@@ -1,5 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_flutter/features/chores/domain/chore_turns.dart';
+import 'package:flatmates_flutter/features/chores/domain/planned_turns.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/fakes.dart';
@@ -74,5 +76,36 @@ void main() {
     expect(history.doneBy(uid(2)), 0);
     expect(history.current!.mateId, uid(3));
     expect([for (final t in history.past) t.day], [day(-1), day(-2), day(-5)]);
+  });
+
+  test('planned Turns follow the latest real Turn, even a Done one', () {
+    Mate mate(int n) => Mate(
+      id: uid(n),
+      flatId: uid(10),
+      authUserId: uid(n),
+      displayName: 'M$n',
+      joinedAt: today,
+    );
+    final planned = plannedTurns(
+      chores: [chore],
+      current: [turn(0, 1, TurnStatus.done)],
+      awayRule: AwayRule.swap,
+      mates: [mate(1), mate(2), mate(3)],
+      aways: [
+        Away(
+          flatId: uid(10),
+          mateId: uid(3),
+          startDay: day(2),
+          lastDay: day(2),
+        ),
+      ],
+      debts: const [],
+      until: day(3),
+    );
+    // Rotation index 0 is Mate 1's slot: 2, then 3 is Away so 1 covers
+    // (Swap), then 3 does 1's next one to pay it back.
+    expect([for (final t in planned) t.mateId], [uid(2), uid(1), uid(3)]);
+    expect([for (final t in planned) t.day], [day(1), day(2), day(3)]);
+    expect(planned.every((t) => t.id == null), isTrue);
   });
 }

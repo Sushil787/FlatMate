@@ -21,8 +21,8 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
   }
 
   Future<ChoresOverview> _load(ChoreRepository repo) async {
-    final (chores, turns) = await (repo.list(), repo.activeTurns()).wait;
-    return ChoresOverview(chores: chores, activeTurns: turns);
+    final (chores, turns) = await (repo.list(), repo.currentTurns()).wait;
+    return ChoresOverview(chores: chores, currentTurns: turns);
   }
 
   Future<void> refresh() async {

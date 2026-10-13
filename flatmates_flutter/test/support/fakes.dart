@@ -16,8 +16,9 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 /// A fixed id for test fixtures: uid(1), uid(2), …
-UuidValue uid(int n) =>
-    UuidValue.fromString('00000000-0000-7000-8000-${n.toString().padLeft(12, '0')}');
+UuidValue uid(int n) => UuidValue.fromString(
+  '00000000-0000-7000-8000-${n.toString().padLeft(12, '0')}',
+);
 
 /// An in-memory Flat with Priya (admin, the signed-in user), Sam and Alex.
 class FakeBackend {
@@ -202,7 +203,7 @@ class _ChoreRepo implements ChoreRepository {
   @override
   Future<List<Chore>> list() async => [...b.chores];
   @override
-  Future<List<Turn>> activeTurns() async => b.turns
+  Future<List<Turn>> currentTurns() async => b.turns
       .where(
         (t) => t.status == TurnStatus.active || t.status == TurnStatus.done,
       )

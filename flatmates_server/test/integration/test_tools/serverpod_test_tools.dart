@@ -571,20 +571,20 @@ class _ChoreEndpoint {
     });
   }
 
-  _ida.Future<List<_ij03rvz2.Turn>> activeTurns(
+  _ida.Future<List<_ij03rvz2.Turn>> currentTurns(
     _ist.TestSessionBuilder sessionBuilder,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
             endpoint: 'chore',
-            method: 'activeTurns',
+            method: 'currentTurns',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'chore',
-          methodName: 'activeTurns',
+          methodName: 'currentTurns',
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
