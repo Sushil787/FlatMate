@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import '../../../core/providers/client_provider.dart';
+import '../../../core/providers/online_provider.dart';
 import '../../../core/providers/read_cache.dart';
 
 /// Whether a user is signed in. Follows the Serverpod auth session.
@@ -24,7 +25,16 @@ class AuthController extends Notifier<bool> {
     return auth.isAuthenticated;
   }
 
-  Future<void> signOut() => ref.read(clientProvider).auth.signOutDevice();
+  /// Signs out on this phone, and tells the server when it can be reached.
+  /// Offline the server's session simply runs out; nobody holds it.
+  Future<void> signOut() async {
+    final auth = ref.read(clientProvider).auth;
+    if (ref.read(onlineProvider)) {
+      await auth.signOutDevice();
+    } else {
+      await auth.updateSignedInUser(null);
+    }
+  }
 }
 
 /// The signed-in user's Google name and email.

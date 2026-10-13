@@ -14,11 +14,15 @@ abstract class ActionNotifier extends AsyncNotifier<void> {
 
   /// Runs [body] unless this action is already running. Returns false when
   /// it was (and so did nothing); otherwise true, or throws [body]'s error.
-  /// Offline it throws without running: the cache is read-only.
+  /// Offline it throws without running, as the cache is read-only, unless
+  /// [needsServer] is false.
   @protected
-  Future<bool> guard(Future<void> Function() body) async {
+  Future<bool> guard(
+    Future<void> Function() body, {
+    bool needsServer = true,
+  }) async {
     if (state.isLoading) return false;
-    requireOnline(ref);
+    if (needsServer) requireOnline(ref);
     state = const AsyncLoading();
     try {
       await body();

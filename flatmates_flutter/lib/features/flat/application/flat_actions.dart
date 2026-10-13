@@ -125,7 +125,10 @@ final signOutProvider = AsyncNotifierProvider.autoDispose<SignOut, void>(
   SignOut.new,
 );
 
+/// Works offline too: the phone forgets the session either way.
 class SignOut extends ActionNotifier {
-  Future<bool> run() =>
-      guard(() => ref.read(authControllerProvider.notifier).signOut());
+  Future<bool> run() => guard(
+    () => ref.read(authControllerProvider.notifier).signOut(),
+    needsServer: false,
+  );
 }
