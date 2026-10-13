@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('a failed load: a small centered card, under the header', (
+  testWidgets('a failed load is a small card in the middle of its space', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -20,16 +20,19 @@ void main() {
               StackTrace.empty,
             ),
             onRetry: () {},
-            header: const Text('Back'),
             data: (_) => const SizedBox(),
           ),
         ),
       ),
     );
-    expect(find.text('Back'), findsOneWidget);
     expect(find.text('Couldn\'t reach the server. Try again.'), findsOneWidget);
     final card = tester.getSize(find.byType(ErrorCard));
     expect(card.height, lessThan(200));
     expect(card.width, lessThanOrEqualTo(420));
+    final screen = tester.getSize(find.byType(Scaffold));
+    expect(
+      tester.getCenter(find.byType(ErrorCard)).dy,
+      closeTo(screen.height / 2, 1),
+    );
   });
 }

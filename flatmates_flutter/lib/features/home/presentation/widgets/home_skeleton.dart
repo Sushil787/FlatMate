@@ -79,93 +79,65 @@ class _HomeSkeletonState extends State<HomeSkeleton>
     return Semantics(
       label: 'Loading your Flat',
       child: ExcludeSemantics(
-        child: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              Space.screenMargin,
-              Space.lg,
-              Space.screenMargin,
-              Space.navClearance,
-            ),
-            child: FadeTransition(
-              opacity: _pulse,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            bar(140, 14, fm.line),
-                            const SizedBox(height: Space.sm),
-                            bar(110, 30, fm.line, radius: 10),
-                          ],
-                        ),
-                      ),
-                      circle(44, fm.line),
-                    ],
-                  ),
-                  const SizedBox(height: Space.lg),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: fm.line,
-                      borderRadius: BorderRadius.circular(Radii.hero),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        bar(120, 14, fm.switchOff),
-                        const SizedBox(height: 14),
-                        bar(220, 32, fm.switchOff, radius: 10),
-                        const SizedBox(height: 14),
-                        bar(160, 14, fm.switchOff),
-                        const SizedBox(height: 14),
-                        bar(double.infinity, Sizes.buttonHero, fm.switchOff),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: Space.lg),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: bar(150, 18, fm.line),
-                  ),
-                  const SizedBox(height: Space.lg),
-                  card(
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    Column(
-                      children: [
-                        row(36, [130, 90], chip: 56),
-                        const SizedBox(height: 14),
-                        row(36, [110, 100], chip: 44),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: Space.lg),
-                  card(
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    row(36, [160, 220]),
-                  ),
-                  const SizedBox(height: Space.lg),
-                  card(
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    row(44, [150, 190], r: 14),
-                  ),
-                  const SizedBox(height: Space.lg),
-                  Text(
-                    'Catching up with your Flat…',
-                    textAlign: TextAlign.center,
-                    style: context.text.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+        child: FadeTransition(
+          opacity: _pulse,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: fm.line,
+                  borderRadius: BorderRadius.circular(Radii.hero),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    bar(120, 14, fm.switchOff),
+                    const SizedBox(height: 14),
+                    bar(220, 32, fm.switchOff, radius: 10),
+                    const SizedBox(height: 14),
+                    bar(160, 14, fm.switchOff),
+                    const SizedBox(height: 14),
+                    bar(double.infinity, Sizes.buttonHero, fm.switchOff),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: Space.lg),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: bar(150, 18, fm.line),
+              ),
+              const SizedBox(height: Space.lg),
+              card(
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                Column(
+                  children: [
+                    row(36, [130, 90], chip: 56),
+                    const SizedBox(height: 14),
+                    row(36, [110, 100], chip: 44),
+                  ],
+                ),
+              ),
+              const SizedBox(height: Space.lg),
+              card(
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                row(36, [160, 220]),
+              ),
+              const SizedBox(height: Space.lg),
+              card(
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                row(44, [150, 190], r: 14),
+              ),
+              const SizedBox(height: Space.lg),
+              Text(
+                'Catching up with your Flat…',
+                textAlign: TextAlign.center,
+                style: context.text.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),
