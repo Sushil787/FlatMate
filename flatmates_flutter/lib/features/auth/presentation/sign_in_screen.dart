@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,13 +37,42 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         24,
         24 + MediaQuery.viewInsetsOf(sheet).bottom,
       ),
-      child: EmailSignInWidget(
-        client: ref.read(clientProvider),
-        startScreen: EmailFlowScreen.login,
-        onAuthenticated: () => Navigator.of(sheet).pop(),
-        onError: (error) => ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // The seeded accounts, one tap each.
+          for (final a in devAccounts)
+            OutlinedButton(
+              onPressed: () async {
+                final client = ref.read(clientProvider);
+                try {
+                  await client.auth.updateSignedInUser(
+                    await client.emailIdp.login(
+                      email: a.email,
+                      password: devPassword,
+                    ),
+                  );
+                  if (sheet.mounted) Navigator.of(sheet).pop();
+                } catch (error) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Sign-in failed: $error')),
+                  );
+                }
+              },
+              child: Text('${a.name} (${a.role}) · ${a.email}'),
+            ),
+          const SizedBox(height: 16),
+          EmailSignInWidget(
+            client: ref.read(clientProvider),
+            startScreen: EmailFlowScreen.login,
+            onAuthenticated: () => Navigator.of(sheet).pop(),
+            onError: (error) => ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
+          ),
+        ],
       ),
     ),
   );

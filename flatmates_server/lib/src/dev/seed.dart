@@ -7,13 +7,8 @@ import '../day.dart';
 import '../generated/protocol.dart';
 import '../rotation/turn_service.dart';
 
-/// Email sign-ins the seed makes; development only.
-const seedAdminEmail = 'admin@flatmates.dev';
-const seedMateEmail = 'sam@flatmates.dev';
-const seedPassword = 'flatmates123';
-
 /// Fills an empty development database with one Flat to click around in:
-/// an Admin and a Mate who sign in with email, Chores, Notices, Groceries
+/// an Admin and a Mate who sign in with email ([devAccounts]), Chores, Notices, Groceries
 /// and an Event. Does nothing once any Flat exists.
 Future<void> seedDevData(Session session) async {
   if (await Flat.db.count(session) > 0) return;
@@ -27,7 +22,7 @@ Future<void> seedDevData(Session session) async {
       session,
       authUserId: authUser.id,
       email: email,
-      password: seedPassword,
+      password: devPassword,
     );
     await AuthServices.instance.userProfiles.createUserProfile(
       session,
@@ -51,8 +46,8 @@ Future<void> seedDevData(Session session) async {
     session,
     Mate(
       flatId: flat.id!,
-      authUserId: await user('Priya', seedAdminEmail),
-      displayName: 'Priya',
+      authUserId: await user(devAccounts[0].name, devAccounts[0].email),
+      displayName: devAccounts[0].name,
       joinedAt: now,
       color: MateColor.tomato,
     ),
@@ -61,8 +56,8 @@ Future<void> seedDevData(Session session) async {
     session,
     Mate(
       flatId: flat.id!,
-      authUserId: await user('Sam', seedMateEmail),
-      displayName: 'Sam',
+      authUserId: await user(devAccounts[1].name, devAccounts[1].email),
+      displayName: devAccounts[1].name,
       joinedAt: now,
       color: MateColor.sky,
     ),
@@ -126,7 +121,8 @@ Future<void> seedDevData(Session session) async {
     ),
   );
   session.log(
-    'Seeded Flat "${flat.name}": $seedAdminEmail (Admin) and $seedMateEmail, '
-    'password $seedPassword.',
+    'Seeded Flat "${flat.name}": '
+    '${[for (final a in devAccounts) '${a.email} (${a.role})'].join(', ')}, '
+    'password $devPassword.',
   );
 }
