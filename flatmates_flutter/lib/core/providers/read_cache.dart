@@ -8,10 +8,33 @@ import 'package:serverpod_database/serverpod_database.dart';
 
 /// Whether [error] means the server couldn't be reached, rather than that
 /// it said no.
-bool isUnreachable(Object error) =>
-    error is ServerpodClientNetworkException ||
-    (error is ServerpodClientHttpException &&
-        const {502, 503, 504}.contains(error.statusCode));
+bool isUnreachable(Object error) => switch (firstError(error)) {
+  ServerpodClientNetworkException() => true,
+  ServerpodClientHttpException(:final statusCode) => const {
+    502,
+    503,
+    504,
+  }.contains(statusCode),
+  _ => false,
+};
+
+/// The error behind [error]: the first one inside a [ParallelWaitError]
+/// from `(a, b).wait`, which otherwise hides that a call was offline.
+Object firstError(Object error) => switch (error) {
+  ParallelWaitError(errors: (AsyncError? a, AsyncError? b)) => firstError(
+    (a ?? b)!.error,
+  ),
+  ParallelWaitError(errors: (AsyncError? a, AsyncError? b, AsyncError? c)) =>
+    firstError((a ?? b ?? c)!.error),
+  ParallelWaitError(
+    errors: (AsyncError? a, AsyncError? b, AsyncError? c, AsyncError? d),
+  ) =>
+    firstError((a ?? b ?? c ?? d)!.error),
+  ParallelWaitError(errors: List<AsyncError?> errors) => firstError(
+    errors.nonNulls.first.error,
+  ),
+  _ => error,
+};
 
 /// The SQLite file the read-only cache lives in, on this phone.
 class CacheDb {

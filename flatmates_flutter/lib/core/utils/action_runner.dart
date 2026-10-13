@@ -1,10 +1,11 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 
+import '../providers/read_cache.dart';
 import '../theme/app_theme.dart';
 
 /// A message fit to show the user for any error from the server.
-String describeError(Object error) => switch (error) {
+String describeError(Object error) => switch (firstError(error)) {
   FlatmatesException(:final message) => message,
   ServerpodClientException() => 'Couldn\'t reach the server. Try again.',
   _ => 'Something went wrong. Try again.',

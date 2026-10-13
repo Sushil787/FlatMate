@@ -89,4 +89,15 @@ void main() {
       throwsA(isA<ServerpodClientNetworkException>()),
     );
   });
+
+  test('two calls failing together offline still fall back', () async {
+    await read(() async => [item(1)]);
+    await cache.saved;
+
+    final saved = await read(() async {
+      final (items, _) = await (offline(), offline()).wait;
+      return items;
+    });
+    expect([for (final g in saved) g.id], [uid(1)]);
+  });
 }
