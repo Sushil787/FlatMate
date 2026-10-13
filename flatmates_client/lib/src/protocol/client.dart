@@ -331,7 +331,7 @@ class EndpointAway extends _isc.EndpointRef {
       );
 
   /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
-  /// Away can't start in the past.
+  /// Away can't start in the past, nor overlap one of the caller's Aways.
   _ida.Future<_irs4lusq.Away> create(
     DateTime startDay,
     DateTime lastDay,
