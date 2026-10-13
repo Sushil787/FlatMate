@@ -15,7 +15,6 @@ import 'dart:async' as _ida;
 import 'dart:io' as _idi;
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
 import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
-import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/flat.dart' as _i7obirgc;
@@ -34,6 +33,7 @@ import 'package:flatmates_server/src/generated/my_flat.dart' as _isxy0ptp;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
 import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -1236,7 +1236,7 @@ class _FlatEndpoint {
 
   _ida.Future<_i7obirgc.Flat> setAwayRule(
     _ist.TestSessionBuilder sessionBuilder,
-    _i2u6twoh.AwayRule rule,
+    _ij0lpv6z.AwayRule rule,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =

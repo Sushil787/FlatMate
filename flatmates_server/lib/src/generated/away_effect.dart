@@ -10,8 +10,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
-import 'away_rule.dart' as _isc380kv;
 
 /// What a planned Away would do to one of the Mate's Turns (Away preview).
 abstract class AwayEffect
@@ -28,7 +28,7 @@ abstract class AwayEffect
   factory AwayEffect({
     required _is.UuidValue choreId,
     required DateTime day,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
@@ -40,7 +40,7 @@ abstract class AwayEffect
         jsonSerialization['choreId'],
       ),
       day: _is.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
-      awayRule: _isc380kv.AwayRule.fromJson(
+      awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
       coverMateId: jsonSerialization['coverMateId'] == null
@@ -62,7 +62,7 @@ abstract class AwayEffect
   /// The Turn's day as planned now.
   DateTime day;
 
-  _isc380kv.AwayRule awayRule;
+  _ij0lpv6z.AwayRule awayRule;
 
   /// Swap/Skip: the Mate who takes the Turn.
   _is.UuidValue? coverMateId;
@@ -78,7 +78,7 @@ abstract class AwayEffect
   AwayEffect copyWith({
     _is.UuidValue? choreId,
     DateTime? day,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
@@ -121,7 +121,7 @@ class _AwayEffectImpl extends AwayEffect {
   _AwayEffectImpl({
     required _is.UuidValue choreId,
     required DateTime day,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     _is.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
@@ -141,7 +141,7 @@ class _AwayEffectImpl extends AwayEffect {
   AwayEffect copyWith({
     _is.UuidValue? choreId,
     DateTime? day,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     Object? coverMateId = _Undefined,
     Object? newDay = _Undefined,
     Object? newLastDay = _Undefined,

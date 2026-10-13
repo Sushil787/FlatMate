@@ -68,7 +68,7 @@ Set `googleClientSecret` and `fcmServiceAccount` as Cloud passwords, deploy, the
 - The Flat-wide **Away rule** (Admin picks): **Swap** (next Mate covers, Away Mate does their next
   Turn in return), **Skip** (next Mate covers, nothing owed), **Pause** (Chore waits; Away days
   mid-Turn extend it). If nobody can cover, the Chore pauses.
-- Pure planning logic: `flatmates_server/lib/src/rotation/planner.dart`; DB + scheduling:
+- Pure planning logic: `flatmates_shared/lib/src/planner.dart`; DB + scheduling:
   `turn_service.dart`. Live app updates stream over `flat.changes()`.
 
 ## Known simplifications

@@ -6,6 +6,7 @@ environment:
 
 workspace:
   - flatmates_client
+  - flatmates_shared
   - flatmates_server
   - flatmates_flutter
 

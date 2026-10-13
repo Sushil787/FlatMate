@@ -1,14 +1,21 @@
-import 'package:serverpod/serverpod.dart' show UuidValue;
+import 'package:serverpod_serialization/serverpod_serialization.dart'
+    show UuidValue;
 
-import '../day.dart';
-import '../generated/protocol.dart';
+import 'generated/protocol.dart';
 
-// Everything here works in days (see day.dart); ranges are inclusive.
+// Everything here works in days: 12:00 UTC on the date (the server's
+// day.dart). Ranges are inclusive. Pure, so the app plans the same way.
+
+DateTime _add(DateTime day, int days) => day.add(Duration(days: days));
+
+DateTime _later(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
+
+int _between(DateTime a, DateTime b) => b.difference(a).inDays;
 
 /// The day of the Turn after one on [day]..[lastDay]: one [period] after its
 /// day, but never before it's over (Pause can extend it).
 DateTime nextTurnDay(DateTime day, DateTime lastDay, Duration period) =>
-    Day.later(day.add(period), Day.add(lastDay, 1));
+    _later(day.add(period), _add(lastDay, 1));
 
 /// Days a Mate is Away.
 class AwaySpan {
@@ -73,6 +80,30 @@ class PlannedTurn {
     this.debtCreated,
     this.debtRepaid,
   });
+}
+
+/// The Chore's planned Turns after its latest real Turn ([day]..[lastDay],
+/// taken from the Rotation slot [rotationIndex]), up to the day [until].
+/// Mutates [state.debts] as it goes.
+List<PlannedTurn> projectChoreTurns(
+  PlannerState state, {
+  required int rotationIndex,
+  required Duration period,
+  required DateTime day,
+  required DateTime lastDay,
+  required DateTime until,
+}) {
+  final planned = <PlannedTurn>[];
+  var index = rotationIndex;
+  var next = nextTurnDay(day, lastDay, period);
+  for (var i = 0; i < 200 && !next.isAfter(until); i++) {
+    final plan = planNextTurn(state, index, next);
+    if (plan == null) break;
+    planned.add(plan);
+    index = plan.rotationIndex;
+    next = nextTurnDay(plan.day, plan.lastDay, period);
+  }
+  return planned;
 }
 
 /// Plans the Turn that follows the slot at [previousIndex], on [day].
@@ -221,16 +252,16 @@ awayOutcome(
   if (canMoveStart) {
     for (final a in aways) {
       if (a.overlaps(s, s)) {
-        final shift = Day.between(s, a.lastDay) + 1;
-        s = Day.add(s, shift);
-        e = Day.add(e, shift);
+        final shift = _between(s, a.lastDay) + 1;
+        s = _add(s, shift);
+        e = _add(e, shift);
       }
     }
   }
   for (final a in aways) {
     if (a.overlaps(s, e)) {
-      final from = Day.later(a.startDay, s);
-      e = Day.add(e, Day.between(from, a.lastDay) + 1);
+      final from = _later(a.startDay, s);
+      e = _add(e, _between(from, a.lastDay) + 1);
     }
   }
   return (day: s, lastDay: e);

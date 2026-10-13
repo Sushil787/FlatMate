@@ -19,6 +19,7 @@ import 'package:flatmates_client/src/protocol/grocery_item.dart' as _iy9ydfy6;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
 import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -26,7 +27,6 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'away.dart' as _injc6hlm;
 import 'away_effect.dart' as _i3z62lxk;
-import 'away_rule.dart' as _isc380kv;
 import 'chore.dart' as _imnq0nzy;
 import 'device_token.dart' as _ilggw95u;
 import 'event.dart' as _iu57571s;
@@ -45,7 +45,6 @@ import 'turn.dart' as _i0nsa51h;
 import 'turn_status.dart' as _i5yk6qf9;
 export 'away.dart';
 export 'away_effect.dart';
-export 'away_rule.dart';
 export 'chore.dart';
 export 'device_token.dart';
 export 'event.dart';
@@ -104,9 +103,6 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i3z62lxk.AwayEffect) {
       return _i3z62lxk.AwayEffect.fromJson(data) as T;
     }
-    if (t == _isc380kv.AwayRule) {
-      return _isc380kv.AwayRule.fromJson(data) as T;
-    }
     if (t == _imnq0nzy.Chore) {
       return _imnq0nzy.Chore.fromJson(data) as T;
     }
@@ -160,9 +156,6 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_i3z62lxk.AwayEffect?>()) {
       return (data != null ? _i3z62lxk.AwayEffect.fromJson(data) : null) as T;
-    }
-    if (t == _isc.getType<_isc380kv.AwayRule?>()) {
-      return (data != null ? _isc380kv.AwayRule.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_imnq0nzy.Chore?>()) {
       return (data != null ? _imnq0nzy.Chore.fromJson(data) : null) as T;
@@ -282,6 +275,9 @@ class Protocol extends _isc.SerializationManager {
     try {
       return _iacc.Protocol().deserialize<T>(data, t);
     } on _isc.DeserializationTypeNotFoundException catch (_) {}
+    try {
+      return _ij0lpv6z.Protocol().deserialize<T>(data, t);
+    } on _isc.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
 
@@ -289,7 +285,6 @@ class Protocol extends _isc.SerializationManager {
     return switch (type) {
       _injc6hlm.Away => 'Away',
       _i3z62lxk.AwayEffect => 'AwayEffect',
-      _isc380kv.AwayRule => 'AwayRule',
       _imnq0nzy.Chore => 'Chore',
       _ilggw95u.DeviceToken => 'DeviceToken',
       _iu57571s.FlatEvent => 'FlatEvent',
@@ -324,8 +319,6 @@ class Protocol extends _isc.SerializationManager {
         return 'Away';
       case _i3z62lxk.AwayEffect():
         return 'AwayEffect';
-      case _isc380kv.AwayRule():
-        return 'AwayRule';
       case _imnq0nzy.Chore():
         return 'Chore';
       case _ilggw95u.DeviceToken():
@@ -371,6 +364,12 @@ class Protocol extends _isc.SerializationManager {
           ? className
           : 'serverpod_auth_core.$className';
     }
+    className = _ij0lpv6z.Protocol().getClassNameForObject(data);
+    if (className != null) {
+      return className.contains('.')
+          ? className
+          : 'flatmates_shared.$className';
+    }
     return null;
   }
 
@@ -385,9 +384,6 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'AwayEffect') {
       return deserialize<_i3z62lxk.AwayEffect>(data['data']);
-    }
-    if (dataClassName == 'AwayRule') {
-      return deserialize<_isc380kv.AwayRule>(data['data']);
     }
     if (dataClassName == 'Chore') {
       return deserialize<_imnq0nzy.Chore>(data['data']);
@@ -445,12 +441,17 @@ class Protocol extends _isc.SerializationManager {
       data['className'] = dataClassName.substring(20);
       return _iacc.Protocol().deserializeByClassName(data);
     }
+    if (dataClassName.startsWith('flatmates_shared.')) {
+      data['className'] = dataClassName.substring(17);
+      return _ij0lpv6z.Protocol().deserializeByClassName(data);
+    }
     return super.deserializeByClassName(data);
   }
 
   void _registerHostProtocols() {
     _iaic.Protocol().registerHostProtocol('flatmates', this);
     _iacc.Protocol().registerHostProtocol('flatmates', this);
+    _ij0lpv6z.Protocol().registerHostProtocol('flatmates', this);
   }
 
   @override

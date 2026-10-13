@@ -19,6 +19,7 @@ import 'package:flatmates_server/src/generated/grocery_item.dart' as _itw5ie4o;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
 import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -27,7 +28,6 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'away.dart' as _injc6hlm;
 import 'away_effect.dart' as _i3z62lxk;
-import 'away_rule.dart' as _isc380kv;
 import 'chore.dart' as _imnq0nzy;
 import 'device_token.dart' as _ilggw95u;
 import 'event.dart' as _iu57571s;
@@ -51,7 +51,6 @@ import 'turn.dart' as _i0nsa51h;
 import 'turn_status.dart' as _i5yk6qf9;
 export 'away.dart';
 export 'away_effect.dart';
-export 'away_rule.dart';
 export 'chore.dart';
 export 'device_token.dart';
 export 'event.dart';
@@ -353,7 +352,7 @@ class Protocol extends _is.DatabaseSerializationManager {
           name: 'awayRule',
           columnType: _isp.ColumnType.text,
           isNullable: false,
-          dartType: 'protocol:AwayRule',
+          dartType: 'flatmates_shared:AwayRule',
         ),
         _isp.ColumnDefinition(
           name: 'morningSummaryAt',
@@ -1010,6 +1009,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     ),
     ..._iais.Protocol.targetTableDefinitions,
     ..._iacs.Protocol.targetTableDefinitions,
+    ..._ij0lpv6z.Protocol() is _is.DatabaseSerializationManager
+        ? (_ij0lpv6z.Protocol() as _is.DatabaseSerializationManager)
+              .getTargetTableDefinitions()
+        : [],
     ..._isp.Protocol.targetTableDefinitions,
   ];
 
@@ -1045,9 +1048,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _i3z62lxk.AwayEffect) {
       return _i3z62lxk.AwayEffect.fromJson(data) as T;
-    }
-    if (t == _isc380kv.AwayRule) {
-      return _isc380kv.AwayRule.fromJson(data) as T;
     }
     if (t == _imnq0nzy.Chore) {
       return _imnq0nzy.Chore.fromJson(data) as T;
@@ -1111,9 +1111,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_i3z62lxk.AwayEffect?>()) {
       return (data != null ? _i3z62lxk.AwayEffect.fromJson(data) : null) as T;
-    }
-    if (t == _is.getType<_isc380kv.AwayRule?>()) {
-      return (data != null ? _isc380kv.AwayRule.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_imnq0nzy.Chore?>()) {
       return (data != null ? _imnq0nzy.Chore.fromJson(data) : null) as T;
@@ -1252,6 +1249,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       return _iacs.Protocol().deserialize<T>(data, t);
     } on _is.DeserializationTypeNotFoundException catch (_) {}
     try {
+      return _ij0lpv6z.Protocol().deserialize<T>(data, t);
+    } on _is.DeserializationTypeNotFoundException catch (_) {}
+    try {
       return _isp.Protocol().deserialize<T>(data, t);
     } on _is.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
@@ -1261,7 +1261,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     return switch (type) {
       _injc6hlm.Away => 'Away',
       _i3z62lxk.AwayEffect => 'AwayEffect',
-      _isc380kv.AwayRule => 'AwayRule',
       _imnq0nzy.Chore => 'Chore',
       _ilggw95u.DeviceToken => 'DeviceToken',
       _iu57571s.FlatEvent => 'FlatEvent',
@@ -1299,8 +1298,6 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Away';
       case _i3z62lxk.AwayEffect():
         return 'AwayEffect';
-      case _isc380kv.AwayRule():
-        return 'AwayRule';
       case _imnq0nzy.Chore():
         return 'Chore';
       case _ilggw95u.DeviceToken():
@@ -1352,6 +1349,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           ? className
           : 'serverpod_auth_core.$className';
     }
+    className = _ij0lpv6z.Protocol().getClassNameForObject(data);
+    if (className != null) {
+      return className.contains('.')
+          ? className
+          : 'flatmates_shared.$className';
+    }
     className = _isp.Protocol().getClassNameForObject(data);
     if (className != null) {
       return className.contains('.') ? className : 'serverpod.$className';
@@ -1370,9 +1373,6 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'AwayEffect') {
       return deserialize<_i3z62lxk.AwayEffect>(data['data']);
-    }
-    if (dataClassName == 'AwayRule') {
-      return deserialize<_isc380kv.AwayRule>(data['data']);
     }
     if (dataClassName == 'Chore') {
       return deserialize<_imnq0nzy.Chore>(data['data']);
@@ -1439,6 +1439,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       data['className'] = dataClassName.substring(20);
       return _iacs.Protocol().deserializeByClassName(data);
     }
+    if (dataClassName.startsWith('flatmates_shared.')) {
+      data['className'] = dataClassName.substring(17);
+      return _ij0lpv6z.Protocol().deserializeByClassName(data);
+    }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
       return _isp.Protocol().deserializeByClassName(data);
@@ -1449,6 +1453,7 @@ class Protocol extends _is.DatabaseSerializationManager {
   void _registerHostProtocols() {
     _iais.Protocol().registerHostProtocol('flatmates', this);
     _iacs.Protocol().registerHostProtocol('flatmates', this);
+    _ij0lpv6z.Protocol().registerHostProtocol('flatmates', this);
   }
 
   @override
@@ -1461,6 +1466,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     {
       var table = _iacs.Protocol().getTableForType(t);
+      if (table != null) {
+        return table;
+      }
+    }
+    {
+      var protocol = _ij0lpv6z.Protocol();
+      var table = protocol is _is.DatabaseSerializationManager
+          ? (protocol as _is.DatabaseSerializationManager).getTableForType(t)
+          : null;
       if (table != null) {
         return table;
       }

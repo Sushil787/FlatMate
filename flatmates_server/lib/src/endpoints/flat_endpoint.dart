@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';

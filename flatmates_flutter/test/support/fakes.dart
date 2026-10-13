@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flatmates_flutter/core/utils/day.dart';
 import 'package:flatmates_flutter/core/services/push_service.dart';
 import 'package:flatmates_flutter/features/auth/application/auth_controller.dart';

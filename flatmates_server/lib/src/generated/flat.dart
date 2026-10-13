@@ -10,8 +10,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
-import 'away_rule.dart' as _isc380kv;
 
 /// The shared home; the boundary for everything else.
 abstract class Flat
@@ -38,7 +38,7 @@ abstract class Flat
     _is.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -60,7 +60,7 @@ abstract class Flat
       inviteExpiresAt: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['inviteExpiresAt'],
       ),
-      awayRule: _isc380kv.AwayRule.fromJson(
+      awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
       morningSummaryAt: jsonSerialization['morningSummaryAt'] as int?,
@@ -92,7 +92,7 @@ abstract class Flat
   /// When [inviteCode] stops working; 7 days after it was made.
   DateTime inviteExpiresAt;
 
-  _isc380kv.AwayRule awayRule;
+  _ij0lpv6z.AwayRule awayRule;
 
   /// When each Mate gets the push about their Turns starting that day, in
   /// minutes after local midnight; the Admin sets it.
@@ -115,7 +115,7 @@ abstract class Flat
     _is.UuidValue? adminMateId,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -192,7 +192,7 @@ class _FlatImpl extends Flat {
     _is.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -220,7 +220,7 @@ class _FlatImpl extends Flat {
     Object? adminMateId = _Undefined,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -273,8 +273,8 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
         value,
       );
 
-  _is.ColumnValue<_isc380kv.AwayRule, _isc380kv.AwayRule> awayRule(
-    _isc380kv.AwayRule value,
+  _is.ColumnValue<_ij0lpv6z.AwayRule, _ij0lpv6z.AwayRule> awayRule(
+    _ij0lpv6z.AwayRule value,
   ) => _is.ColumnValue(
     table.awayRule,
     value,
@@ -357,7 +357,7 @@ class FlatTable extends _is.Table<_is.UuidValue?> {
   /// When [inviteCode] stops working; 7 days after it was made.
   late final _is.ColumnDateTime inviteExpiresAt;
 
-  late final _is.ColumnEnum<_isc380kv.AwayRule> awayRule;
+  late final _is.ColumnEnum<_ij0lpv6z.AwayRule> awayRule;
 
   /// When each Mate gets the push about their Turns starting that day, in
   /// minutes after local midnight; the Admin sets it.

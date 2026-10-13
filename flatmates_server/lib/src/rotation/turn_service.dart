@@ -1,3 +1,4 @@
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';
@@ -6,7 +7,6 @@ import '../generated/future_calls.dart';
 import '../generated/protocol.dart';
 import '../notify/digests.dart';
 import '../notify/notifier.dart';
-import 'planner.dart';
 
 /// How long before a Turn ends its Mate is reminded.
 const reminderLead = Duration(hours: 3);
@@ -159,11 +159,14 @@ class TurnService {
         chore,
         extraAway: extraAway,
       );
-      var index = chore.rotationIndex;
-      var day = nextTurnDay(latest.day, latest.lastDay, chore.period);
-      for (var i = 0; i < 200 && !day.isAfter(until); i++) {
-        final plan = planNextTurn(state, index, day);
-        if (plan == null) break;
+      for (final plan in projectChoreTurns(
+        state,
+        rotationIndex: chore.rotationIndex,
+        period: chore.period,
+        day: latest.day,
+        lastDay: latest.lastDay,
+        until: until,
+      )) {
         projected.add(
           Turn(
             flatId: flat.id!,
@@ -175,8 +178,6 @@ class TurnService {
             status: TurnStatus.active,
           ),
         );
-        index = plan.rotationIndex;
-        day = nextTurnDay(plan.day, plan.lastDay, chore.period);
       }
     }
     return projected;

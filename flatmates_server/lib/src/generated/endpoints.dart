@@ -10,9 +10,9 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/future_calls.dart' as _idh4zhdh;
 import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -730,7 +730,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'rule': _is.ParameterDescription(
               name: 'rule',
-              type: _is.getType<_i2u6twoh.AwayRule>(),
+              type: _is.getType<_ij0lpv6z.AwayRule>(),
               nullable: false,
             ),
           },

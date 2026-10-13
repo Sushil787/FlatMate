@@ -1,4 +1,5 @@
 import 'package:flatmates_server/src/day.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flatmates_server/src/generated/protocol.dart';
 import 'package:flatmates_server/src/notify/notifier.dart';
 import 'package:flatmates_server/src/rotation/turn_service.dart';

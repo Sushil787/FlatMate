@@ -10,8 +10,9 @@ Flatmates: a Flutter app plus a Serverpod 3.4/4.x backend for sharing recurring 
 
 ## Layout
 
-This is a Dart pub workspace (root `pubspec.yaml`) with three packages:
+This is a Dart pub workspace (root `pubspec.yaml`) with four packages:
 - `flatmates_server/`: the Serverpod server. Models live in `lib/src/models/*.spy.yaml` and endpoints in `lib/src/endpoints/`.
+- `flatmates_shared/`: pure Dart used by both server and app: the Rotation planner (`lib/src/planner.dart`) and shared models (`AwayRule`). It's a Serverpod `shared_packages` entry, so its `.spy.yaml` files are generated into `lib/src/generated/` by `serverpod generate`.
 - `flatmates_client/`: **generated** by `serverpod generate`. Never edit it by hand.
 - `flatmates_flutter/`: the app (Riverpod 3, hand-written providers with no codegen, and auto_route).
 
@@ -26,7 +27,7 @@ serverpod generate                       # after changing a .spy.yaml or an endp
 serverpod create-migration               # after a model/table change; commit the migrations/ dir
 dart test                                # all tests (integration tests need the docker Postgres)
 dart test -x integration                 # unit tests only
-dart test test/unit/planner_test.dart    # a single file; add --name '<pattern>' for a single test
+dart test test/unit/day_test.dart        # a single file; add --name '<pattern>' for a single test
 
 # app
 cd flatmates_flutter
@@ -42,7 +43,7 @@ flutter run                              # server URL comes from assets/config.j
 
 **Live updates.** `broadcast` posts to the Serverpod message channel `flat-<id>`. `FlatEndpoint.changes()` streams that channel to the app. In the app, `flatChangesProvider` (`features/flat/application/flat_changes.dart`) reconnects on its own and emits `flat` after a reconnect. `flatSyncProvider` (`features/home/application/flat_sync.dart`) maps each `FlatChangeKind` to the providers it should refresh or invalidate. If you add a new kind of data, you need a new `FlatChangeKind` value and a case in `flatSync`.
 
-**Rotation.** `lib/src/rotation/planner.dart` holds the pure planning logic, and `planner_test.dart` unit-tests it. `turn_service.dart` handles persistence and schedules the turn start, the 3-hour reminder and the turn end as FutureCalls (`future_calls/turn_calls.dart`), so they survive restarts. `SwapDebt` records who owes whom under the Swap rule. Notifications go through `notify/notifier.dart`, which logs them instead of sending when no `fcmServiceAccount` is configured.
+**Rotation.** `flatmates_shared/lib/src/planner.dart` holds the pure planning logic (`cd flatmates_shared && dart test` unit-tests it). `turn_service.dart` handles persistence and schedules the turn start, the 3-hour reminder and the turn end as FutureCalls (`future_calls/turn_calls.dart`), so they survive restarts. `SwapDebt` records who owes whom under the Swap rule. Notifications go through `notify/notifier.dart`, which logs them instead of sending when no `fcmServiceAccount` is configured.
 
 **App feature layout.** Each feature lives in `lib/features/<feature>/` and is split into these folders:
 - `data/`: a repository that wraps the generated client endpoint.

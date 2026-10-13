@@ -10,8 +10,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
-import 'away_rule.dart' as _isc380kv;
 
 /// The shared home; the boundary for everything else.
 abstract class Flat
@@ -38,7 +38,7 @@ abstract class Flat
     _isc.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -60,7 +60,7 @@ abstract class Flat
       inviteExpiresAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['inviteExpiresAt'],
       ),
-      awayRule: _isc380kv.AwayRule.fromJson(
+      awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
       morningSummaryAt: jsonSerialization['morningSummaryAt'] as int?,
@@ -90,7 +90,7 @@ abstract class Flat
   /// When [inviteCode] stops working; 7 days after it was made.
   DateTime inviteExpiresAt;
 
-  _isc380kv.AwayRule awayRule;
+  _ij0lpv6z.AwayRule awayRule;
 
   /// When each Mate gets the push about their Turns starting that day, in
   /// minutes after local midnight; the Admin sets it.
@@ -110,7 +110,7 @@ abstract class Flat
     _isc.UuidValue? adminMateId,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -165,7 +165,7 @@ class _FlatImpl extends Flat {
     _isc.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -193,7 +193,7 @@ class _FlatImpl extends Flat {
     Object? adminMateId = _Undefined,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,

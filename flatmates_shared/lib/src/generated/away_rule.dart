@@ -10,10 +10,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_serialization/serverpod_serialization.dart' as _iss;
 
 /// What happens to an Away Mate's Turns. One rule per Flat, set by the Admin.
-enum AwayRule implements _isc.SerializableModel {
+enum AwayRule implements _iss.SerializableModel {
   swap,
   skip,
   pause;

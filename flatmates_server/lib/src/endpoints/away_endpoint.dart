@@ -1,9 +1,9 @@
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
-import '../rotation/planner.dart';
 import '../rotation/turn_service.dart';
 
 /// Marking yourself Away.

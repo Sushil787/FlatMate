@@ -1,15 +1,14 @@
-import 'package:flatmates_server/src/day.dart';
-import 'package:flatmates_server/src/generated/protocol.dart';
-import 'package:flatmates_server/src/rotation/planner.dart';
-import 'package:serverpod/serverpod.dart' show UuidValue;
+import 'package:flatmates_shared/flatmates_shared.dart';
+import 'package:serverpod_serialization/serverpod_serialization.dart'
+    show UuidValue;
 import 'package:test/test.dart';
 
 final priya = UuidValue.fromString('00000000-0000-7000-8000-000000000001'),
     sam = UuidValue.fromString('00000000-0000-7000-8000-000000000002'),
     alex = UuidValue.fromString('00000000-0000-7000-8000-000000000003');
 const week = Duration(days: 7);
-final d0 = Day.of(2026, 10, 5);
-DateTime day(int n) => Day.add(d0, n);
+final d0 = DateTime.utc(2026, 10, 5, 12);
+DateTime day(int n) => d0.add(Duration(days: n));
 
 PlannerState state({
   List<UuidValue>? rotation,
@@ -39,35 +38,6 @@ List<PlannedTurn> plan(PlannerState s, int count) {
 }
 
 void main() {
-  group('Day', () {
-    test('adding days never shifts the date, even across DST', () {
-      var d = Day.of(2026, 1, 1);
-      for (var i = 0; i < 400; i++) {
-        d = Day.add(d, 1);
-        expect(d.hour, 12);
-      }
-      expect(d, Day.of(2027, 2, 5));
-    });
-
-    test('a day starts and ends at local midnight', () {
-      final d = Day.of(2026, 10, 18);
-      expect(
-        Day.start('Asia/Kathmandu', d),
-        DateTime.utc(2026, 10, 17, 18, 15),
-      );
-      expect(Day.end('Asia/Kathmandu', d), DateTime.utc(2026, 10, 18, 18, 15));
-      // The day clocks go back in Berlin is 25 hours long.
-      final dst = Day.of(2026, 10, 25);
-      expect(
-        Day.end(
-          'Europe/Berlin',
-          dst,
-        ).difference(Day.start('Europe/Berlin', dst)),
-        const Duration(hours: 25),
-      );
-    });
-  });
-
   test('a Turn is one day, and the next is one period later', () {
     final turns = plan(state(), 4);
     expect(turns.map((t) => t.mateId), [priya, sam, alex, priya]);

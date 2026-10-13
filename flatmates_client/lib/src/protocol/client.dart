@@ -13,7 +13,6 @@
 import 'dart:async' as _ida;
 import 'package:flatmates_client/src/protocol/away.dart' as _irs4lusq;
 import 'package:flatmates_client/src/protocol/away_effect.dart' as _ivmd14y1;
-import 'package:flatmates_client/src/protocol/away_rule.dart' as _i2aenio5;
 import 'package:flatmates_client/src/protocol/chore.dart' as _ipou5iyr;
 import 'package:flatmates_client/src/protocol/event.dart' as _igj22k42;
 import 'package:flatmates_client/src/protocol/flat.dart' as _iy3ygg88;
@@ -25,6 +24,7 @@ import 'package:flatmates_client/src/protocol/my_flat.dart' as _i9fyr2h8;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
 import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
@@ -428,7 +428,7 @@ class EndpointFlat extends _isc.EndpointRef {
   );
 
   /// Sets the Flat-wide Away rule.
-  _ida.Future<_iy3ygg88.Flat> setAwayRule(_i2aenio5.AwayRule rule) =>
+  _ida.Future<_iy3ygg88.Flat> setAwayRule(_ij0lpv6z.AwayRule rule) =>
       caller.callServerEndpoint<_iy3ygg88.Flat>(
         'flat',
         'setAwayRule',
