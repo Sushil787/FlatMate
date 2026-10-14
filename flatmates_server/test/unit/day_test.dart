@@ -36,6 +36,11 @@ void main() {
     expect(Day.isKnown('UTC'), isTrue);
   });
 
+  test('old zone names Android still reports are known', () {
+    expect(Day.isKnown('Asia/Katmandu'), isTrue);
+    expect(Day.today('Asia/Katmandu'), Day.today('Asia/Kathmandu'));
+  });
+
   group('Day', () {
     test('adding days never shifts the date, even across DST', () {
       var d = Day.of(2026, 1, 1);
