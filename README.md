@@ -10,6 +10,9 @@ The app is built with Flutter (iOS, Android and web) and talks to a [Serverpod](
 > [!IMPORTANT]
 > **Want to run it?** Check the [Requirements](#requirements), then follow the four steps in [Getting started](#getting-started). You also need to set up [Google sign-in](#google-sign-in), because it is the only way to sign in.
 
+> [!NOTE]
+> **Tested on Android only.** The app has been built, tested and run on Android phones. The project includes an iOS target, but it hasn't been tested on iOS, so the build, sign-in or push notifications may not work there yet.
+
 ---
 
 ## Screens

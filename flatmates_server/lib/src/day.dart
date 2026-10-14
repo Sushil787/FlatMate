@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Calendar days (Turns, Chore start, Away) are stored as 12:00 UTC on that
