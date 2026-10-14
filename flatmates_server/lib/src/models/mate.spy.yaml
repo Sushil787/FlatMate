@@ -20,6 +20,9 @@ fields:
   ### False until the Admin has seen that this Mate joined and picked their
   ### Chores (or chose to do it later).
   welcomed: bool, default=true
+  ### When the Mate finished the practice run after joining or creating the
+  ### Flat; null until then, so the app shows it again.
+  onboardedAt: DateTime?
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

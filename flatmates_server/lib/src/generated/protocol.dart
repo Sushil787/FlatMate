@@ -664,6 +664,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnDefault: 'true',
         ),
         _isp.ColumnDefinition(
+          name: 'onboardedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
           name: 'createdAt',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,

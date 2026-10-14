@@ -89,7 +89,6 @@ class HomeScreen extends ConsumerWidget {
       );
     }
 
-    final me = directory.me.id!;
     // Only a Turn on today: one whose day is over is Missed, even if the
     // server hasn't said so yet.
     final now = DateTime.now();
@@ -126,7 +125,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           )
         else if (doneToday.isEmpty)
-          _NoTurnCard(overview: overview, me: me),
+          _NoTurnCard(overview: overview, directory: directory),
         if (doneToday.isNotEmpty) _DoneToday(doneToday),
         const _NoticeAndGroceries(),
         if (upNext.isNotEmpty)
@@ -273,14 +272,14 @@ class _UndoButton extends ConsumerWidget {
 
 /// When it isn't the signed-in Mate's Turn today: when their next one is.
 class _NoTurnCard extends StatelessWidget {
-  const _NoTurnCard({required this.overview, required this.me});
+  const _NoTurnCard({required this.overview, required this.directory});
 
   final ChoresOverview overview;
-  final UuidValue me;
+  final MateDirectory directory;
 
   @override
   Widget build(BuildContext context) {
-    final next = overview.openTurnsOf(me).firstOrNull;
+    final next = overview.openTurnsOf(directory.me.id!).firstOrNull;
     return RowCard(
       children: [
         AppRow(
@@ -290,9 +289,13 @@ class _NoTurnCard extends StatelessWidget {
           ),
           title: const Text('No Turn for you today'),
           meta: Text(
-            next == null
+            next != null
+                ? 'Next: ${next.$1.name} · ${_when(next.$2).day}'
+                // Just joined: the Admin picks their Chores.
+                : directory.me.welcomed
                 ? 'Nothing coming up for you yet.'
-                : 'Next: ${next.$1.name} · ${_when(next.$2).day}',
+                : '${directory.realNameOf(directory.flat.adminMateId)} '
+                      'will add you to a Rotation soon.',
           ),
           onTap: next == null
               ? null

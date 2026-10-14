@@ -49,6 +49,7 @@ Future<void> seedDevData(Session session) async {
       authUserId: await user(devAccounts[0].name, devAccounts[0].email),
       displayName: devAccounts[0].name,
       joinedAt: now,
+      onboardedAt: now,
       color: MateColor.tomato,
     ),
   );
@@ -59,6 +60,7 @@ Future<void> seedDevData(Session session) async {
       authUserId: await user(devAccounts[1].name, devAccounts[1].email),
       displayName: devAccounts[1].name,
       joinedAt: now,
+      onboardedAt: now,
       color: MateColor.sky,
     ),
   );

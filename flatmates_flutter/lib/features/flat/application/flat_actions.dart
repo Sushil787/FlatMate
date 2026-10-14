@@ -83,6 +83,16 @@ class SetMorningSummary extends ActionNotifier {
       guard(() => _flat(ref).setMorningSummaryAt(minutes));
 }
 
+/// Finishing onboarding.
+final finishOnboardingProvider =
+    AsyncNotifierProvider.autoDispose<FinishOnboarding, void>(
+      FinishOnboarding.new,
+    );
+
+class FinishOnboarding extends ActionNotifier {
+  Future<bool> run() => guard(() => _flat(ref).finishOnboarding());
+}
+
 /// Answering the new-Mate dialog: adding them to Chores, or not, by Mate id.
 final welcomeMateProvider = AsyncNotifierProvider.autoDispose
     .family<WelcomeMate, void, UuidValue>(WelcomeMate.new);

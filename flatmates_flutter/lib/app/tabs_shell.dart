@@ -103,6 +103,7 @@ class _TabsShellState extends ConsumerState<TabsShell> {
     super.initState();
     final push = ref.read(pushServiceProvider);
     _incomingSub = push.foreground.listen(_showIncoming);
+    // Only the token: onboarding asks for permission.
     push.register();
     ref.listenManual(
       myFlatControllerProvider,

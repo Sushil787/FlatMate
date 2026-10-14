@@ -64,6 +64,16 @@ void main() {
       expect(mine.mates.map((m) => m.displayName), ['Priya', 'Sam', 'Alex']);
     });
 
+    test('a new Mate has not onboarded until they finish, once', () async {
+      expect((await endpoints.flat.mine(sam))!.me.onboardedAt, isNull);
+      final first = await endpoints.flat.finishOnboarding(sam);
+      expect(first.onboardedAt, isNotNull);
+      final again = await endpoints.flat.finishOnboarding(sam);
+      expect(again.onboardedAt, first.onboardedAt);
+      // Only Sam's own Mate changes.
+      expect((await endpoints.flat.mine(alex))!.me.onboardedAt, isNull);
+    });
+
     test('a wrong invite code is rejected', () async {
       final stranger = as('00000000-0000-4000-8000-000000000009');
       await expectLater(

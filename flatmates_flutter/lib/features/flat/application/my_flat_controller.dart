@@ -105,6 +105,12 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
     }
   }
 
+  /// Onboarding done: Home opens at once; rolls back if the server says no.
+  Future<void> finishOnboarding() => _updateMe(
+    (me) => me.copyWith(onboardedAt: DateTime.now().toUtc()),
+    (_) => _repo.finishOnboarding(),
+  );
+
   Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) async {
     await _repo.welcomeMate(mateId, choreIds);
     await refresh();

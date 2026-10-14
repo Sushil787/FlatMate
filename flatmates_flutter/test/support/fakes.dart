@@ -43,8 +43,16 @@ class FakeBackend {
   /// Push notifications arriving while the app is open.
   final pushes = StreamController<RemoteNotification>.broadcast();
 
+  /// Whether the phone shows notifications; [pushAsked] counts prompts.
+  bool pushAllowed = true;
+  int pushAsked = 0;
+
+  /// Calls to finishOnboarding.
+  int onboardingFinished = 0;
+
   static final priya = uid(1), sam = uid(2), alex = uid(3);
 
+  /// Priya, Sam and Alex, all past onboarding.
   MyFlat _flat({String name = 'Priya'}) {
     final flat = Flat(
       id: uid(10),
@@ -64,6 +72,7 @@ class FakeBackend {
       ),
       displayName: n,
       joinedAt: DateTime.now(),
+      onboardedAt: DateTime.now(),
       color: MateColor.values[i - 1],
     );
     final me = mate(priya, name, 1);
@@ -113,7 +122,7 @@ class FakeBackend {
         email: 'priya@example.com',
       ),
     ),
-    pushServiceProvider.overrideWithValue(_NoPush(pushes.stream)),
+    pushServiceProvider.overrideWithValue(_NoPush(this)),
     flatRepositoryProvider.overrideWithValue(_FlatRepo(this)),
     choreRepositoryProvider.overrideWithValue(_ChoreRepo(this)),
     awayRepositoryProvider.overrideWithValue(_AwayRepo(this)),
@@ -129,11 +138,19 @@ class _SignedIn extends AuthController {
 }
 
 class _NoPush implements PushService {
-  _NoPush(this.foreground);
+  _NoPush(this.b);
+  final FakeBackend b;
   @override
-  final Stream<RemoteNotification> foreground;
+  Stream<RemoteNotification> get foreground => b.pushes.stream;
   @override
   Future<void> register() async {}
+  @override
+  Future<bool> allowed() async => b.pushAllowed;
+  @override
+  Future<bool> ask() async {
+    b.pushAsked++;
+    return b.pushAllowed = true;
+  }
 }
 
 class _FlatRepo implements FlatRepository {
@@ -148,7 +165,13 @@ class _FlatRepo implements FlatRepository {
   Future<MyFlat> create({
     required String flatName,
     required String myName,
-  }) async => b.myFlat = b._flat(name: myName);
+  }) async {
+    // A new Flat: Priya alone, not onboarded yet.
+    final flat = b._flat(name: myName);
+    flat.me.onboardedAt = null;
+    return b.myFlat = flat..mates = [flat.me];
+  }
+
   @override
   Future<MyFlat> join({
     required String inviteCode,
@@ -159,7 +182,13 @@ class _FlatRepo implements FlatRepository {
         message: 'That invite code doesn\'t match any flat.',
       );
     }
-    return b.myFlat = b._flat(name: myName);
+    // Joined as a Mate: Sam is the Admin, and hasn't added them to Chores.
+    final flat = b._flat(name: myName);
+    flat.flat.adminMateId = FakeBackend.sam;
+    flat.me
+      ..welcomed = false
+      ..onboardedAt = null;
+    return b.myFlat = flat;
   }
 
   @override
@@ -179,6 +208,12 @@ class _FlatRepo implements FlatRepository {
   Future<Mate> setMyColor(MateColor color) async => b.myFlat!.me..color = color;
   @override
   Future<Mate> setNotifications(Mate me) async => me;
+  @override
+  Future<Mate> finishOnboarding() async {
+    b.onboardingFinished++;
+    return b.myFlat!.me..onboardedAt = DateTime.now();
+  }
+
   @override
   Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) async {
     for (final c in b.chores.where((c) => choreIds.contains(c.id))) {

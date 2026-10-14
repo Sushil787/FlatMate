@@ -135,6 +135,8 @@ class FlatRepository {
     addedToRotation: me.notifyAddedToRotation,
   );
 
+  Future<Mate> finishOnboarding() => _client.flat.finishOnboarding();
+
   Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) =>
       _client.flat.welcomeMate(mateId, choreIds);
 

@@ -30,6 +30,7 @@ abstract class Mate
     bool? notifyNotice,
     bool? notifyAddedToRotation,
     bool? welcomed,
+    this.onboardedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : color = color ?? _ieys87jp.MateColor.tomato,
@@ -56,6 +57,7 @@ abstract class Mate
     bool? notifyNotice,
     bool? notifyAddedToRotation,
     bool? welcomed,
+    DateTime? onboardedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _MateImpl;
@@ -105,6 +107,11 @@ abstract class Mate
       welcomed: jsonSerialization['welcomed'] == null
           ? null
           : _is.BoolJsonExtension.fromJson(jsonSerialization['welcomed']),
+      onboardedAt: jsonSerialization['onboardedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['onboardedAt'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -149,6 +156,10 @@ abstract class Mate
   /// Chores (or chose to do it later).
   bool welcomed;
 
+  /// When the Mate finished the practice run after joining or creating the
+  /// Flat; null until then, so the app shows it again.
+  DateTime? onboardedAt;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -173,6 +184,7 @@ abstract class Mate
     bool? notifyNotice,
     bool? notifyAddedToRotation,
     bool? welcomed,
+    DateTime? onboardedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -193,6 +205,7 @@ abstract class Mate
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
       'welcomed': welcomed,
+      if (onboardedAt != null) 'onboardedAt': onboardedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -215,6 +228,7 @@ abstract class Mate
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
       'welcomed': welcomed,
+      if (onboardedAt != null) 'onboardedAt': onboardedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -265,6 +279,7 @@ class _MateImpl extends Mate {
     bool? notifyNotice,
     bool? notifyAddedToRotation,
     bool? welcomed,
+    DateTime? onboardedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -281,6 +296,7 @@ class _MateImpl extends Mate {
          notifyNotice: notifyNotice,
          notifyAddedToRotation: notifyAddedToRotation,
          welcomed: welcomed,
+         onboardedAt: onboardedAt,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -303,6 +319,7 @@ class _MateImpl extends Mate {
     bool? notifyNotice,
     bool? notifyAddedToRotation,
     bool? welcomed,
+    Object? onboardedAt = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -321,6 +338,7 @@ class _MateImpl extends Mate {
       notifyAddedToRotation:
           notifyAddedToRotation ?? this.notifyAddedToRotation,
       welcomed: welcomed ?? this.welcomed,
+      onboardedAt: onboardedAt is DateTime? ? onboardedAt : this.onboardedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -398,6 +416,12 @@ class MateUpdateTable extends _is.UpdateTable<MateTable> {
     value,
   );
 
+  _is.ColumnValue<DateTime, DateTime> onboardedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.onboardedAt,
+        value,
+      );
+
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
         table.createdAt,
@@ -470,6 +494,10 @@ class MateTable extends _is.Table<_is.UuidValue?> {
       this,
       hasDefault: true,
     );
+    onboardedAt = _is.ColumnDateTime(
+      'onboardedAt',
+      this,
+    );
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
@@ -512,6 +540,10 @@ class MateTable extends _is.Table<_is.UuidValue?> {
   /// Chores (or chose to do it later).
   late final _is.ColumnBool welcomed;
 
+  /// When the Mate finished the practice run after joining or creating the
+  /// Flat; null until then, so the app shows it again.
+  late final _is.ColumnDateTime onboardedAt;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -531,6 +563,7 @@ class MateTable extends _is.Table<_is.UuidValue?> {
     notifyNotice,
     notifyAddedToRotation,
     welcomed,
+    onboardedAt,
     createdAt,
     updatedAt,
   ];

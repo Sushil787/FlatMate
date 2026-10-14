@@ -932,6 +932,16 @@ class Endpoints extends _is.EndpointDispatch {
                     params['choreIds'],
                   ),
         ),
+        'finishOnboarding': _is.MethodConnector(
+          name: 'finishOnboarding',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
+                  .finishOnboarding(session),
+        ),
         'setMorningSummaryAt': _is.MethodConnector(
           name: 'setMorningSummaryAt',
           params: {

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../../app/router.gr.dart';
 import '../../../core/theme/app_theme.dart';
@@ -22,6 +21,7 @@ import '../../board/application/notices_controller.dart';
 import '../application/mate_directory.dart';
 import '../application/flat_actions.dart';
 import 'widgets/name_sheet.dart';
+import 'widgets/share_invite.dart';
 import '../../../core/widgets/app_icon.dart';
 
 /// The Flat tab: Mates, the Invite, the Away rule, and the way to the
@@ -493,18 +493,8 @@ class _InviteCard extends ConsumerWidget {
     ).showSnackBar(const SnackBar(content: Text('Invite code copied')));
   }
 
-  Future<void> _share(BuildContext context) {
-    // iPads anchor the share sheet to a rect, so point it at this card.
-    final box = context.findRenderObject() as RenderBox?;
-    return SharePlus.instance.share(
-      ShareParams(
-        text: 'Join $flatName on Flatmates with code $code',
-        sharePositionOrigin: box == null
-            ? null
-            : box.localToGlobal(Offset.zero) & box.size,
-      ),
-    );
-  }
+  Future<void> _share(BuildContext context) =>
+      shareInvite(context, flatName: flatName, code: code);
 
   Future<void> _regenerate(
     BuildContext context,

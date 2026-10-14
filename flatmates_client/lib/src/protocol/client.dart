@@ -621,6 +621,15 @@ class EndpointFlat extends _isc.EndpointRef {
     },
   );
 
+  /// Records that the signed-in Mate finished onboarding. Keeps the first
+  /// time if called again.
+  _ida.Future<_iynws3fs.Mate> finishOnboarding() =>
+      caller.callServerEndpoint<_iynws3fs.Mate>(
+        'flat',
+        'finishOnboarding',
+        {},
+      );
+
   /// Sets when the morning summary goes out, in minutes after local
   /// midnight. It has to come before the evening push.
   _ida.Future<_iy3ygg88.Flat> setMorningSummaryAt(int minutes) =>

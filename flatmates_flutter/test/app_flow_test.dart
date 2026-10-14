@@ -40,6 +40,34 @@ Future<void> scrollTo(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// The practice Mark Done and Away steps; [cover] covers the Away Turn.
+Future<void> practiseDoneAndAway(
+  WidgetTester tester, {
+  required String cover,
+}) async {
+  await tester.ensureVisible(find.text('Mark Done'));
+  await tester.tap(find.text('Mark Done'));
+  await tester.pumpAndSettle();
+  expect(find.textContaining('Done ·'), findsOneWidget);
+  await tester.tap(find.text('Next'));
+  await tester.pumpAndSettle();
+
+  await tester.ensureVisible(find.text('Mark myself Away'));
+  await tester.tap(find.text('Mark myself Away'));
+  await tester.pumpAndSettle();
+  expect(find.textContaining('$cover covers'), findsOneWidget);
+  await tester.ensureVisible(find.text('Mark me Away'));
+  await tester.tap(find.text('Mark me Away'));
+  await tester.pumpAndSettle();
+  expect(find.textContaining('$cover covers'), findsOneWidget);
+  await tester.tap(
+    find.text('Next').evaluate().isEmpty
+        ? find.text('Start using Flatmates')
+        : find.text('Next'),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('a user without a Flat joins one with an Invite code', (
     tester,
@@ -65,8 +93,87 @@ void main() {
     await tester.enterText(find.byType(TextField).last, 'abc234');
     await tester.tap(find.text('Join'));
     await tester.pumpAndSettle();
+    // Onboarding: who's here, and that the Admin adds them to Chores.
+    expect(find.text('You\'re in Elm St.'), findsOneWidget);
+    expect(find.textContaining('Sam will add you'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await practiseDoneAndAway(tester, cover: 'Sam');
+
     expect(find.text('Hi Priya'), findsOneWidget);
     expect(find.textContaining('Elm St'), findsOneWidget);
+    expect(backend.onboardingFinished, 1);
+    expect(backend.pushAsked, 0);
+  });
+
+  testWidgets('a new Admin practises a Chore, the Invite, Mark Done and '
+      'Away, and nothing but onboardedAt is saved', (tester) async {
+    final backend = FakeBackend(inFlat: false)..pushAllowed = false;
+    await pumpApp(tester, backend);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Maple Street 12'),
+      'Elm St',
+    );
+    await tester.tap(find.text('Create Flat'));
+    await tester.pumpAndSettle();
+
+    // A Chore in the real editor; Maya and Sam from the story fill the Flat.
+    expect(find.textContaining('then Maya and Sam'), findsOneWidget);
+    await tester.tap(find.text('+ Do the dishes'));
+    await tester.pumpAndSettle();
+    expect(find.text('3 Mates'), findsOneWidget);
+    await tester.tap(find.text('Save Chore'));
+    await tester.pumpAndSettle();
+    expect(find.text('Every week · You, Maya and Sam'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    // The real Invite.
+    expect(find.text('Share Invite'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    await practiseDoneAndAway(tester, cover: 'Maya');
+
+    // The soft ask, then the phone's prompt.
+    expect(backend.pushAsked, 0);
+    await tester.tap(find.text('Turn on notifications'));
+    await tester.pumpAndSettle();
+    expect(backend.pushAsked, 1);
+
+    expect(find.text('Hi Priya'), findsOneWidget);
+    expect(find.text('NO CHORES YET'), findsOneWidget);
+    expect(backend.onboardingFinished, 1);
+    expect(backend.chores, isEmpty);
+    expect(backend.turns, isEmpty);
+    expect(backend.doneTurnIds, isEmpty);
+    expect(backend.aways, isEmpty);
+  });
+
+  testWidgets('onboarding fits at 360dp with 200% text', (tester) async {
+    final backend = FakeBackend(inFlat: false)..pushAllowed = false;
+    await pumpApp(tester, backend);
+    tester.view.physicalSize = const Size(360 * 3, 2400);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'abc234');
+    // Sent from the keyboard: the Join button's spot is crowded at 200%.
+    await tester.testTextInput.receiveAction(TextInputAction.go);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await practiseDoneAndAway(tester, cover: 'Sam');
+    expect(find.text('Turn on notifications'), findsOneWidget);
+  });
+
+  testWidgets('a Mate past onboarding goes straight to Home', (tester) async {
+    final backend = FakeBackend();
+    await pumpApp(tester, backend);
+    expect(find.text('Hi Priya'), findsOneWidget);
+    expect(backend.onboardingFinished, 0);
   });
 
   testWidgets('my Turn is the hero card; Mark Done and Undo', (tester) async {

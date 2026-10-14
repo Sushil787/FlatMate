@@ -227,6 +227,15 @@ class FlatEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.flat);
   }
 
+  /// Records that the signed-in Mate finished onboarding. Keeps the first
+  /// time if called again.
+  Future<Mate> finishOnboarding(Session session) async {
+    final (:me, flat: _) = await requireMate(session);
+    if (me.onboardedAt != null) return me;
+    me.onboardedAt = DateTime.now().toUtc();
+    return Mate.db.updateRow(session, me);
+  }
+
   /// Sets when the morning summary goes out, in minutes after local
   /// midnight. It has to come before the evening push.
   Future<Flat> setMorningSummaryAt(Session session, int minutes) async {

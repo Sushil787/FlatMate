@@ -11,6 +11,7 @@ import 'app/app.dart';
 import 'core/providers/client_provider.dart';
 import 'core/providers/read_cache.dart';
 import 'core/providers/theme_mode_provider.dart';
+import 'features/onboarding/application/onboarding_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +47,7 @@ Future<void> main() async {
 
   final prefs = await SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
-      allowList: {ThemeModeController.key},
+      allowList: {ThemeModeController.key, StorySeen.key},
     ),
   );
 

@@ -25,14 +25,62 @@ import '../../../core/widgets/app_icon.dart';
 Future<void> showAwaySheet(BuildContext context) =>
     showAppSheet(context, const _AwaySheet());
 
-class _AwaySheet extends ConsumerStatefulWidget {
+/// The sheet on the signed-in Mate's Flat, saved on the server.
+class _AwaySheet extends ConsumerWidget {
   const _AwaySheet();
 
   @override
-  ConsumerState<_AwaySheet> createState() => _AwaySheetState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final directory = ref.watch(mateDirectoryProvider);
+    final chores = ref.watch(choresControllerProvider).value;
+    return AwaySheetView(
+      directory: directory,
+      aways: ref.watch(awaysControllerProvider).value ?? const [],
+      saving: ref.watch(markAwayProvider).isLoading,
+      onSave: (startDay, lastDay) => runAction(
+        context,
+        () => ref.read(markAwayProvider.notifier).run(startDay, lastDay),
+        success: 'You\'re marked Away. Have a good trip!',
+      ),
+      preview: (startDay, lastDay) => Consumer(
+        builder: (context, ref, _) => AwayEffectsView(
+          effects: ref.watch(
+            awayPreviewProvider((startDay: startDay, lastDay: lastDay)),
+          ),
+          directory: directory,
+          choreName: (id) => chores?.choreById(id)?.name ?? 'Chore',
+        ),
+      ),
+    );
+  }
 }
 
-class _AwaySheetState extends ConsumerState<_AwaySheet> {
+/// The "Mark myself Away" sheet on any Flat's data: [onSave] gets the
+/// stored first and last Away days and says whether it worked; [preview]
+/// shows what those days do to the Mate's Turns.
+class AwaySheetView extends StatefulWidget {
+  const AwaySheetView({
+    super.key,
+    required this.directory,
+    required this.aways,
+    required this.saving,
+    required this.onSave,
+    required this.preview,
+  });
+
+  final MateDirectory directory;
+
+  /// The Flat's Aways; days in the Mate's own can't be picked again.
+  final List<Away> aways;
+  final bool saving;
+  final Future<bool> Function(DateTime startDay, DateTime lastDay) onSave;
+  final Widget Function(DateTime startDay, DateTime lastDay) preview;
+
+  @override
+  State<AwaySheetView> createState() => _AwaySheetViewState();
+}
+
+class _AwaySheetViewState extends State<AwaySheetView> {
   final _today = DateUtils.dateOnly(DateTime.now());
   late DateTime _from = _today;
 
@@ -59,12 +107,9 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
   });
 
   Future<void> _save() async {
-    final ok = await runAction(
-      context,
-      () => ref
-          .read(markAwayProvider.notifier)
-          .run(Day.fromLocal(_from), Day.fromLocal(_lastDay)),
-      success: 'You\'re marked Away. Have a good trip!',
+    final ok = await widget.onSave(
+      Day.fromLocal(_from),
+      Day.fromLocal(_lastDay),
     );
     if (!ok || !mounted) return;
     setState(() => _closing = true);
@@ -81,7 +126,7 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
       title: 'Mark myself Away',
       action: PrimaryButton(
         label: 'Mark me Away',
-        busy: ref.watch(markAwayProvider).isLoading,
+        busy: widget.saving,
         onPressed: _closing ? null : _save,
       ),
       children: [
@@ -163,7 +208,19 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
             color: fm.awayFg,
           ),
         ),
-        _Preview(from: _from, lastDay: _lastDay),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 6,
+          children: [
+            Text(
+              'What happens to your Turns',
+              style: context.text.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            widget.preview(Day.fromLocal(_from), Day.fromLocal(_lastDay)),
+          ],
+        ),
       ],
     );
   }
@@ -174,9 +231,9 @@ class _AwaySheetState extends ConsumerState<_AwaySheet> {
     final isStart = DateUtils.isSameDay(d, _from);
     final isEnd = DateUtils.isSameDay(d, _lastDay);
     // Days already in one of my Aways can't be picked again either.
-    final me = ref.watch(mateDirectoryProvider).me.id;
+    final me = widget.directory.me.id;
     final day = Day.fromLocal(d);
-    final taken = (ref.watch(awaysControllerProvider).value ?? const []).any(
+    final taken = widget.aways.any(
       (a) =>
           a.mateId == me &&
           !day.isBefore(a.startDay) &&
@@ -274,25 +331,23 @@ class _DateBox extends StatelessWidget {
   }
 }
 
-/// "What happens to your Turns": each Turn the Away touches, under the
+/// "What happens to your Turns": each Turn an Away touches, under the
 /// Flat's Away rule.
-class _Preview extends ConsumerWidget {
-  const _Preview({required this.from, required this.lastDay});
+class AwayEffectsView extends StatelessWidget {
+  const AwayEffectsView({
+    super.key,
+    required this.effects,
+    required this.directory,
+    required this.choreName,
+  });
 
-  final DateTime from;
-  final DateTime lastDay;
+  final AsyncValue<List<AwayEffect>> effects;
+  final MateDirectory directory;
+  final String Function(UuidValue choreId) choreName;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final fm = context.fm;
-    final directory = ref.watch(mateDirectoryProvider);
-    final chores = ref.watch(choresControllerProvider).value;
-    final preview = ref.watch(
-      awayPreviewProvider((
-        startDay: Day.fromLocal(from),
-        lastDay: Day.fromLocal(lastDay),
-      )),
-    );
     String day(DateTime d) => DateFormat('EEE d').format(Day.local(d));
 
     String outcome(AwayEffect e) {
@@ -308,7 +363,7 @@ class _Preview extends ConsumerWidget {
           : 'Waits for you until ${day(newDay)}.';
     }
 
-    final Widget body = switch (preview) {
+    return switch (effects) {
       AsyncData(:final value) when value.isEmpty => const _Message(
         'None of your Turns fall on these days.',
       ),
@@ -318,7 +373,7 @@ class _Preview extends ConsumerWidget {
           for (final e in value)
             AppRow(
               minHeight: 52,
-              title: Text(chores?.choreById(e.choreId)?.name ?? 'Chore'),
+              title: Text(choreName(e.choreId)),
               meta: Text(outcome(e)),
               trailing: Tag(e.awayRule.label, tone: TagTone.plain),
             ),
@@ -335,18 +390,6 @@ class _Preview extends ConsumerWidget {
         ),
       ),
     };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 6,
-      children: [
-        Text(
-          'What happens to your Turns',
-          style: context.text.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        body,
-      ],
-    );
   }
 }
 

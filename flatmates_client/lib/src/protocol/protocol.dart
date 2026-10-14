@@ -633,6 +633,12 @@ class Protocol extends _isd.DatabaseSerializationManager {
           columnDefault: 'true',
         ),
         _isd.ColumnDefinition(
+          name: 'onboardedAt',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
           name: 'createdAt',
           columnType: _isd.ColumnType.timestampWithoutTimeZone,
           isNullable: false,

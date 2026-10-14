@@ -42,6 +42,7 @@ flat:
   - setNotifications:
   - setAwayRule:
   - welcomeMate:
+  - finishOnboarding:
   - setMorningSummaryAt:
   - transferAdmin:
   - removeMate:

@@ -22,7 +22,8 @@ class _FlatmatesAppState extends ConsumerState<FlatmatesApp> {
   void initState() {
     super.initState();
     // Swap the whole stack whenever the session moves to a new stage:
-    // signed out → sign-in, no Flat → welcome, in a Flat → home.
+    // signed out → sign-in, no Flat → welcome, just in one → setup,
+    // in a Flat → home.
     ref.listenManual<SessionStatus>(sessionStatusProvider, (previous, next) {
       if (previous == next) return;
       WidgetsBinding.instance.addPostFrameCallback((_) => _show(next));
@@ -34,6 +35,7 @@ class _FlatmatesAppState extends ConsumerState<FlatmatesApp> {
       SessionStatus.loading => const SplashRoute(),
       SessionStatus.signedOut => const SignInRoute(),
       SessionStatus.noFlat => const OnboardingRoute(),
+      SessionStatus.setup => const SetupRoute(),
       SessionStatus.ready => const TabsRoute(),
     };
     _router.replaceAll([route]);
