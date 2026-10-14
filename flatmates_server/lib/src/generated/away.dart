@@ -14,7 +14,8 @@ import 'package:serverpod/serverpod.dart' as _is;
 
 /// A period of whole days a Mate is not around to do Chores.
 /// Days are stored as 12:00 UTC on that date (see day.dart).
-abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Away
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Away._({
     this.id,
     required this.flatId,
@@ -27,9 +28,9 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Away({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required DateTime startDay,
     required DateTime lastDay,
     DateTime? createdAt,
@@ -38,9 +39,11 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   factory Away.fromJson(Map<String, dynamic> jsonSerialization) {
     return Away(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       startDay: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['startDay'],
       ),
@@ -59,11 +62,11 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = AwayRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
-  int mateId;
+  _is.UuidValue mateId;
 
   DateTime startDay;
 
@@ -75,15 +78,15 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Away]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Away copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     DateTime? startDay,
     DateTime? lastDay,
     DateTime? createdAt,
@@ -93,9 +96,9 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Away',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'startDay': startDay.toJson(),
       'lastDay': lastDay.toJson(),
       'createdAt': createdAt.toJson(),
@@ -107,9 +110,9 @@ abstract class Away implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Away',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'startDay': startDay.toJson(),
       'lastDay': lastDay.toJson(),
       'createdAt': createdAt.toJson(),
@@ -149,9 +152,9 @@ class _Undefined {}
 
 class _AwayImpl extends Away {
   _AwayImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required DateTime startDay,
     required DateTime lastDay,
     DateTime? createdAt,
@@ -172,15 +175,15 @@ class _AwayImpl extends Away {
   @override
   Away copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     DateTime? startDay,
     DateTime? lastDay,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Away(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       startDay: startDay ?? this.startDay,
@@ -194,15 +197,17 @@ class _AwayImpl extends Away {
 class AwayUpdateTable extends _is.UpdateTable<AwayTable> {
   AwayUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> mateId(int value) => _is.ColumnValue(
-    table.mateId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mateId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.mateId,
+        value,
+      );
 
   _is.ColumnValue<DateTime, DateTime> startDay(DateTime value) =>
       _is.ColumnValue(
@@ -229,14 +234,14 @@ class AwayUpdateTable extends _is.UpdateTable<AwayTable> {
       );
 }
 
-class AwayTable extends _is.Table<int?> {
+class AwayTable extends _is.Table<_is.UuidValue?> {
   AwayTable({super.tableRelation}) : super(tableName: 'away') {
     updateTable = AwayUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
-    mateId = _is.ColumnInt(
+    mateId = _is.ColumnUuid(
       'mateId',
       this,
     );
@@ -262,9 +267,9 @@ class AwayTable extends _is.Table<int?> {
 
   late final AwayUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
-  late final _is.ColumnInt mateId;
+  late final _is.ColumnUuid mateId;
 
   late final _is.ColumnDateTime startDay;
 
@@ -294,7 +299,7 @@ class AwayInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Away.t;
+  _is.Table<_is.UuidValue?> get table => Away.t;
 }
 
 class AwayIncludeList extends _is.IncludeList {
@@ -313,7 +318,7 @@ class AwayIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Away.t;
+  _is.Table<_is.UuidValue?> get table => Away.t;
 }
 
 class AwayRepository {
@@ -405,7 +410,7 @@ class AwayRepository {
   /// Finds a single [Away] by its [id] or null if no such row exists.
   Future<Away?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -574,7 +579,7 @@ class AwayRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Away?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<AwayUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

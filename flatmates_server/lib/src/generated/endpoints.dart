@@ -10,14 +10,15 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/future_calls.dart' as _idh4zhdh;
 import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
+import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/google_idp_endpoint.dart' as _i71axiz0;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../endpoints/away_endpoint.dart' as _im6g9gk0;
@@ -32,6 +33,12 @@ class Endpoints extends _is.EndpointDispatch {
   @override
   void initializeEndpoints(_is.Server server) {
     var endpoints = <String, _is.Endpoint>{
+      'emailIdp': _iuc1hd5t.EmailIdpEndpoint()
+        ..initialize(
+          server,
+          'emailIdp',
+          null,
+        ),
       'googleIdp': _i71axiz0.GoogleIdpEndpoint()
         ..initialize(
           server,
@@ -81,6 +88,186 @@ class Endpoints extends _is.EndpointDispatch {
           null,
         ),
     };
+    connectors['emailIdp'] = _is.EndpointConnector(
+      name: 'emailIdp',
+      endpoint: endpoints['emailIdp']!,
+      methodConnectors: {
+        'login': _is.MethodConnector(
+          name: 'login',
+          params: {
+            'email': _is.ParameterDescription(
+              name: 'email',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'password': _is.ParameterDescription(
+              name: 'password',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint).login(
+                    session,
+                    email: params['email'],
+                    password: params['password'],
+                  ),
+        ),
+        'startRegistration': _is.MethodConnector(
+          name: 'startRegistration',
+          params: {
+            'email': _is.ParameterDescription(
+              name: 'email',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .startRegistration(
+                    session,
+                    email: params['email'],
+                  ),
+        ),
+        'verifyRegistrationCode': _is.MethodConnector(
+          name: 'verifyRegistrationCode',
+          params: {
+            'accountRequestId': _is.ParameterDescription(
+              name: 'accountRequestId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'verificationCode': _is.ParameterDescription(
+              name: 'verificationCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .verifyRegistrationCode(
+                    session,
+                    accountRequestId: params['accountRequestId'],
+                    verificationCode: params['verificationCode'],
+                  ),
+        ),
+        'finishRegistration': _is.MethodConnector(
+          name: 'finishRegistration',
+          params: {
+            'registrationToken': _is.ParameterDescription(
+              name: 'registrationToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'password': _is.ParameterDescription(
+              name: 'password',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .finishRegistration(
+                    session,
+                    registrationToken: params['registrationToken'],
+                    password: params['password'],
+                  ),
+        ),
+        'startPasswordReset': _is.MethodConnector(
+          name: 'startPasswordReset',
+          params: {
+            'email': _is.ParameterDescription(
+              name: 'email',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .startPasswordReset(
+                    session,
+                    email: params['email'],
+                  ),
+        ),
+        'verifyPasswordResetCode': _is.MethodConnector(
+          name: 'verifyPasswordResetCode',
+          params: {
+            'passwordResetRequestId': _is.ParameterDescription(
+              name: 'passwordResetRequestId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'verificationCode': _is.ParameterDescription(
+              name: 'verificationCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .verifyPasswordResetCode(
+                    session,
+                    passwordResetRequestId: params['passwordResetRequestId'],
+                    verificationCode: params['verificationCode'],
+                  ),
+        ),
+        'finishPasswordReset': _is.MethodConnector(
+          name: 'finishPasswordReset',
+          params: {
+            'finishPasswordResetToken': _is.ParameterDescription(
+              name: 'finishPasswordResetToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'newPassword': _is.ParameterDescription(
+              name: 'newPassword',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .finishPasswordReset(
+                    session,
+                    finishPasswordResetToken:
+                        params['finishPasswordResetToken'],
+                    newPassword: params['newPassword'],
+                  ),
+        ),
+        'hasAccount': _is.MethodConnector(
+          name: 'hasAccount',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .hasAccount(session),
+        ),
+      },
+    );
     connectors['googleIdp'] = _is.EndpointConnector(
       name: 'googleIdp',
       endpoint: endpoints['googleIdp']!,
@@ -217,36 +404,12 @@ class Endpoints extends _is.EndpointDispatch {
                 params['lastDay'],
               ),
         ),
-        'preview': _is.MethodConnector(
-          name: 'preview',
-          params: {
-            'startDay': _is.ParameterDescription(
-              name: 'startDay',
-              type: _is.getType<DateTime>(),
-              nullable: false,
-            ),
-            'lastDay': _is.ParameterDescription(
-              name: 'lastDay',
-              type: _is.getType<DateTime>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['away'] as _im6g9gk0.AwayEndpoint).preview(
-                session,
-                params['startDay'],
-                params['lastDay'],
-              ),
-        ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
           params: {
             'awayId': _is.ParameterDescription(
               name: 'awayId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -275,15 +438,15 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['chore'] as _ikknmojt.ChoreEndpoint).list(session),
         ),
-        'activeTurns': _is.MethodConnector(
-          name: 'activeTurns',
+        'currentTurns': _is.MethodConnector(
+          name: 'currentTurns',
           params: {},
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['chore'] as _ikknmojt.ChoreEndpoint)
-                  .activeTurns(session),
+                  .currentTurns(session),
         ),
         'turnsBetween': _is.MethodConnector(
           name: 'turnsBetween',
@@ -330,7 +493,7 @@ class Endpoints extends _is.EndpointDispatch {
             ),
             'rotation': _is.ParameterDescription(
               name: 'rotation',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -351,7 +514,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'choreId': _is.ParameterDescription(
               name: 'choreId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'name': _is.ParameterDescription(
@@ -366,7 +529,7 @@ class Endpoints extends _is.EndpointDispatch {
             ),
             'rotation': _is.ParameterDescription(
               name: 'rotation',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -387,7 +550,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'choreId': _is.ParameterDescription(
               name: 'choreId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -406,7 +569,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'turnId': _is.ParameterDescription(
               name: 'turnId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -425,7 +588,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'turnId': _is.ParameterDescription(
               name: 'turnId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -533,7 +696,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'eventId': _is.ParameterDescription(
               name: 'eventId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -730,7 +893,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'rule': _is.ParameterDescription(
               name: 'rule',
-              type: _is.getType<_i2u6twoh.AwayRule>(),
+              type: _is.getType<_ij0lpv6z.AwayRule>(),
               nullable: false,
             ),
           },
@@ -749,12 +912,12 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'choreIds': _is.ParameterDescription(
               name: 'choreIds',
-              type: _is.getType<List<int>>(),
+              type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
           },
@@ -768,6 +931,16 @@ class Endpoints extends _is.EndpointDispatch {
                     params['mateId'],
                     params['choreIds'],
                   ),
+        ),
+        'finishOnboarding': _is.MethodConnector(
+          name: 'finishOnboarding',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
+                  .finishOnboarding(session),
         ),
         'setMorningSummaryAt': _is.MethodConnector(
           name: 'setMorningSummaryAt',
@@ -793,7 +966,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -812,7 +985,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'mateId': _is.ParameterDescription(
               name: 'mateId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -915,7 +1088,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'itemId': _is.ParameterDescription(
               name: 'itemId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'bought': _is.ParameterDescription(
@@ -940,7 +1113,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'itemId': _is.ParameterDescription(
               name: 'itemId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -971,6 +1144,16 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
               ),
         ),
+        'gotIts': _is.MethodConnector(
+          name: 'gotIts',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['notice'] as _iaw8zfqb.NoticeEndpoint)
+                  .gotIts(session),
+        ),
         'post': _is.MethodConnector(
           name: 'post',
           params: {
@@ -994,7 +1177,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
             'pinned': _is.ParameterDescription(
@@ -1019,7 +1202,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },
@@ -1038,7 +1221,7 @@ class Endpoints extends _is.EndpointDispatch {
           params: {
             'noticeId': _is.ParameterDescription(
               name: 'noticeId',
-              type: _is.getType<int>(),
+              type: _is.getType<_is.UuidValue>(),
               nullable: false,
             ),
           },

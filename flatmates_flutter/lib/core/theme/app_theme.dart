@@ -1,5 +1,6 @@
 // Flatmates design tokens ("Ink and lime"), from design/lib/theme/app_theme.dart.
 // See design/DESIGN.md for the rules.
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 /// Colours that change between light and dark mode.
@@ -186,6 +187,18 @@ abstract final class FlatmatesTheme {
       brightness: brightness,
       fontFamily: bodyFont,
       scaffoldBackgroundColor: c.ground,
+      // Android's page transition paints colorScheme.surface (white) behind
+      // the pages while they slide; ground matches the screens, no flash.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(
+            fallbackColor: c.ground,
+          ),
+          // The rest as Flutter's defaults; this map replaces them all.
+          TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
+        },
+      ),
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: c.primary,

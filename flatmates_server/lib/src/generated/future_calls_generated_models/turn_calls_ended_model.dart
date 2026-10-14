@@ -16,23 +16,26 @@ abstract class TurnCallsEndedModel
     implements _is.SerializableModel, _is.ProtocolSerialization {
   TurnCallsEndedModel._({required this.turnId});
 
-  factory TurnCallsEndedModel({required int turnId}) = _TurnCallsEndedModelImpl;
+  factory TurnCallsEndedModel({required _is.UuidValue turnId}) =
+      _TurnCallsEndedModelImpl;
 
   factory TurnCallsEndedModel.fromJson(Map<String, dynamic> jsonSerialization) {
-    return TurnCallsEndedModel(turnId: jsonSerialization['turnId'] as int);
+    return TurnCallsEndedModel(
+      turnId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['turnId']),
+    );
   }
 
-  int turnId;
+  _is.UuidValue turnId;
 
   /// Returns a shallow copy of this [TurnCallsEndedModel]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
-  TurnCallsEndedModel copyWith({int? turnId});
+  TurnCallsEndedModel copyWith({_is.UuidValue? turnId});
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'TurnCallsEndedModel',
-      'turnId': turnId,
+      'turnId': turnId.toJson(),
     };
   }
 
@@ -48,13 +51,14 @@ abstract class TurnCallsEndedModel
 }
 
 class _TurnCallsEndedModelImpl extends TurnCallsEndedModel {
-  _TurnCallsEndedModelImpl({required int turnId}) : super._(turnId: turnId);
+  _TurnCallsEndedModelImpl({required _is.UuidValue turnId})
+    : super._(turnId: turnId);
 
   /// Returns a shallow copy of this [TurnCallsEndedModel]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   @override
-  TurnCallsEndedModel copyWith({int? turnId}) {
+  TurnCallsEndedModel copyWith({_is.UuidValue? turnId}) {
     return TurnCallsEndedModel(turnId: turnId ?? this.turnId);
   }
 }

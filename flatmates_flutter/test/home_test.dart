@@ -29,8 +29,8 @@ void main() {
           ..addChore('Clean the bathroom', mateId: FakeBackend.sam, id: 2);
         backend.groceries.add(
           GroceryItem(
-            id: 1,
-            flatId: 10,
+            id: uid(1),
+            flatId: uid(10),
             name: 'Oat milk',
             addedByMateId: FakeBackend.sam,
             createdAt: DateTime.now(),

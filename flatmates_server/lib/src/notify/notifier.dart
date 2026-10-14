@@ -28,7 +28,7 @@ class Notifier {
   static bool _initialized = false;
 
   /// Set by tests to collect every push instead of only logging it.
-  static List<({int mateId, String title, String body})>? sent;
+  static List<({UuidValue mateId, String title, String body})>? sent;
 
   static Future<AutoRefreshingAuthClient?> _fcmClient(Session session) async {
     if (_initialized) return _client;
@@ -59,7 +59,7 @@ class Notifier {
   /// switched [kind] off. Returns the Mates notified.
   static Future<List<Mate>> toMates(
     Session session,
-    Iterable<int> mateIds, {
+    Iterable<UuidValue> mateIds, {
     required String title,
     required String body,
     NotifyKind? kind,
@@ -127,10 +127,10 @@ class Notifier {
   /// Notifies every Mate in the Flat, optionally leaving one out.
   static Future<void> toFlat(
     Session session,
-    int flatId, {
+    UuidValue flatId, {
     required String title,
     required String body,
-    int? exceptMateId,
+    UuidValue? exceptMateId,
     NotifyKind? kind,
   }) async {
     final mates = await Mate.db.find(

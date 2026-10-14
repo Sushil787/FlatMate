@@ -18,42 +18,114 @@ import '../../../core/widgets/app_icon.dart';
 /// Admin only: creates a Chore ([name] pre-fills it), or edits [choreId].
 Future<void> showChoreEditor(
   BuildContext context, {
-  int? choreId,
+  UuidValue? choreId,
   String? name,
 }) => showAppSheet(context, _ChoreEditor(choreId: choreId, name: name));
 
-class _ChoreEditor extends ConsumerStatefulWidget {
+/// What the Chore editor saves. [startDay] is a stored day, and only used
+/// for a new Chore.
+typedef ChoreDraft = ({
+  String name,
+  Duration period,
+  DateTime startDay,
+  List<UuidValue> rotation,
+});
+
+/// The editor on the signed-in Mate's Flat, saved on the server.
+class _ChoreEditor extends ConsumerWidget {
   const _ChoreEditor({this.choreId, this.name});
 
-  final int? choreId;
+  final UuidValue? choreId;
   final String? name;
 
   @override
-  ConsumerState<_ChoreEditor> createState() => _ChoreEditorState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final id = choreId;
+    if (id == null) {
+      final save = ref.read(saveChoreProvider.notifier);
+      return ChoreEditorView(
+        name: name,
+        directory: ref.watch(mateDirectoryProvider),
+        saving: ref.watch(saveChoreProvider).isLoading,
+        onSave: (d) => save.create(
+          name: d.name,
+          period: d.period,
+          startDay: d.startDay,
+          rotation: d.rotation,
+        ),
+      );
+    }
+    // Read once: the editor keeps what's typed if the Chore changes.
+    final chore = ref.read(choresControllerProvider).value?.choreById(id);
+    if (chore == null) {
+      return const AppSheet(
+        title: 'Edit Chore',
+        children: [Text('This Chore no longer exists.')],
+      );
+    }
+    return ChoreEditorView(
+      chore: chore,
+      directory: ref.watch(mateDirectoryProvider),
+      saving: ref.watch(saveChoreProvider).isLoading,
+      deleting: ref.watch(archiveChoreProvider(id)).isLoading,
+      onSave: (d) => ref
+          .read(saveChoreProvider.notifier)
+          .save(
+            choreId: id,
+            name: d.name,
+            period: d.period,
+            rotation: d.rotation,
+          ),
+      onDelete: ref.read(archiveChoreProvider(id).notifier).run,
+    );
+  }
 }
 
-class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
+/// The Chore editor on any Flat's data: a new Chore ([name] pre-fills it),
+/// or [chore] to edit. [onSave] and [onDelete] say whether they worked and
+/// throw a message to show in the sheet.
+class ChoreEditorView extends StatefulWidget {
+  const ChoreEditorView({
+    super.key,
+    this.chore,
+    this.name,
+    required this.directory,
+    required this.saving,
+    this.deleting = false,
+    required this.onSave,
+    this.onDelete,
+  });
+
+  final Chore? chore;
+  final String? name;
+  final MateDirectory directory;
+  final bool saving, deleting;
+  final Future<bool> Function(ChoreDraft draft) onSave;
+  final Future<bool> Function()? onDelete;
+
+  @override
+  State<ChoreEditorView> createState() => _ChoreEditorViewState();
+}
+
+class _ChoreEditorViewState extends State<ChoreEditorView> {
   final _name = TextEditingController();
   int _days = 7;
   bool _custom = false;
   DateTime _start = DateUtils.dateOnly(DateTime.now());
-  List<int> _rotation = [];
-  Chore? _chore;
+  List<UuidValue> _rotation = [];
   String? _error;
 
   /// Set once saved or deleted, so the buttons stay off while the sheet
   /// slides away.
   bool _closing = false;
 
-  bool get _isNew => widget.choreId == null;
+  Chore? get _chore => widget.chore;
+  bool get _isNew => _chore == null;
 
   @override
   void initState() {
     super.initState();
-    final chore = _isNew
-        ? null
-        : ref.read(choresControllerProvider).value?.choreById(widget.choreId!);
-    _chore = chore;
+    final chore = _chore;
     if (chore != null) {
       _name.text = chore.name;
       _days = chore.period.inDays;
@@ -62,9 +134,7 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
     } else {
       _name.text = widget.name ?? '';
       // Default: everyone, in the order they joined.
-      _rotation = [
-        for (final m in ref.read(mateDirectoryProvider).mates) m.id!,
-      ];
+      _rotation = [for (final m in widget.directory.mates) m.id!];
     }
   }
 
@@ -104,22 +174,13 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
     if (_rotation.isEmpty) {
       return setState(() => _error = 'Add at least one Mate to the Rotation.');
     }
-    final save = ref.read(saveChoreProvider.notifier);
-    final period = Duration(days: _days);
     _run(
-      () => _isNew
-          ? save.create(
-              name: name,
-              period: period,
-              startDay: Day.fromLocal(_start),
-              rotation: _rotation,
-            )
-          : save.save(
-              choreId: widget.choreId!,
-              name: name,
-              period: period,
-              rotation: _rotation,
-            ),
+      () => widget.onSave((
+        name: name,
+        period: Duration(days: _days),
+        startDay: Day.fromLocal(_start),
+        rotation: _rotation,
+      )),
     );
   }
 
@@ -132,33 +193,22 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
       destructive: true,
     );
     if (!yes || !mounted) return;
-    _run(() => ref.read(archiveChoreProvider(_chore!.id!).notifier).run());
+    _run(widget.onDelete!);
   }
 
   @override
   Widget build(BuildContext context) {
     final fm = context.fm;
-    final directory = ref.watch(mateDirectoryProvider);
-    final saving = ref.watch(saveChoreProvider).isLoading;
-    final deleting =
-        _chore != null &&
-        ref.watch(archiveChoreProvider(_chore!.id!)).isLoading;
-    final busy = saving || deleting || _closing;
+    final directory = widget.directory;
+    final busy = widget.saving || widget.deleting || _closing;
     final label = context.text.bodySmall?.copyWith(fontWeight: FontWeight.w600);
     final mates = _rotation.toSet().length;
-
-    if (!_isNew && _chore == null) {
-      return const AppSheet(
-        title: 'Edit Chore',
-        children: [Text('This Chore no longer exists.')],
-      );
-    }
 
     return AppSheet(
       title: _isNew ? 'New Chore' : 'Edit Chore',
       action: PrimaryButton(
         label: 'Save Chore',
-        busy: saving,
+        busy: widget.saving,
         onPressed: busy ? null : _save,
       ),
       children: [
@@ -182,6 +232,7 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
               ],
             ),
             _RotationEditor(
+              directory: directory,
               rotation: _rotation,
               onChanged: (r) => setState(() => _rotation = r),
             ),
@@ -254,17 +305,18 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
             'Changes apply from the next Turn. The current one finishes as planned.',
             style: context.text.bodySmall,
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              onPressed: busy ? null : _delete,
-              style: TextButton.styleFrom(
-                foregroundColor: fm.dangerFg,
-                padding: EdgeInsets.zero,
+          if (widget.onDelete != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: busy ? null : _delete,
+                style: TextButton.styleFrom(
+                  foregroundColor: fm.dangerFg,
+                  padding: EdgeInsets.zero,
+                ),
+                child: const Text('Delete Chore'),
               ),
-              child: const Text('Delete Chore'),
             ),
-          ),
         ],
         if (_error != null)
           Semantics(
@@ -284,16 +336,20 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
 
 /// The Rotation as tiles in a row: long-press to drag, tap to take a Mate
 /// out, + to add any Mate (again).
-class _RotationEditor extends ConsumerWidget {
-  const _RotationEditor({required this.rotation, required this.onChanged});
+class _RotationEditor extends StatelessWidget {
+  const _RotationEditor({
+    required this.directory,
+    required this.rotation,
+    required this.onChanged,
+  });
 
-  final List<int> rotation;
-  final ValueChanged<List<int>> onChanged;
+  final MateDirectory directory;
+  final List<UuidValue> rotation;
+  final ValueChanged<List<UuidValue>> onChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final fm = context.fm;
-    final directory = ref.watch(mateDirectoryProvider);
     final scaler = MediaQuery.textScalerOf(context);
     // Avatar, gap and padding, plus one line of label.
     final height = 48 + scaler.scale(16);
@@ -322,7 +378,7 @@ class _RotationEditor extends ConsumerWidget {
           onChanged(next);
         },
         footer: tile(
-          PopupMenuButton<int>(
+          PopupMenuButton<UuidValue>(
             tooltip: 'Add a Mate to the Rotation',
             onSelected: (id) => onChanged([...rotation, id]),
             itemBuilder: (_) => [
@@ -354,7 +410,11 @@ class _RotationEditor extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 2,
                   children: [
-                    MateAvatar(id, size: 28),
+                    Avatar(
+                      name: directory.realNameOf(id),
+                      colorIndex: directory.colorIndexOf(id),
+                      size: 28,
+                    ),
                     Text(
                       '${i + 1} · $name',
                       maxLines: 1,

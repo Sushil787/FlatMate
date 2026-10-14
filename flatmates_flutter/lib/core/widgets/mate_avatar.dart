@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -104,7 +105,7 @@ class MateAvatar extends ConsumerWidget {
     this.turn = false,
   });
 
-  final int? mateId;
+  final UuidValue? mateId;
   final double size;
   final bool away;
   final bool turn;
@@ -126,7 +127,7 @@ class MateAvatar extends ConsumerWidget {
 class AvatarStack extends StatelessWidget {
   const AvatarStack({super.key, required this.mateIds, this.size = 24});
 
-  final List<int> mateIds;
+  final List<UuidValue> mateIds;
   final double size;
 
   @override

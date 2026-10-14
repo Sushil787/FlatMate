@@ -2,3 +2,5 @@ type: server
 
 client_package_path: ../flatmates_client
 server_test_tools_path: test/integration/test_tools
+shared_packages:
+  - ../flatmates_shared

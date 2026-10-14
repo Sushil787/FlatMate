@@ -35,4 +35,33 @@ void main() {
     expect(Day.isKnown('Mars/Phobos'), isFalse);
     expect(Day.isKnown('UTC'), isTrue);
   });
+
+  group('Day', () {
+    test('adding days never shifts the date, even across DST', () {
+      var d = Day.of(2026, 1, 1);
+      for (var i = 0; i < 400; i++) {
+        d = Day.add(d, 1);
+        expect(d.hour, 12);
+      }
+      expect(d, Day.of(2027, 2, 5));
+    });
+
+    test('a day starts and ends at local midnight', () {
+      final d = Day.of(2026, 10, 18);
+      expect(
+        Day.start('Asia/Kathmandu', d),
+        DateTime.utc(2026, 10, 17, 18, 15),
+      );
+      expect(Day.end('Asia/Kathmandu', d), DateTime.utc(2026, 10, 18, 18, 15));
+      // The day clocks go back in Berlin is 25 hours long.
+      final dst = Day.of(2026, 10, 25);
+      expect(
+        Day.end(
+          'Europe/Berlin',
+          dst,
+        ).difference(Day.start('Europe/Berlin', dst)),
+        const Duration(hours: 25),
+      );
+    });
+  });
 }

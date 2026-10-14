@@ -377,57 +377,19 @@ data/           repository                thin wrapper over client.<endpoint>.<m
 
 ## How rotation works
 
-- Each **Chore** has a **Rotation** and a **Rotation period**. A **Turn** is one Mate's responsibility for one day. It ends at the end of that day, as **Done** or **Missed**.
-- The pure planning logic is in `flatmates_server/lib/src/rotation/planner.dart` and is unit-tested in `planner_test.dart`. Saving to the database and scheduling are in `turn_service.dart`.
-- Each Turn's start, 3-hour reminder and end are Serverpod **FutureCalls** (`future_calls/turn_calls.dart`), so they survive server restarts. When a Turn ends, it is marked Missed if it wasn't Done, and the next Turn is created.
-- Pushes go out once per Mate, not once per Turn:
-  - **Morning summary:** the Mate's Turns for the day. It's sent at a time the Admin sets, 08:00 by default.
-  - **Evening nudge:** 3 hours before midnight, the Mate's own Turns that aren't Done yet, plus their Mates' unfinished ones.
-  - When several calls are due at the same moment, only the Flat's oldest Turn sends, and it sends for everyone. Marking a Turn Done or Missed sends nothing.
-<p align="center">
-  <img src="docs/readme/away-rules.svg" width="100%" alt="Sam is Away on day 2. Swap: Priya covers and Sam pays her back. Skip: Priya takes the Turn and nothing is owed. Pause: the Chore waits until Sam is back.">
-</p>
-
-- **Away rule** (one per Flat, chosen by the Admin):
-  - **Swap** (default): the next Mate covers the Turn, and the Away Mate later does that Mate's next Turn in return. `SwapDebt` records who owes whom.
-  - **Skip:** the next Mate covers the Turn, and nothing is owed.
-  - **Pause:** the Chore waits until the Mate is back, and Away days in the middle of a Turn extend it.
-  - If nobody can cover a Turn, the Chore pauses.
-
-## Deploying to Serverpod Cloud
-
-The project is set up for [Serverpod Cloud](https://docs.serverpod.dev/cloud) (`flatmates_server/scloud.yaml`, project ID `flatmates`). It uses Serverpod Cloud's managed Postgres, which requires SSL, and the platform handles that.
-
-```sh
-dart pub global activate serverpod_cloud_cli
-cd flatmates_server
-scloud auth login
-scloud password set googleClientSecret '<web client json>'
-scloud password set fcmServiceAccount '<service account json>'
-scloud deploy        # pre-deploy runs `serverpod generate` and builds the web app
-```
-
-Then build the mobile apps against the deployed API:
-
-```sh
-cd flatmates_flutter
-flutter build apk --dart-define=SERVER_URL=https://<your-api-host>/
-flutter build ipa --dart-define=SERVER_URL=https://<your-api-host>/
-```
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `flutter pub get` fails with `requires SDK version >=3.10.0` (or similar) | Your Flutter is too old for the lockfile. Run `flutter upgrade` and check that `flutter --version` shows Dart ≥ 3.13. |
-| The app can't reach the server from an Android emulator | Use `SERVER_URL=http://10.0.2.2:8080/`, not `localhost`. |
-| A physical phone can't reach the server | Make sure the phone and computer are on the same Wi-Fi, port 8080 is open in the firewall, and you pass your current LAN IP. |
-| Tapping Google sign-in does nothing, or the server rejects it | Check that `googleClientSecret` is in `passwords.yaml` and that you restarted the server. The client IDs must belong to the same Google Cloud project. |
-| The server can't connect to the database | Run `docker compose up -d` in `flatmates_server/`. The `database` password in `passwords.yaml` must match `docker-compose.yaml`. |
-| Integration tests fail to connect | Make sure the `postgres_test` container (port 9090) is running. Run `dart test -x integration` to skip these tests. |
-| Generated code is out of date (missing fields or endpoints in the app) | Run `serverpod generate` in `flatmates_server/`, then `flutter pub get`. |
-| `router.gr.dart` is missing a route | Run `dart run build_runner build -d` in `flatmates_flutter/`. |
-| No push notifications arrive | Without `fcmServiceAccount`, pushes only appear in the server log. Also check that the app has notification permission. |
+- Each **Chore** has a **Rotation** (ordered Mates, repeats allowed) and a **Rotation period**.
+  A **Turn** is one Mate's responsibility for one period; it ends when the period ends, **Done** or **Missed**.
+- Each Turn's morning summary, 3-hour reminder and end are Serverpod **FutureCalls** (`TurnCalls`),
+  so they survive restarts. Turn end marks Missed if needed and creates the next Turn.
+- Pushes are one per Mate, not one per Turn: a morning summary of their Turns for the day (time set
+  by the Admin, 08:00 by default) and, 3 hours before midnight, their own Turns not Done plus their
+  Mates' ones. Of all the calls due at that moment, the Flat's oldest Turn's sends for everyone.
+  Done and Missed send nothing.
+- The Flat-wide **Away rule** (Admin picks): **Swap** (next Mate covers, Away Mate does their next
+  Turn in return), **Skip** (next Mate covers, nothing owed), **Pause** (Chore waits; Away days
+  mid-Turn extend it). If nobody can cover, the Chore pauses.
+- Pure planning logic: `flatmates_shared/lib/src/planner.dart`; DB + scheduling:
+  `turn_service.dart`. Live app updates stream over `flat.changes()`.
 
 ## Known simplifications
 

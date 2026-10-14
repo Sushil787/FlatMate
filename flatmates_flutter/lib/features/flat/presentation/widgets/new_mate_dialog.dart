@@ -28,11 +28,11 @@ class _NewMateDialog extends ConsumerStatefulWidget {
 
 class _NewMateDialogState extends ConsumerState<_NewMateDialog> {
   /// The Chores ticked; null until they load, then all of them.
-  Set<int>? _picked;
+  Set<UuidValue>? _picked;
   String? _error;
 
   // Errors show in the dialog: a snackbar would sit behind it.
-  Future<void> _answer(List<int> choreIds) async {
+  Future<void> _answer(List<UuidValue> choreIds) async {
     setState(() => _error = null);
     try {
       final ran = await ref

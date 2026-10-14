@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../theme/app_theme.dart';
 import '../utils/action_runner.dart';
 import 'banners.dart';
 
@@ -31,11 +32,14 @@ class AsyncValueView<T> extends StatelessWidget {
           loading ?? const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ErrorCard(
-            title: 'Couldn\'t load this',
-            message: describeError(error),
-            onRetry: onRetry,
+          padding: const EdgeInsets.all(Space.lg),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: ErrorCard(
+              title: 'Couldn\'t load this',
+              message: describeError(error),
+              onRetry: onRetry,
+            ),
           ),
         ),
       ),

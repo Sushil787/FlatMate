@@ -16,26 +16,28 @@ abstract class TurnCallsReminderModel
     implements _is.SerializableModel, _is.ProtocolSerialization {
   TurnCallsReminderModel._({required this.turnId});
 
-  factory TurnCallsReminderModel({required int turnId}) =
+  factory TurnCallsReminderModel({required _is.UuidValue turnId}) =
       _TurnCallsReminderModelImpl;
 
   factory TurnCallsReminderModel.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
-    return TurnCallsReminderModel(turnId: jsonSerialization['turnId'] as int);
+    return TurnCallsReminderModel(
+      turnId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['turnId']),
+    );
   }
 
-  int turnId;
+  _is.UuidValue turnId;
 
   /// Returns a shallow copy of this [TurnCallsReminderModel]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
-  TurnCallsReminderModel copyWith({int? turnId});
+  TurnCallsReminderModel copyWith({_is.UuidValue? turnId});
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'TurnCallsReminderModel',
-      'turnId': turnId,
+      'turnId': turnId.toJson(),
     };
   }
 
@@ -51,13 +53,14 @@ abstract class TurnCallsReminderModel
 }
 
 class _TurnCallsReminderModelImpl extends TurnCallsReminderModel {
-  _TurnCallsReminderModelImpl({required int turnId}) : super._(turnId: turnId);
+  _TurnCallsReminderModelImpl({required _is.UuidValue turnId})
+    : super._(turnId: turnId);
 
   /// Returns a shallow copy of this [TurnCallsReminderModel]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   @override
-  TurnCallsReminderModel copyWith({int? turnId}) {
+  TurnCallsReminderModel copyWith({_is.UuidValue? turnId}) {
     return TurnCallsReminderModel(turnId: turnId ?? this.turnId);
   }
 }

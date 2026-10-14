@@ -5,7 +5,7 @@ import 'router.gr.dart';
 import 'session.dart';
 
 /// The app's routes. Top-level screens follow [SessionStatus] (see
-/// `FlatmatesApp`); [_ReadyGuard] keeps the Flat's screens unreachable
+/// `FlatmatesApp`); [_StatusGuard] keeps the Flat's screens unreachable
 /// until the user is in one.
 @AutoRouterConfig(replaceInRouteName: 'Screen|Shell,Route')
 class AppRouter extends RootStackRouter {
@@ -18,11 +18,15 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes {
-    final ready = [_ReadyGuard(_ref)];
+    final ready = [_StatusGuard(_ref, SessionStatus.ready)];
     return [
       AutoRoute(page: SplashRoute.page, initial: true),
       AutoRoute(page: SignInRoute.page),
       AutoRoute(page: OnboardingRoute.page),
+      AutoRoute(
+        page: SetupRoute.page,
+        guards: [_StatusGuard(_ref, SessionStatus.setup)],
+      ),
       // The five tabs of the bottom nav.
       AutoRoute(
         page: TabsRoute.page,
@@ -43,14 +47,16 @@ class AppRouter extends RootStackRouter {
   }
 }
 
-class _ReadyGuard extends AutoRouteGuard {
-  _ReadyGuard(this._ref);
+/// Lets a route open only at [status].
+class _StatusGuard extends AutoRouteGuard {
+  _StatusGuard(this._ref, this.status);
 
   final WidgetRef _ref;
+  final SessionStatus status;
 
   @override
   void onNavigation(NavigationResolver resolver, StackRouter router) {
-    if (_ref.read(sessionStatusProvider) == SessionStatus.ready) {
+    if (_ref.read(sessionStatusProvider) == status) {
       resolver.next();
     } else {
       resolver.redirectUntil(const SplashRoute());

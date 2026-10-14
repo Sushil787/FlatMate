@@ -14,8 +14,6 @@
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
 import 'package:flatmates_server/src/generated/away.dart' as _icx3t1f1;
-import 'package:flatmates_server/src/generated/away_effect.dart' as _i8nyq5gw;
-import 'package:flatmates_server/src/generated/away_rule.dart' as _i2u6twoh;
 import 'package:flatmates_server/src/generated/chore.dart' as _ij1nfwf4;
 import 'package:flatmates_server/src/generated/event.dart' as _i7uqo6xr;
 import 'package:flatmates_server/src/generated/flat.dart' as _i7obirgc;
@@ -32,8 +30,10 @@ import 'package:flatmates_server/src/generated/mate.dart' as _ia7hvzvd;
 import 'package:flatmates_server/src/generated/mate_color.dart' as _ilt6zfd6;
 import 'package:flatmates_server/src/generated/my_flat.dart' as _isxy0ptp;
 import 'package:flatmates_server/src/generated/notice.dart' as _ikw41nt5;
+import 'package:flatmates_server/src/generated/notice_got_it.dart' as _i2ir1nq4;
 import 'package:flatmates_server/src/generated/swap_debt.dart' as _implyx9l;
 import 'package:flatmates_server/src/generated/turn.dart' as _ij03rvz2;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -173,6 +173,8 @@ void withServerpod(
 class TestEndpoints {
   late final futureCalls = _FutureCalls();
 
+  late final _EmailIdpEndpoint emailIdp;
+
   late final _GoogleIdpEndpoint googleIdp;
 
   late final _JwtRefreshEndpoint jwtRefresh;
@@ -197,6 +199,10 @@ class _InternalTestEndpoints extends TestEndpoints
     _is.SerializationManager serializationManager,
     _is.EndpointDispatch endpoints,
   ) {
+    emailIdp = _EmailIdpEndpoint(
+      endpoints,
+      serializationManager,
+    );
     googleIdp = _GoogleIdpEndpoint(
       endpoints,
       serializationManager,
@@ -234,6 +240,282 @@ class _InternalTestEndpoints extends TestEndpoints
 
 class _FutureCalls {
   late final turnCalls = _TurnCallsFutureCall();
+}
+
+class _EmailIdpEndpoint {
+  _EmailIdpEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_iacs.AuthSuccess> login(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String email,
+    required String password,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'login',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'login',
+          parameters: _ist.testObjectToJson({
+            'email': email,
+            'password': password,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iacs.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_is.UuidValue> startRegistration(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String email,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'startRegistration',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'startRegistration',
+          parameters: _ist.testObjectToJson({'email': email}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_is.UuidValue>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> verifyRegistrationCode(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required _is.UuidValue accountRequestId,
+    required String verificationCode,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'verifyRegistrationCode',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'verifyRegistrationCode',
+          parameters: _ist.testObjectToJson({
+            'accountRequestId': accountRequestId,
+            'verificationCode': verificationCode,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iacs.AuthSuccess> finishRegistration(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String registrationToken,
+    required String password,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'finishRegistration',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'finishRegistration',
+          parameters: _ist.testObjectToJson({
+            'registrationToken': registrationToken,
+            'password': password,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iacs.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_is.UuidValue> startPasswordReset(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String email,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'startPasswordReset',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'startPasswordReset',
+          parameters: _ist.testObjectToJson({'email': email}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_is.UuidValue>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> verifyPasswordResetCode(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required _is.UuidValue passwordResetRequestId,
+    required String verificationCode,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'verifyPasswordResetCode',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'verifyPasswordResetCode',
+          parameters: _ist.testObjectToJson({
+            'passwordResetRequestId': passwordResetRequestId,
+            'verificationCode': verificationCode,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> finishPasswordReset(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String finishPasswordResetToken,
+    required String newPassword,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'finishPasswordReset',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'finishPasswordReset',
+          parameters: _ist.testObjectToJson({
+            'finishPasswordResetToken': finishPasswordResetToken,
+            'newPassword': newPassword,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<bool> hasAccount(_ist.TestSessionBuilder sessionBuilder) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'hasAccount',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'hasAccount',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _GoogleIdpEndpoint {
@@ -464,44 +746,9 @@ class _AwayEndpoint {
     });
   }
 
-  _ida.Future<List<_i8nyq5gw.AwayEffect>> preview(
-    _ist.TestSessionBuilder sessionBuilder,
-    DateTime startDay,
-    DateTime lastDay,
-  ) async {
-    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'away',
-            method: 'preview',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'away',
-          methodName: 'preview',
-          parameters: _ist.testObjectToJson({
-            'startDay': startDay,
-            'lastDay': lastDay,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _ida.Future<List<_i8nyq5gw.AwayEffect>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
   _ida.Future<void> cancel(
     _ist.TestSessionBuilder sessionBuilder,
-    int awayId,
+    _is.UuidValue awayId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -571,20 +818,20 @@ class _ChoreEndpoint {
     });
   }
 
-  _ida.Future<List<_ij03rvz2.Turn>> activeTurns(
+  _ida.Future<List<_ij03rvz2.Turn>> currentTurns(
     _ist.TestSessionBuilder sessionBuilder,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
             endpoint: 'chore',
-            method: 'activeTurns',
+            method: 'currentTurns',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'chore',
-          methodName: 'activeTurns',
+          methodName: 'currentTurns',
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
@@ -641,7 +888,7 @@ class _ChoreEndpoint {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<_is.UuidValue> rotation,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -677,10 +924,10 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij1nfwf4.Chore> update(
     _ist.TestSessionBuilder sessionBuilder,
-    int choreId,
+    _is.UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<_is.UuidValue> rotation,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -716,7 +963,7 @@ class _ChoreEndpoint {
 
   _ida.Future<void> archive(
     _ist.TestSessionBuilder sessionBuilder,
-    int choreId,
+    _is.UuidValue choreId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -747,7 +994,7 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij03rvz2.Turn> markDone(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -778,7 +1025,7 @@ class _ChoreEndpoint {
 
   _ida.Future<_ij03rvz2.Turn> undoDone(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -928,7 +1175,7 @@ class _EventEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int eventId,
+    _is.UuidValue eventId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1236,7 +1483,7 @@ class _FlatEndpoint {
 
   _ida.Future<_i7obirgc.Flat> setAwayRule(
     _ist.TestSessionBuilder sessionBuilder,
-    _i2u6twoh.AwayRule rule,
+    _ij0lpv6z.AwayRule rule,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1267,8 +1514,8 @@ class _FlatEndpoint {
 
   _ida.Future<void> welcomeMate(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
-    List<int> choreIds,
+    _is.UuidValue mateId,
+    List<_is.UuidValue> choreIds,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1293,6 +1540,36 @@ class _FlatEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ia7hvzvd.Mate> finishOnboarding(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'flat',
+            method: 'finishOnboarding',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'flat',
+          methodName: 'finishOnboarding',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ia7hvzvd.Mate>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1333,7 +1610,7 @@ class _FlatEndpoint {
 
   _ida.Future<void> transferAdmin(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
+    _is.UuidValue mateId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1364,7 +1641,7 @@ class _FlatEndpoint {
 
   _ida.Future<void> removeMate(
     _ist.TestSessionBuilder sessionBuilder,
-    int mateId,
+    _is.UuidValue mateId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1562,7 +1839,7 @@ class _GroceryEndpoint {
 
   _ida.Future<_itw5ie4o.GroceryItem> setBought(
     _ist.TestSessionBuilder sessionBuilder,
-    int itemId,
+    _is.UuidValue itemId,
     bool bought,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1597,7 +1874,7 @@ class _GroceryEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int itemId,
+    _is.UuidValue itemId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1667,6 +1944,36 @@ class _NoticeEndpoint {
     });
   }
 
+  _ida.Future<List<_i2ir1nq4.NoticeGotIt>> gotIts(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'notice',
+            method: 'gotIts',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'notice',
+          methodName: 'gotIts',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i2ir1nq4.NoticeGotIt>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<_ikw41nt5.Notice> post(
     _ist.TestSessionBuilder sessionBuilder,
     String text,
@@ -1700,7 +2007,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> setPinned(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
     bool pinned,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1735,7 +2042,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> gotIt(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1766,7 +2073,7 @@ class _NoticeEndpoint {
 
   _ida.Future<void> delete(
     _ist.TestSessionBuilder sessionBuilder,
-    int noticeId,
+    _is.UuidValue noticeId,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1799,7 +2106,7 @@ class _NoticeEndpoint {
 class _TurnCallsFutureCall {
   Future<void> started(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _i844uiph.TurnCallsStartedModel(turnId: turnId);
     var _localUniqueSession =
@@ -1816,7 +2123,7 @@ class _TurnCallsFutureCall {
 
   Future<void> reminder(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _im9nzdpf.TurnCallsReminderModel(turnId: turnId);
     var _localUniqueSession =
@@ -1833,7 +2140,7 @@ class _TurnCallsFutureCall {
 
   Future<void> ended(
     _ist.TestSessionBuilder sessionBuilder,
-    int turnId,
+    _is.UuidValue turnId,
   ) async {
     var object = _imiauk18.TurnCallsEndedModel(turnId: turnId);
     var _localUniqueSession =

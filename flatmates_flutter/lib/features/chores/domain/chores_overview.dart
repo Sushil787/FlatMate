@@ -4,18 +4,25 @@ import '../../../core/utils/day.dart';
 
 /// The Flat's Chores with their open Turns.
 class ChoresOverview {
-  ChoresOverview({required this.chores, required List<Turn> activeTurns})
-    : _turnByChore = {for (final t in activeTurns) t.choreId: t};
+  ChoresOverview({required this.chores, required this.currentTurns})
+    : _turnByChore = {
+        for (final t in currentTurns)
+          if (t.status == TurnStatus.active) t.choreId: t,
+      };
 
   final List<Chore> chores;
-  final Map<int, Turn> _turnByChore;
+
+  /// Each Chore's latest Turn, open or Done today; planned Turns follow it.
+  final List<Turn> currentTurns;
+
+  final Map<UuidValue, Turn> _turnByChore;
 
   Turn? turnFor(Chore chore) => _turnByChore[chore.id];
 
-  Chore? choreById(int id) => chores.where((c) => c.id == id).firstOrNull;
+  Chore? choreById(UuidValue id) => chores.where((c) => c.id == id).firstOrNull;
 
   /// [mateId]'s open, not-yet-done Turns, soonest due first.
-  List<(Chore, Turn)> openTurnsOf(int mateId) {
+  List<(Chore, Turn)> openTurnsOf(UuidValue mateId) {
     final result = [
       for (final c in chores)
         if (_turnByChore[c.id] case final t?
@@ -27,7 +34,7 @@ class ChoresOverview {
   }
 
   /// Every Chore except [mateId]'s open ones, soonest due first.
-  List<Chore> othersFor(int mateId) {
+  List<Chore> othersFor(UuidValue mateId) {
     final mine = openTurnsOf(mateId).map((e) => e.$1.id).toSet();
     final rest = chores.where((c) => !mine.contains(c.id)).toList();
     rest.sort((a, b) {

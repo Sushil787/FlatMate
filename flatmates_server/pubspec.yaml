@@ -9,6 +9,8 @@ environment:
 resolution: workspace
 
 dependencies:
+  flatmates_shared:
+    path: ../flatmates_shared
   googleapis_auth: ^2.0.0
   http: ^1.6.0
   serverpod: ^4.0.3

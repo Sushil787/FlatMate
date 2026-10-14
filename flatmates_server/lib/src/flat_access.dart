@@ -36,14 +36,18 @@ Future<({Mate me, Flat flat})> requireAdmin(Session session) async {
 }
 
 /// The Mates currently in a Flat.
-Future<List<Mate>> activeMates(Session session, int flatId) => Mate.db.find(
-  session,
-  where: (t) => t.flatId.equals(flatId) & t.leftAt.equals(null),
-  orderBy: (t) => t.joinedAt,
-);
+Future<List<Mate>> activeMates(Session session, UuidValue flatId) =>
+    Mate.db.find(
+      session,
+      where: (t) => t.flatId.equals(flatId) & t.leftAt.equals(null),
+      orderBy: (t) => t.joinedAt,
+    );
 
-String flatChannel(int flatId) => 'flat-$flatId';
+String flatChannel(UuidValue flatId) => 'flat-$flatId';
 
 /// Tells every open app in the Flat to refresh [kind].
-Future<void> broadcast(Session session, int flatId, FlatChangeKind kind) =>
-    session.messages.postMessage(flatChannel(flatId), FlatChange(kind: kind));
+Future<void> broadcast(
+  Session session,
+  UuidValue flatId,
+  FlatChangeKind kind,
+) => session.messages.postMessage(flatChannel(flatId), FlatChange(kind: kind));

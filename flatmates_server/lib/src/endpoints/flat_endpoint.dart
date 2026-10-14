@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';
@@ -184,8 +185,8 @@ class FlatEndpoint extends Endpoint {
   /// welcomed (say, from the Admin's other phone).
   Future<void> welcomeMate(
     Session session,
-    int mateId,
-    List<int> choreIds,
+    UuidValue mateId,
+    List<UuidValue> choreIds,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     final mate = await Mate.db.findById(session, mateId);
@@ -226,6 +227,15 @@ class FlatEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.flat);
   }
 
+  /// Records that the signed-in Mate finished onboarding. Keeps the first
+  /// time if called again.
+  Future<Mate> finishOnboarding(Session session) async {
+    final (:me, flat: _) = await requireMate(session);
+    if (me.onboardedAt != null) return me;
+    me.onboardedAt = DateTime.now().toUtc();
+    return Mate.db.updateRow(session, me);
+  }
+
   /// Sets when the morning summary goes out, in minutes after local
   /// midnight. It has to come before the evening push.
   Future<Flat> setMorningSummaryAt(Session session, int minutes) async {
@@ -243,7 +253,7 @@ class FlatEndpoint extends Endpoint {
   }
 
   /// Hands the Admin role to another Mate.
-  Future<void> transferAdmin(Session session, int mateId) async {
+  Future<void> transferAdmin(Session session, UuidValue mateId) async {
     final (:me, :flat) = await requireAdmin(session);
     final other = await Mate.db.findById(session, mateId);
     if (other == null || other.flatId != flat.id || other.leftAt != null) {
@@ -263,7 +273,7 @@ class FlatEndpoint extends Endpoint {
   /// Removes a Mate from the Flat. The Admin can remove anyone; anyone can
   /// remove themselves. The Admin must hand over the role before leaving,
   /// unless they're the last Mate.
-  Future<void> removeMate(Session session, int mateId) async {
+  Future<void> removeMate(Session session, UuidValue mateId) async {
     final (:me, :flat) = await requireMate(session);
     final isAdmin = flat.adminMateId == me.id;
     if (mateId != me.id && !isAdmin) fail('Only the admin can remove mates.');
@@ -331,7 +341,7 @@ class FlatEndpoint extends Endpoint {
   }
 
   /// The first colour no active Mate has; wraps round when all are taken.
-  Future<MateColor> _freeColor(Session session, int flatId) async {
+  Future<MateColor> _freeColor(Session session, UuidValue flatId) async {
     final mates = await activeMates(session, flatId);
     final taken = mates.map((m) => m.color).toSet();
     return MateColor.values.firstWhere(

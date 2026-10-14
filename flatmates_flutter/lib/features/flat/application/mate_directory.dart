@@ -8,27 +8,28 @@ class MateDirectory {
   MateDirectory(this._flat) : _byId = {for (final m in _flat.mates) m.id!: m};
 
   final MyFlat _flat;
-  final Map<int, Mate> _byId;
+  final Map<UuidValue, Mate> _byId;
 
   Flat get flat => _flat.flat;
   Mate get me => _flat.me;
   List<Mate> get mates => _flat.mates;
   bool get amAdmin => flat.adminMateId == me.id;
 
-  bool isMe(int? mateId) => mateId == me.id;
-  bool isAdmin(int? mateId) => mateId == flat.adminMateId;
+  bool isMe(UuidValue? mateId) => mateId == me.id;
+  bool isAdmin(UuidValue? mateId) => mateId == flat.adminMateId;
 
   /// The Mate's name, or "You" for the signed-in user.
-  String nameOf(int? mateId) {
+  String nameOf(UuidValue? mateId) {
     if (isMe(mateId)) return 'You';
     return realNameOf(mateId);
   }
 
   /// The Mate's own name, even for the signed-in user.
-  String realNameOf(int? mateId) => _byId[mateId]?.displayName ?? 'Former Mate';
+  String realNameOf(UuidValue? mateId) =>
+      _byId[mateId]?.displayName ?? 'Former Mate';
 
   /// Index into the theme's `mateColors`.
-  int colorIndexOf(int? mateId) => _byId[mateId]?.color.index ?? 0;
+  int colorIndexOf(UuidValue? mateId) => _byId[mateId]?.color.index ?? 0;
 }
 
 /// The current [MateDirectory]. Only read it inside the home shell, where
@@ -54,7 +55,7 @@ class MateDirectoryNotifier extends Notifier<MateDirectory> {
 /// The current Flat's id, or null. Data providers watch this so they reload
 /// when the user joins or leaves a Flat; it only notifies when the id
 /// itself changes.
-int? _currentFlatId(Ref ref) =>
+UuidValue? _currentFlatId(Ref ref) =>
     ref.watch(myFlatControllerProvider).value?.flat.id;
 
-final currentFlatIdProvider = Provider<int?>(_currentFlatId);
+final currentFlatIdProvider = Provider<UuidValue?>(_currentFlatId);

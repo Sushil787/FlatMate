@@ -14,7 +14,8 @@ import 'package:serverpod/serverpod.dart' as _is;
 import 'turn_status.dart' as _i5yk6qf9;
 
 /// One Mate's responsibility for a Chore for one day.
-abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Turn
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Turn._({
     this.id,
     required this.flatId,
@@ -31,11 +32,11 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Turn({
-    int? id,
-    required int flatId,
-    required int choreId,
-    required int mateId,
-    int? coveringForMateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue choreId,
+    required _is.UuidValue mateId,
+    _is.UuidValue? coveringForMateId,
     required DateTime day,
     required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
@@ -46,11 +47,19 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   factory Turn.fromJson(Map<String, dynamic> jsonSerialization) {
     return Turn(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      choreId: jsonSerialization['choreId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
-      coveringForMateId: jsonSerialization['coveringForMateId'] as int?,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      choreId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
+      mateId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
+      coveringForMateId: jsonSerialization['coveringForMateId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['coveringForMateId'],
+            ),
       day: _is.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
       lastDay: _is.DateTimeJsonExtension.fromJson(jsonSerialization['lastDay']),
       status: _i5yk6qf9.TurnStatus.fromJson(
@@ -73,16 +82,16 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = TurnRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
-  int choreId;
+  _is.UuidValue choreId;
 
-  int mateId;
+  _is.UuidValue mateId;
 
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
-  int? coveringForMateId;
+  _is.UuidValue? coveringForMateId;
 
   /// The Turn's day (12:00 UTC on that date, see day.dart).
   DateTime day;
@@ -99,17 +108,17 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Turn]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Turn copyWith({
-    int? id,
-    int? flatId,
-    int? choreId,
-    int? mateId,
-    int? coveringForMateId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
+    _is.UuidValue? choreId,
+    _is.UuidValue? mateId,
+    _is.UuidValue? coveringForMateId,
     DateTime? day,
     DateTime? lastDay,
     _i5yk6qf9.TurnStatus? status,
@@ -121,11 +130,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Turn',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'choreId': choreId,
-      'mateId': mateId,
-      if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'choreId': choreId.toJson(),
+      'mateId': mateId.toJson(),
+      if (coveringForMateId != null)
+        'coveringForMateId': coveringForMateId?.toJson(),
       'day': day.toJson(),
       'lastDay': lastDay.toJson(),
       'status': status.toJson(),
@@ -139,11 +149,12 @@ abstract class Turn implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Turn',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'choreId': choreId,
-      'mateId': mateId,
-      if (coveringForMateId != null) 'coveringForMateId': coveringForMateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'choreId': choreId.toJson(),
+      'mateId': mateId.toJson(),
+      if (coveringForMateId != null)
+        'coveringForMateId': coveringForMateId?.toJson(),
       'day': day.toJson(),
       'lastDay': lastDay.toJson(),
       'status': status.toJson(),
@@ -185,11 +196,11 @@ class _Undefined {}
 
 class _TurnImpl extends Turn {
   _TurnImpl({
-    int? id,
-    required int flatId,
-    required int choreId,
-    required int mateId,
-    int? coveringForMateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue choreId,
+    required _is.UuidValue mateId,
+    _is.UuidValue? coveringForMateId,
     required DateTime day,
     required DateTime lastDay,
     required _i5yk6qf9.TurnStatus status,
@@ -216,9 +227,9 @@ class _TurnImpl extends Turn {
   @override
   Turn copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? choreId,
-    int? mateId,
+    _is.UuidValue? flatId,
+    _is.UuidValue? choreId,
+    _is.UuidValue? mateId,
     Object? coveringForMateId = _Undefined,
     DateTime? day,
     DateTime? lastDay,
@@ -228,11 +239,11 @@ class _TurnImpl extends Turn {
     DateTime? updatedAt,
   }) {
     return Turn(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       choreId: choreId ?? this.choreId,
       mateId: mateId ?? this.mateId,
-      coveringForMateId: coveringForMateId is int?
+      coveringForMateId: coveringForMateId is _is.UuidValue?
           ? coveringForMateId
           : this.coveringForMateId,
       day: day ?? this.day,
@@ -248,22 +259,27 @@ class _TurnImpl extends Turn {
 class TurnUpdateTable extends _is.UpdateTable<TurnTable> {
   TurnUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> choreId(int value) => _is.ColumnValue(
-    table.choreId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> choreId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.choreId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> mateId(int value) => _is.ColumnValue(
-    table.mateId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mateId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.mateId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> coveringForMateId(int? value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> coveringForMateId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
     table.coveringForMateId,
     value,
   );
@@ -305,22 +321,22 @@ class TurnUpdateTable extends _is.UpdateTable<TurnTable> {
       );
 }
 
-class TurnTable extends _is.Table<int?> {
+class TurnTable extends _is.Table<_is.UuidValue?> {
   TurnTable({super.tableRelation}) : super(tableName: 'turn') {
     updateTable = TurnUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
-    choreId = _is.ColumnInt(
+    choreId = _is.ColumnUuid(
       'choreId',
       this,
     );
-    mateId = _is.ColumnInt(
+    mateId = _is.ColumnUuid(
       'mateId',
       this,
     );
-    coveringForMateId = _is.ColumnInt(
+    coveringForMateId = _is.ColumnUuid(
       'coveringForMateId',
       this,
     );
@@ -355,14 +371,14 @@ class TurnTable extends _is.Table<int?> {
 
   late final TurnUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
-  late final _is.ColumnInt choreId;
+  late final _is.ColumnUuid choreId;
 
-  late final _is.ColumnInt mateId;
+  late final _is.ColumnUuid mateId;
 
   /// Set when [mateId] is doing this Turn on someone else's behalf (Swap).
-  late final _is.ColumnInt coveringForMateId;
+  late final _is.ColumnUuid coveringForMateId;
 
   /// The Turn's day (12:00 UTC on that date, see day.dart).
   late final _is.ColumnDateTime day;
@@ -401,7 +417,7 @@ class TurnInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Turn.t;
+  _is.Table<_is.UuidValue?> get table => Turn.t;
 }
 
 class TurnIncludeList extends _is.IncludeList {
@@ -420,7 +436,7 @@ class TurnIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Turn.t;
+  _is.Table<_is.UuidValue?> get table => Turn.t;
 }
 
 class TurnRepository {
@@ -512,7 +528,7 @@ class TurnRepository {
   /// Finds a single [Turn] by its [id] or null if no such row exists.
   Future<Turn?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -681,7 +697,7 @@ class TurnRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Turn?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<TurnUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

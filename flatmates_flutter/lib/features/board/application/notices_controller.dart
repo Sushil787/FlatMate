@@ -1,4 +1,4 @@
-import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_client/flatmates_client.dart' hide NoticeRepository;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../flat/application/mate_directory.dart';
@@ -58,6 +58,6 @@ class NoticesController extends AsyncNotifier<List<Notice>> {
 
 extension NoticeGotIts on Notice {
   /// Whether [mateId] has yet to say Got it (never true for the author).
-  bool isNewFor(int? mateId) =>
+  bool isNewFor(UuidValue? mateId) =>
       this.mateId != mateId && !(gotItMateIds?.contains(mateId) ?? false);
 }

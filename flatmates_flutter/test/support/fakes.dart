@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_client/flatmates_client.dart'
+    hide AwayRepository, ChoreRepository, FlatRepository, NoticeRepository;
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flatmates_flutter/core/utils/day.dart';
 import 'package:flatmates_flutter/core/services/push_service.dart';
 import 'package:flatmates_flutter/features/auth/application/auth_controller.dart';
@@ -13,6 +15,11 @@ import 'package:flatmates_flutter/features/flat/data/flat_repository.dart';
 import 'package:flatmates_flutter/features/groceries/data/grocery_repository.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
+
+/// A fixed id for test fixtures: uid(1), uid(2), …
+UuidValue uid(int n) => UuidValue.fromString(
+  '00000000-0000-7000-8000-${n.toString().padLeft(12, '0')}',
+);
 
 /// An in-memory Flat with Priya (admin, the signed-in user), Sam and Alex.
 class FakeBackend {
@@ -27,7 +34,7 @@ class FakeBackend {
   final groceries = <GroceryItem>[];
   final events = <FlatEvent>[];
   final aways = <Away>[];
-  final doneTurnIds = <int>[];
+  final doneTurnIds = <UuidValue>[];
 
   /// How long Chore calls take, to catch a second tap while one runs.
   Duration latency = Duration.zero;
@@ -36,11 +43,19 @@ class FakeBackend {
   /// Push notifications arriving while the app is open.
   final pushes = StreamController<RemoteNotification>.broadcast();
 
-  static const priya = 1, sam = 2, alex = 3;
+  /// Whether the phone shows notifications; [pushAsked] counts prompts.
+  bool pushAllowed = true;
+  int pushAsked = 0;
 
+  /// Calls to finishOnboarding.
+  int onboardingFinished = 0;
+
+  static final priya = uid(1), sam = uid(2), alex = uid(3);
+
+  /// Priya, Sam and Alex, all past onboarding.
   MyFlat _flat({String name = 'Priya'}) {
     final flat = Flat(
-      id: 10,
+      id: uid(10),
       name: 'Elm St',
       timezone: 'UTC',
       adminMateId: priya,
@@ -49,31 +64,32 @@ class FakeBackend {
       awayRule: AwayRule.swap,
       createdAt: DateTime.now(),
     );
-    Mate mate(int id, String n) => Mate(
+    Mate mate(UuidValue id, String n, int i) => Mate(
       id: id,
-      flatId: 10,
+      flatId: uid(10),
       authUserId: UuidValue.fromString(
-        '00000000-0000-4000-8000-00000000000$id',
+        '00000000-0000-4000-8000-00000000000$i',
       ),
       displayName: n,
       joinedAt: DateTime.now(),
-      color: MateColor.values[id - 1],
+      onboardedAt: DateTime.now(),
+      color: MateColor.values[i - 1],
     );
-    final me = mate(priya, name);
+    final me = mate(priya, name, 1);
     return MyFlat(
       flat: flat,
       me: me,
-      mates: [me, mate(sam, 'Sam'), mate(alex, 'Alex')],
+      mates: [me, mate(sam, 'Sam', 2), mate(alex, 'Alex', 3)],
     );
   }
 
   /// Adds a weekly Chore whose current Turn belongs to [mateId].
-  void addChore(String name, {required int mateId, int id = 1}) {
+  void addChore(String name, {required UuidValue mateId, int id = 1}) {
     final today = Day.fromLocal(DateTime.now());
     chores.add(
       Chore(
-        id: id,
-        flatId: 10,
+        id: uid(id),
+        flatId: uid(10),
         name: name,
         period: const Duration(days: 7),
         startDay: today,
@@ -84,9 +100,9 @@ class FakeBackend {
     );
     turns.add(
       Turn(
-        id: id * 100,
-        flatId: 10,
-        choreId: id,
+        id: uid(id * 100),
+        flatId: uid(10),
+        choreId: uid(id),
         mateId: mateId,
         day: today,
         lastDay: today,
@@ -106,7 +122,7 @@ class FakeBackend {
         email: 'priya@example.com',
       ),
     ),
-    pushServiceProvider.overrideWithValue(_NoPush(pushes.stream)),
+    pushServiceProvider.overrideWithValue(_NoPush(this)),
     flatRepositoryProvider.overrideWithValue(_FlatRepo(this)),
     choreRepositoryProvider.overrideWithValue(_ChoreRepo(this)),
     awayRepositoryProvider.overrideWithValue(_AwayRepo(this)),
@@ -122,11 +138,19 @@ class _SignedIn extends AuthController {
 }
 
 class _NoPush implements PushService {
-  _NoPush(this.foreground);
+  _NoPush(this.b);
+  final FakeBackend b;
   @override
-  final Stream<RemoteNotification> foreground;
+  Stream<RemoteNotification> get foreground => b.pushes.stream;
   @override
   Future<void> register() async {}
+  @override
+  Future<bool> allowed() async => b.pushAllowed;
+  @override
+  Future<bool> ask() async {
+    b.pushAsked++;
+    return b.pushAllowed = true;
+  }
 }
 
 class _FlatRepo implements FlatRepository {
@@ -136,10 +160,18 @@ class _FlatRepo implements FlatRepository {
   @override
   Future<MyFlat?> mine() async => b.myFlat;
   @override
+  Future<void> probe() async {}
+  @override
   Future<MyFlat> create({
     required String flatName,
     required String myName,
-  }) async => b.myFlat = b._flat(name: myName);
+  }) async {
+    // A new Flat: Priya alone, not onboarded yet.
+    final flat = b._flat(name: myName);
+    flat.me.onboardedAt = null;
+    return b.myFlat = flat..mates = [flat.me];
+  }
+
   @override
   Future<MyFlat> join({
     required String inviteCode,
@@ -150,7 +182,13 @@ class _FlatRepo implements FlatRepository {
         message: 'That invite code doesn\'t match any flat.',
       );
     }
-    return b.myFlat = b._flat(name: myName);
+    // Joined as a Mate: Sam is the Admin, and hasn't added them to Chores.
+    final flat = b._flat(name: myName);
+    flat.flat.adminMateId = FakeBackend.sam;
+    flat.me
+      ..welcomed = false
+      ..onboardedAt = null;
+    return b.myFlat = flat;
   }
 
   @override
@@ -171,7 +209,13 @@ class _FlatRepo implements FlatRepository {
   @override
   Future<Mate> setNotifications(Mate me) async => me;
   @override
-  Future<void> welcomeMate(int mateId, List<int> choreIds) async {
+  Future<Mate> finishOnboarding() async {
+    b.onboardingFinished++;
+    return b.myFlat!.me..onboardedAt = DateTime.now();
+  }
+
+  @override
+  Future<void> welcomeMate(UuidValue mateId, List<UuidValue> choreIds) async {
     for (final c in b.chores.where((c) => choreIds.contains(c.id))) {
       c.rotation = [...c.rotation, mateId];
     }
@@ -181,9 +225,9 @@ class _FlatRepo implements FlatRepository {
   }
 
   @override
-  Future<void> transferAdmin(int mateId) async {}
+  Future<void> transferAdmin(UuidValue mateId) async {}
   @override
-  Future<void> removeMate(int mateId) async {}
+  Future<void> removeMate(UuidValue mateId) async {}
   @override
   Future<void> leave() async => b.myFlat = null;
   @override
@@ -197,7 +241,7 @@ class _ChoreRepo implements ChoreRepository {
   @override
   Future<List<Chore>> list() async => [...b.chores];
   @override
-  Future<List<Turn>> activeTurns() async => b.turns
+  Future<List<Turn>> currentTurns() async => b.turns
       .where(
         (t) => t.status == TurnStatus.active || t.status == TurnStatus.done,
       )
@@ -211,7 +255,7 @@ class _ChoreRepo implements ChoreRepository {
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) async {
     await Future<void>.delayed(b.latency);
     b.addChore(name, mateId: rotation.first, id: b.chores.length + 1);
@@ -220,16 +264,16 @@ class _ChoreRepo implements ChoreRepository {
 
   @override
   Future<Chore> update({
-    required int choreId,
+    required UuidValue choreId,
     required String name,
     required Duration period,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) async => b.chores.firstWhere((c) => c.id == choreId)..name = name;
   @override
-  Future<void> archive(int choreId) async =>
+  Future<void> archive(UuidValue choreId) async =>
       b.chores.removeWhere((c) => c.id == choreId);
   @override
-  Future<Turn> markDone(int turnId) async {
+  Future<Turn> markDone(UuidValue turnId) async {
     await Future<void>.delayed(b.latency);
     b.doneTurnIds.add(turnId);
     final turn = b.turns.firstWhere((t) => t.id == turnId);
@@ -238,7 +282,7 @@ class _ChoreRepo implements ChoreRepository {
   }
 
   @override
-  Future<Turn> undoDone(int turnId) async {
+  Future<Turn> undoDone(UuidValue turnId) async {
     await Future<void>.delayed(b.latency);
     b.doneTurnIds.remove(turnId);
     return b.turns.firstWhere((t) => t.id == turnId)
@@ -259,8 +303,8 @@ class _AwayRepo implements AwayRepository {
   @override
   Future<Away> create(DateTime startDay, DateTime lastDay) async {
     final away = Away(
-      id: b.aways.length + 1,
-      flatId: 10,
+      id: uid(b.aways.length + 1 + 1000),
+      flatId: uid(10),
       mateId: FakeBackend.priya,
       startDay: startDay,
       lastDay: lastDay,
@@ -270,11 +314,7 @@ class _AwayRepo implements AwayRepository {
   }
 
   @override
-  Future<List<AwayEffect>> preview(DateTime startDay, DateTime lastDay) async =>
-      [];
-
-  @override
-  Future<void> cancel(int awayId) async =>
+  Future<void> cancel(UuidValue awayId) async =>
       b.aways.removeWhere((a) => a.id == awayId);
 }
 
@@ -296,8 +336,8 @@ class _EventRepo implements EventRepository {
     required bool tellFlat,
   }) async {
     final e = FlatEvent(
-      id: b.events.length + 1,
-      flatId: 10,
+      id: uid(b.events.length + 1 + 1000),
+      flatId: uid(10),
       mateId: FakeBackend.priya,
       title: title,
       note: note,
@@ -310,7 +350,7 @@ class _EventRepo implements EventRepository {
   }
 
   @override
-  Future<void> delete(int eventId) async =>
+  Future<void> delete(UuidValue eventId) async =>
       b.events.removeWhere((e) => e.id == eventId);
 }
 
@@ -323,8 +363,8 @@ class _NoticeRepo implements NoticeRepository {
   @override
   Future<Notice> post(String text) async {
     final n = Notice(
-      id: b.notices.length + 1,
-      flatId: 10,
+      id: uid(b.notices.length + 1 + 1000),
+      flatId: uid(10),
       mateId: FakeBackend.priya,
       text: text.trim(),
       pinned: false,
@@ -335,16 +375,16 @@ class _NoticeRepo implements NoticeRepository {
   }
 
   @override
-  Future<void> setPinned(int noticeId, bool pinned) async =>
+  Future<void> setPinned(UuidValue noticeId, bool pinned) async =>
       b.notices.firstWhere((n) => n.id == noticeId).pinned = pinned;
   @override
-  Future<void> gotIt(int noticeId) async {
+  Future<void> gotIt(UuidValue noticeId) async {
     final n = b.notices.firstWhere((n) => n.id == noticeId);
     n.gotItMateIds = [...?n.gotItMateIds, FakeBackend.priya];
   }
 
   @override
-  Future<void> delete(int noticeId) async =>
+  Future<void> delete(UuidValue noticeId) async =>
       b.notices.removeWhere((n) => n.id == noticeId);
 }
 
@@ -357,8 +397,8 @@ class _GroceryRepo implements GroceryRepository {
   @override
   Future<GroceryItem> add(String name, String? note) async {
     final g = GroceryItem(
-      id: b.groceries.length + 1,
-      flatId: 10,
+      id: uid(b.groceries.length + 1 + 1000),
+      flatId: uid(10),
       name: name,
       note: note,
       addedByMateId: FakeBackend.priya,
@@ -369,7 +409,7 @@ class _GroceryRepo implements GroceryRepository {
   }
 
   @override
-  Future<GroceryItem> setBought(int itemId, bool bought) async {
+  Future<GroceryItem> setBought(UuidValue itemId, bool bought) async {
     final g = b.groceries.firstWhere((g) => g.id == itemId);
     g
       ..boughtAt = bought ? DateTime.now() : null
@@ -378,6 +418,6 @@ class _GroceryRepo implements GroceryRepository {
   }
 
   @override
-  Future<void> delete(int itemId) async =>
+  Future<void> delete(UuidValue itemId) async =>
       b.groceries.removeWhere((g) => g.id == itemId);
 }

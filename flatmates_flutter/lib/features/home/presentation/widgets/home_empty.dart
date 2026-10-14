@@ -1,10 +1,11 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/mate_avatar.dart';
 import '../../../chores/presentation/chore_editor_sheet.dart';
+import '../../../flat/presentation/widgets/share_invite.dart';
 import '../../../../core/widgets/app_icon.dart';
 
 /// For an Admin who is alone in a new Flat: the Invite to share.
@@ -16,22 +17,9 @@ class InviteCard extends StatelessWidget {
     required this.inviteCode,
   });
 
-  final int meId;
+  final UuidValue meId;
   final String flatName;
   final String inviteCode;
-
-  Future<void> _share(BuildContext context) async {
-    // ponytail: copies to the clipboard; add share_plus for the system sheet.
-    await Clipboard.setData(
-      ClipboardData(
-        text: 'Join $flatName on Flatmates with the Invite code $inviteCode',
-      ),
-    );
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invite copied. Send it to your Mates.')),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +90,11 @@ class InviteCard extends StatelessWidget {
               ),
               const SizedBox(width: Space.sm),
               FilledButton(
-                onPressed: () => _share(context),
+                onPressed: () => shareInvite(
+                  context,
+                  flatName: flatName,
+                  code: inviteCode,
+                ),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size(0, 52),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -124,7 +116,13 @@ class NoChoresCard extends StatelessWidget {
 
   final bool amAdmin;
 
-  static const _suggestions = ['Take out bins', 'Clean bathroom', 'Hoover'];
+  /// One-tap Chore names for a new Flat.
+  static const suggestions = [
+    'Do the dishes',
+    'Take out bins',
+    'Clean bathroom',
+    'Hoover',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +163,7 @@ class NoChoresCard extends StatelessWidget {
                 spacing: Space.sm,
                 runSpacing: Space.sm,
                 children: [
-                  for (final name in _suggestions)
+                  for (final name in suggestions)
                     TextButton(
                       onPressed: () => showChoreEditor(context, name: name),
                       style: TextButton.styleFrom(
