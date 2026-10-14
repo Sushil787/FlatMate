@@ -37,6 +37,10 @@ import 'flat_change.dart' as _izxtvxcg;
 import 'flat_change_kind.dart' as _iyrv7gay;
 import 'flatmates_exception.dart' as _id68d40p;
 import 'future_calls_generated_models/turn_calls_ended_model.dart' as _ijoy4xkx;
+import 'future_calls_generated_models/turn_calls_mates_not_done_model.dart'
+    as _imhwsdgw;
+import 'future_calls_generated_models/turn_calls_night_summary_model.dart'
+    as _i7mg47cd;
 import 'future_calls_generated_models/turn_calls_reminder_model.dart'
     as _irgon17h;
 import 'future_calls_generated_models/turn_calls_started_model.dart'
@@ -204,6 +208,13 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'bool',
         ),
         _isp.ColumnDefinition(
+          name: 'turnTime',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'flatmates_shared:TurnTime',
+          columnDefault: '\'evening\'',
+        ),
+        _isp.ColumnDefinition(
           name: 'createdAt',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -355,13 +366,6 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnType: _isp.ColumnType.text,
           isNullable: false,
           dartType: 'flatmates_shared:AwayRule',
-        ),
-        _isp.ColumnDefinition(
-          name: 'morningSummaryAt',
-          columnType: _isp.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '480',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -651,6 +655,13 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'notifyAddedToRotation',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'notifyNightSummary',
           columnType: _isp.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
@@ -1084,6 +1095,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ijoy4xkx.TurnCallsEndedModel) {
       return _ijoy4xkx.TurnCallsEndedModel.fromJson(data) as T;
     }
+    if (t == _imhwsdgw.TurnCallsMatesNotDoneModel) {
+      return _imhwsdgw.TurnCallsMatesNotDoneModel.fromJson(data) as T;
+    }
+    if (t == _i7mg47cd.TurnCallsNightSummaryModel) {
+      return _i7mg47cd.TurnCallsNightSummaryModel.fromJson(data) as T;
+    }
     if (t == _irgon17h.TurnCallsReminderModel) {
       return _irgon17h.TurnCallsReminderModel.fromJson(data) as T;
     }
@@ -1152,6 +1169,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_ijoy4xkx.TurnCallsEndedModel?>()) {
       return (data != null
               ? _ijoy4xkx.TurnCallsEndedModel.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_imhwsdgw.TurnCallsMatesNotDoneModel?>()) {
+      return (data != null
+              ? _imhwsdgw.TurnCallsMatesNotDoneModel.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i7mg47cd.TurnCallsNightSummaryModel?>()) {
+      return (data != null
+              ? _i7mg47cd.TurnCallsNightSummaryModel.fromJson(data)
               : null)
           as T;
     }
@@ -1284,6 +1313,8 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iyrv7gay.FlatChangeKind => 'FlatChangeKind',
       _id68d40p.FlatmatesException => 'FlatmatesException',
       _ijoy4xkx.TurnCallsEndedModel => 'TurnCallsEndedModel',
+      _imhwsdgw.TurnCallsMatesNotDoneModel => 'TurnCallsMatesNotDoneModel',
+      _i7mg47cd.TurnCallsNightSummaryModel => 'TurnCallsNightSummaryModel',
       _irgon17h.TurnCallsReminderModel => 'TurnCallsReminderModel',
       _icfcmm02.TurnCallsStartedModel => 'TurnCallsStartedModel',
       _idc9is2h.GroceryItem => 'GroceryItem',
@@ -1331,6 +1362,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'FlatmatesException';
       case _ijoy4xkx.TurnCallsEndedModel():
         return 'TurnCallsEndedModel';
+      case _imhwsdgw.TurnCallsMatesNotDoneModel():
+        return 'TurnCallsMatesNotDoneModel';
+      case _i7mg47cd.TurnCallsNightSummaryModel():
+        return 'TurnCallsNightSummaryModel';
       case _irgon17h.TurnCallsReminderModel():
         return 'TurnCallsReminderModel';
       case _icfcmm02.TurnCallsStartedModel():
@@ -1417,6 +1452,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'TurnCallsEndedModel') {
       return deserialize<_ijoy4xkx.TurnCallsEndedModel>(data['data']);
+    }
+    if (dataClassName == 'TurnCallsMatesNotDoneModel') {
+      return deserialize<_imhwsdgw.TurnCallsMatesNotDoneModel>(data['data']);
+    }
+    if (dataClassName == 'TurnCallsNightSummaryModel') {
+      return deserialize<_i7mg47cd.TurnCallsNightSummaryModel>(data['data']);
     }
     if (dataClassName == 'TurnCallsReminderModel') {
       return deserialize<_irgon17h.TurnCallsReminderModel>(data['data']);

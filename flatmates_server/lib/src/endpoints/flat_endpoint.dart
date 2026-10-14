@@ -6,6 +6,7 @@ import 'package:serverpod/serverpod.dart';
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/digests.dart';
 import '../notify/notifier.dart';
 import '../rotation/turn_service.dart';
 
@@ -99,11 +100,12 @@ class FlatEndpoint extends Endpoint {
         welcomed: false,
       ),
     );
+    final joined = joinedPush(displayName, flat.name);
     await Notifier.toFlat(
       session,
       flat.id!,
-      title: '$displayName joined ${flat.name}',
-      body: 'Say hi! The admin can add them to chores.',
+      title: joined.title,
+      body: joined.body,
       exceptMateId: me.id,
     );
     await broadcast(session, flat.id!, FlatChangeKind.flat);
@@ -158,6 +160,7 @@ class FlatEndpoint extends Endpoint {
     bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
+    bool? nightSummary,
   }) async {
     final (:me, :flat) = await requireMate(session);
     me
@@ -165,7 +168,8 @@ class FlatEndpoint extends Endpoint {
       ..notifyReminder = reminder
       ..notifyMatesNotDone = matesNotDone ?? me.notifyMatesNotDone
       ..notifyNotice = notice
-      ..notifyAddedToRotation = addedToRotation;
+      ..notifyAddedToRotation = addedToRotation
+      ..notifyNightSummary = nightSummary ?? me.notifyNightSummary;
     await Mate.db.updateRow(session, me);
     await broadcast(session, flat.id!, FlatChangeKind.flat);
     return me;
@@ -214,13 +218,15 @@ class FlatEndpoint extends Endpoint {
       await Mate.db.updateRow(session, mate, transaction: tx);
     });
     if (added.isNotEmpty && mate.id != me.id) {
+      final push = addedPush(
+        me.displayName,
+        added.map((c) => c.name).join(', '),
+      );
       await Notifier.toMates(
         session,
         [mate.id!],
-        title: 'You\'ve been added to a Rotation',
-        body:
-            '${me.displayName} added you to '
-            '${added.map((c) => c.name).join(', ')}.',
+        title: push.title,
+        body: push.body,
         kind: NotifyKind.addedToRotation,
       );
     }
@@ -234,22 +240,6 @@ class FlatEndpoint extends Endpoint {
     if (me.onboardedAt != null) return me;
     me.onboardedAt = DateTime.now().toUtc();
     return Mate.db.updateRow(session, me);
-  }
-
-  /// Sets when the morning summary goes out, in minutes after local
-  /// midnight. It has to come before the evening push.
-  Future<Flat> setMorningSummaryAt(Session session, int minutes) async {
-    final (:me, :flat) = await requireAdmin(session);
-    final eveningAt = Duration.minutesPerDay - reminderLead.inMinutes;
-    if (minutes < 0 || minutes >= eveningAt) {
-      fail('The morning summary has to come before ${eveningAt ~/ 60}:00.');
-    }
-    final wasAt = flat.morningSummaryAt;
-    flat.morningSummaryAt = minutes;
-    await Flat.db.updateRow(session, flat);
-    await TurnService.moveMorningSummary(session, flat, wasAt);
-    await broadcast(session, flat.id!, FlatChangeKind.flat);
-    return flat;
   }
 
   /// Hands the Admin role to another Mate.

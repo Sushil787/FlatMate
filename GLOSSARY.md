@@ -15,7 +15,7 @@ A member of a Flat. Every Mate, including the Admin, takes part in Chore rotatio
 _Avoid_: Flatmate, Member, User, Roommate
 
 **Mate colour**:
-The colour a Mate is shown in across the app. No two Mates in a Flat share one while there are colours to spare; a Mate can pick any colour no other Mate has.
+The colour a Mate is shown in across the app, with the face that goes with it on their avatar. No two Mates in a Flat share one while there are colours to spare; a Mate can pick any colour no other Mate has.
 _Avoid_: Avatar colour, Theme
 
 **Admin**:
@@ -49,6 +49,10 @@ _Avoid_: Interval, Frequency, Shift
 **Turn**:
 One Mate's responsibility for a Chore for one day, from local midnight to midnight. A Turn ends when its day ends, whether or not it was done.
 _Avoid_: Assignment, Occurrence, Slot
+
+**Turn time**:
+The part of the day a Chore's Turns are meant to be done in: Morning, Afternoon, Evening or Night, chosen by the Admin per Chore. The Turn's notifications follow it; the Turn still lasts the whole day.
+_Avoid_: Time slot, Shift, Due time
 
 **Done**:
 A Turn its Mate has marked complete before its day ended.

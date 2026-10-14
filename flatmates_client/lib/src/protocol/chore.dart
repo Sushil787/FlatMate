@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:flatmates_client/src/protocol/protocol.dart' as _iyp1dgna;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
 
@@ -26,9 +27,11 @@ abstract class Chore
     required this.rotation,
     required this.rotationIndex,
     required this.archived,
+    _ij0lpv6z.TurnTime? turnTime,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now(),
+  }) : turnTime = turnTime ?? _ij0lpv6z.TurnTime.evening,
+       createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Chore({
@@ -40,6 +43,7 @@ abstract class Chore
     required List<_isc.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
+    _ij0lpv6z.TurnTime? turnTime,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _ChoreImpl;
@@ -60,6 +64,11 @@ abstract class Chore
       ),
       rotationIndex: jsonSerialization['rotationIndex'] as int,
       archived: _isc.BoolJsonExtension.fromJson(jsonSerialization['archived']),
+      turnTime: jsonSerialization['turnTime'] == null
+          ? null
+          : _ij0lpv6z.TurnTime.fromJson(
+              (jsonSerialization['turnTime'] as String),
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -94,6 +103,10 @@ abstract class Chore
 
   bool archived;
 
+  /// When in the day its Turns are meant to be done; the Turn's pushes
+  /// follow it.
+  _ij0lpv6z.TurnTime turnTime;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -113,6 +126,7 @@ abstract class Chore
     List<_isc.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
+    _ij0lpv6z.TurnTime? turnTime,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -128,6 +142,7 @@ abstract class Chore
       'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'turnTime': turnTime.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -145,6 +160,7 @@ abstract class Chore
       'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
+      'turnTime': turnTime.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -190,6 +206,7 @@ class _ChoreImpl extends Chore {
     required List<_isc.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
+    _ij0lpv6z.TurnTime? turnTime,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -201,6 +218,7 @@ class _ChoreImpl extends Chore {
          rotation: rotation,
          rotationIndex: rotationIndex,
          archived: archived,
+         turnTime: turnTime,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -218,6 +236,7 @@ class _ChoreImpl extends Chore {
     List<_isc.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
+    _ij0lpv6z.TurnTime? turnTime,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -230,6 +249,7 @@ class _ChoreImpl extends Chore {
       rotation: rotation ?? this.rotation.map((e0) => e0).toList(),
       rotationIndex: rotationIndex ?? this.rotationIndex,
       archived: archived ?? this.archived,
+      turnTime: turnTime ?? this.turnTime,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -280,6 +300,13 @@ class ChoreUpdateTable extends _isd.UpdateTable<ChoreTable> {
     value,
   );
 
+  _isd.ColumnValue<_ij0lpv6z.TurnTime, _ij0lpv6z.TurnTime> turnTime(
+    _ij0lpv6z.TurnTime value,
+  ) => _isd.ColumnValue(
+    table.turnTime,
+    value,
+  );
+
   _isd.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _isd.ColumnValue(
         table.createdAt,
@@ -324,6 +351,12 @@ class ChoreTable extends _isd.Table<_isc.UuidValue?> {
       'archived',
       this,
     );
+    turnTime = _isd.ColumnEnum(
+      'turnTime',
+      this,
+      _isd.EnumSerialization.byName,
+      hasDefault: true,
+    );
     createdAt = _isd.ColumnDateTime(
       'createdAt',
       this,
@@ -356,6 +389,10 @@ class ChoreTable extends _isd.Table<_isc.UuidValue?> {
 
   late final _isd.ColumnBool archived;
 
+  /// When in the day its Turns are meant to be done; the Turn's pushes
+  /// follow it.
+  late final _isd.ColumnEnum<_ij0lpv6z.TurnTime> turnTime;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -370,6 +407,7 @@ class ChoreTable extends _isd.Table<_isc.UuidValue?> {
     rotation,
     rotationIndex,
     archived,
+    turnTime,
     createdAt,
     updatedAt,
   ];

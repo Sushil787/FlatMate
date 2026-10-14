@@ -1,12 +1,14 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../features/flat/application/mate_directory.dart';
 import '../theme/app_theme.dart';
 
-/// A coloured circle with an initial. Away draws a dashed outline instead
-/// of a fill; [turn] adds a lime ring for whose Turn it is.
+/// A Mate's face on their colour, in a circle. Away swaps the colour for
+/// the Away tint with a dashed outline; [turn] adds a lime ring for whose
+/// Turn it is. [name] is what screen readers say.
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
@@ -19,7 +21,7 @@ class Avatar extends StatelessWidget {
 
   final String name;
 
-  /// Index into [mateColors].
+  /// Index into [mateColors]: the colour and its face.
   final int colorIndex;
   final double size;
   final bool away;
@@ -29,31 +31,18 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final fm = context.fm;
     final color = mateColors[colorIndex % mateColors.length];
-    final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
-    final label = Text(
-      initial,
-      style: TextStyle(
-        fontFamily: FlatmatesTheme.bodyFont,
-        fontWeight: FontWeight.w700,
-        fontSize: (size * 0.39).roundToDouble(),
-        height: 1,
-        color: away ? fm.awayFg : color.onFill,
-      ),
-    );
+    final face = SvgPicture.asset(color.face, width: size, height: size);
     Widget circle = SizedBox.square(
       dimension: size,
-      child: away
-          ? CustomPaint(
-              painter: _DashedCircle(fm.awayFg),
-              child: Center(child: label),
-            )
-          : DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.fill,
-              ),
-              child: Center(child: label),
-            ),
+      child: CustomPaint(
+        foregroundPainter: away ? _DashedCircle(fm.awayFg) : null,
+        child: ClipOval(
+          child: ColoredBox(
+            color: away ? fm.awayBg : color.fill,
+            child: face,
+          ),
+        ),
+      ),
     );
     if (turn) {
       // 3px lime ring, 2px off the avatar.
@@ -66,7 +55,13 @@ class Avatar extends StatelessWidget {
         child: circle,
       );
     }
-    return Semantics(label: name, excludeSemantics: true, child: circle);
+    return Semantics(
+      label: name,
+      excludeSemantics: true,
+      // Its own size even when the parent stretches it (a dialog's icon,
+      // say), instead of an oval; shrink-wraps everywhere else.
+      child: Align(widthFactor: 1, heightFactor: 1, child: circle),
+    );
   }
 }
 

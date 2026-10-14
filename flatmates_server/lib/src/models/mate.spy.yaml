@@ -17,6 +17,8 @@ fields:
   notifyMatesNotDone: bool, default=true
   notifyNotice: bool, default=true
   notifyAddedToRotation: bool, default=true
+  ### The 22:00 summary of the day: who did what, what's still open.
+  notifyNightSummary: bool, default=true
   ### False until the Admin has seen that this Mate joined and picked their
   ### Chores (or chose to do it later).
   welcomed: bool, default=true

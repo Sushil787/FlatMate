@@ -58,11 +58,6 @@ class MyFlatController extends AsyncNotifier<MyFlat?> {
     await refresh();
   }
 
-  Future<void> setMorningSummaryAt(int minutes) async {
-    await _repo.setMorningSummaryAt(minutes);
-    await refresh();
-  }
-
   Future<void> rename(String name) async {
     await _repo.rename(name);
     await refresh();

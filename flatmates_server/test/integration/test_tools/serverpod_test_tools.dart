@@ -21,6 +21,10 @@ import 'package:flatmates_server/src/generated/flat_change.dart' as _ief3036t;
 import 'package:flatmates_server/src/generated/future_calls.dart' as _idh4zhdh;
 import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_ended_model.dart'
     as _imiauk18;
+import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_mates_not_done_model.dart'
+    as _ika7i1nc;
+import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_night_summary_model.dart'
+    as _i94pmt0k;
 import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_reminder_model.dart'
     as _im9nzdpf;
 import 'package:flatmates_server/src/generated/future_calls_generated_models/turn_calls_started_model.dart'
@@ -252,6 +256,37 @@ class _EmailIdpEndpoint {
 
   final _is.SerializationManager _serializationManager;
 
+  _ida.Future<_is.UuidValue> startRegistration(
+    _ist.TestSessionBuilder sessionBuilder, {
+    required String email,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'emailIdp',
+            method: 'startRegistration',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'emailIdp',
+          methodName: 'startRegistration',
+          parameters: _ist.testObjectToJson({'email': email}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_is.UuidValue>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<_iacs.AuthSuccess> login(
     _ist.TestSessionBuilder sessionBuilder, {
     required String email,
@@ -280,37 +315,6 @@ class _EmailIdpEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iacs.AuthSuccess>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _ida.Future<_is.UuidValue> startRegistration(
-    _ist.TestSessionBuilder sessionBuilder, {
-    required String email,
-  }) async {
-    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'emailIdp',
-            method: 'startRegistration',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'emailIdp',
-          methodName: 'startRegistration',
-          parameters: _ist.testObjectToJson({'email': email}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _ida.Future<_is.UuidValue>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -889,6 +893,7 @@ class _ChoreEndpoint {
     Duration period,
     DateTime startDay,
     List<_is.UuidValue> rotation,
+    _ij0lpv6z.TurnTime turnTime,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -906,6 +911,7 @@ class _ChoreEndpoint {
             'period': period,
             'startDay': startDay,
             'rotation': rotation,
+            'turnTime': turnTime,
           }),
           serializationManager: _serializationManager,
         );
@@ -928,6 +934,7 @@ class _ChoreEndpoint {
     String name,
     Duration period,
     List<_is.UuidValue> rotation,
+    _ij0lpv6z.TurnTime turnTime,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -945,6 +952,7 @@ class _ChoreEndpoint {
             'name': name,
             'period': period,
             'rotation': rotation,
+            'turnTime': turnTime,
           }),
           serializationManager: _serializationManager,
         );
@@ -1447,6 +1455,7 @@ class _FlatEndpoint {
     bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
+    bool? nightSummary,
   }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1465,6 +1474,7 @@ class _FlatEndpoint {
             'matesNotDone': matesNotDone,
             'notice': notice,
             'addedToRotation': addedToRotation,
+            'nightSummary': nightSummary,
           }),
           serializationManager: _serializationManager,
         );
@@ -1570,37 +1580,6 @@ class _FlatEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_ia7hvzvd.Mate>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _ida.Future<_i7obirgc.Flat> setMorningSummaryAt(
-    _ist.TestSessionBuilder sessionBuilder,
-    int minutes,
-  ) async {
-    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'flat',
-            method: 'setMorningSummaryAt',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'flat',
-          methodName: 'setMorningSummaryAt',
-          parameters: _ist.testObjectToJson({'minutes': minutes}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _ida.Future<_i7obirgc.Flat>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2130,6 +2109,40 @@ class _TurnCallsFutureCall {
         (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
     try {
       await _idh4zhdh.TurnCallsReminderFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> matesNotDone(
+    _ist.TestSessionBuilder sessionBuilder,
+    _is.UuidValue turnId,
+  ) async {
+    var object = _ika7i1nc.TurnCallsMatesNotDoneModel(turnId: turnId);
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _idh4zhdh.TurnCallsMatesNotDoneFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> nightSummary(
+    _ist.TestSessionBuilder sessionBuilder,
+    _is.UuidValue turnId,
+  ) async {
+    var object = _i94pmt0k.TurnCallsNightSummaryModel(turnId: turnId);
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _idh4zhdh.TurnCallsNightSummaryFutureCall().invoke(
         _localUniqueSession,
         object,
       );

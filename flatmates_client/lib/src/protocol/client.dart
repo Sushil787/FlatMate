@@ -35,14 +35,25 @@ import 'package:serverpod_database/serverpod_database.dart' as _isd;
 import 'protocol.dart' as _il2as5qe;
 import 'package:flatmates_client/migrations/migration_registry.dart';
 
-/// Email sign-in, for development only: the provider behind it is only set
-/// up when the server runs in development mode (see server.dart).
+/// Email and password sign-in, for anyone without Google (hackathon judges,
+/// say).
 /// {@category Endpoint}
 class EndpointEmailIdp extends _iaic.EndpointEmailIdpBase {
   EndpointEmailIdp(_isc.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'emailIdp';
+
+  /// Refuses an address that already signs in with Google: sign-ins aren't
+  /// linked by address, so it would make a second, empty account for the
+  /// same person.
+  @override
+  _ida.Future<_isc.UuidValue> startRegistration({required String email}) =>
+      caller.callServerEndpoint<_isc.UuidValue>(
+        'emailIdp',
+        'startRegistration',
+        {'email': email},
+      );
 
   /// Logs in the user and returns a new session.
   ///
@@ -65,24 +76,6 @@ class EndpointEmailIdp extends _iaic.EndpointEmailIdpBase {
       'password': password,
     },
   );
-
-  /// Starts the registration for a new user account with an email-based login
-  /// associated to it.
-  ///
-  /// Upon successful completion of this method, an email will have been
-  /// sent to [email] with a verification link, which the user must open to
-  /// complete the registration.
-  ///
-  /// Always returns a account request ID, which can be used to complete the
-  /// registration. If the email is already registered, the returned ID will not
-  /// be valid.
-  @override
-  _ida.Future<_isc.UuidValue> startRegistration({required String email}) =>
-      caller.callServerEndpoint<_isc.UuidValue>(
-        'emailIdp',
-        'startRegistration',
-        {'email': email},
-      );
 
   /// Verifies an account request code and returns a token
   /// that can be used to complete the account creation.
@@ -397,6 +390,7 @@ class EndpointChore extends _isc.EndpointRef {
     Duration period,
     DateTime startDay,
     List<_isc.UuidValue> rotation,
+    _ij0lpv6z.TurnTime turnTime,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'create',
@@ -405,16 +399,18 @@ class EndpointChore extends _isc.EndpointRef {
       'period': period,
       'startDay': startDay,
       'rotation': rotation,
+      'turnTime': turnTime,
     },
   );
 
   /// Edits a Chore. The current Turn finishes as planned; changes apply
-  /// from the next Turn.
+  /// from the next Turn, except the Turn time: its pushes move at once.
   _ida.Future<_ipou5iyr.Chore> update(
     _isc.UuidValue choreId,
     String name,
     Duration period,
     List<_isc.UuidValue> rotation,
+    _ij0lpv6z.TurnTime turnTime,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'update',
@@ -423,6 +419,7 @@ class EndpointChore extends _isc.EndpointRef {
       'name': name,
       'period': period,
       'rotation': rotation,
+      'turnTime': turnTime,
     },
   );
 
@@ -586,6 +583,7 @@ class EndpointFlat extends _isc.EndpointRef {
     bool? matesNotDone,
     required bool notice,
     required bool addedToRotation,
+    bool? nightSummary,
   }) => caller.callServerEndpoint<_iynws3fs.Mate>(
     'flat',
     'setNotifications',
@@ -595,6 +593,7 @@ class EndpointFlat extends _isc.EndpointRef {
       'matesNotDone': matesNotDone,
       'notice': notice,
       'addedToRotation': addedToRotation,
+      'nightSummary': nightSummary,
     },
   );
 
@@ -628,15 +627,6 @@ class EndpointFlat extends _isc.EndpointRef {
         'flat',
         'finishOnboarding',
         {},
-      );
-
-  /// Sets when the morning summary goes out, in minutes after local
-  /// midnight. It has to come before the evening push.
-  _ida.Future<_iy3ygg88.Flat> setMorningSummaryAt(int minutes) =>
-      caller.callServerEndpoint<_iy3ygg88.Flat>(
-        'flat',
-        'setMorningSummaryAt',
-        {'minutes': minutes},
       );
 
   /// Hands the Admin role to another Mate.

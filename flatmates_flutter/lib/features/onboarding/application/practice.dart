@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/day.dart';
@@ -76,6 +77,7 @@ class PracticeRun extends Notifier<Practice> {
       chore: _chore(real.flat.id!, (
         name: 'Do the dishes',
         period: const Duration(days: 1),
+        turnTime: TurnTime.evening,
         startDay: Day.fromLocal(DateTime.now()),
         rotation: [
           directory.me.id!,
@@ -95,6 +97,7 @@ class PracticeRun extends Notifier<Practice> {
     rotation: d.rotation,
     rotationIndex: 0,
     archived: false,
+    turnTime: d.turnTime,
   );
 
   Future<bool> saveChore(ChoreDraft draft) async {

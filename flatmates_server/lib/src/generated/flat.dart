@@ -24,11 +24,9 @@ abstract class Flat
     required this.inviteCode,
     required this.inviteExpiresAt,
     required this.awayRule,
-    int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) : morningSummaryAt = morningSummaryAt ?? 480,
-       createdAt = createdAt ?? DateTime.now(),
+  }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Flat({
@@ -39,7 +37,6 @@ abstract class Flat
     required String inviteCode,
     required DateTime inviteExpiresAt,
     required _ij0lpv6z.AwayRule awayRule,
-    int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _FlatImpl;
@@ -63,7 +60,6 @@ abstract class Flat
       awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
-      morningSummaryAt: jsonSerialization['morningSummaryAt'] as int?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -94,10 +90,6 @@ abstract class Flat
 
   _ij0lpv6z.AwayRule awayRule;
 
-  /// When each Mate gets the push about their Turns starting that day, in
-  /// minutes after local midnight; the Admin sets it.
-  int morningSummaryAt;
-
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -116,7 +108,6 @@ abstract class Flat
     String? inviteCode,
     DateTime? inviteExpiresAt,
     _ij0lpv6z.AwayRule? awayRule,
-    int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
@@ -131,7 +122,6 @@ abstract class Flat
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
-      'morningSummaryAt': morningSummaryAt,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -148,7 +138,6 @@ abstract class Flat
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
-      'morningSummaryAt': morningSummaryAt,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
     };
@@ -193,7 +182,6 @@ class _FlatImpl extends Flat {
     required String inviteCode,
     required DateTime inviteExpiresAt,
     required _ij0lpv6z.AwayRule awayRule,
-    int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
@@ -204,7 +192,6 @@ class _FlatImpl extends Flat {
          inviteCode: inviteCode,
          inviteExpiresAt: inviteExpiresAt,
          awayRule: awayRule,
-         morningSummaryAt: morningSummaryAt,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
@@ -221,7 +208,6 @@ class _FlatImpl extends Flat {
     String? inviteCode,
     DateTime? inviteExpiresAt,
     _ij0lpv6z.AwayRule? awayRule,
-    int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -235,7 +221,6 @@ class _FlatImpl extends Flat {
       inviteCode: inviteCode ?? this.inviteCode,
       inviteExpiresAt: inviteExpiresAt ?? this.inviteExpiresAt,
       awayRule: awayRule ?? this.awayRule,
-      morningSummaryAt: morningSummaryAt ?? this.morningSummaryAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -280,11 +265,6 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
     value,
   );
 
-  _is.ColumnValue<int, int> morningSummaryAt(int value) => _is.ColumnValue(
-    table.morningSummaryAt,
-    value,
-  );
-
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
         table.createdAt,
@@ -326,11 +306,6 @@ class FlatTable extends _is.Table<_is.UuidValue?> {
       this,
       _is.EnumSerialization.byName,
     );
-    morningSummaryAt = _is.ColumnInt(
-      'morningSummaryAt',
-      this,
-      hasDefault: true,
-    );
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
@@ -359,10 +334,6 @@ class FlatTable extends _is.Table<_is.UuidValue?> {
 
   late final _is.ColumnEnum<_ij0lpv6z.AwayRule> awayRule;
 
-  /// When each Mate gets the push about their Turns starting that day, in
-  /// minutes after local midnight; the Admin sets it.
-  late final _is.ColumnInt morningSummaryAt;
-
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -376,7 +347,6 @@ class FlatTable extends _is.Table<_is.UuidValue?> {
     inviteCode,
     inviteExpiresAt,
     awayRule,
-    morningSummaryAt,
     createdAt,
     updatedAt,
   ];

@@ -23,6 +23,7 @@ This is a Dart pub workspace (root `pubspec.yaml`) with four packages:
 cd flatmates_server
 docker compose up -d                     # Postgres: dev on 8090, tests on 9090
 dart bin/main.dart --apply-migrations    # API on :8080
+./start.sh                               # serverpod start with the app on whichever phone is plugged in
 serverpod generate                       # after changing a .spy.yaml or an endpoint signature
 serverpod create-migration               # after a model/table change; commit the migrations/ dir
 dart test                                # all tests (integration tests need the docker Postgres)
@@ -43,7 +44,7 @@ flutter run                              # server URL comes from assets/config.j
 
 **Live updates.** `broadcast` posts to the Serverpod message channel `flat-<id>`. `FlatEndpoint.changes()` streams that channel to the app. In the app, `flatChangesProvider` (`features/flat/application/flat_changes.dart`) reconnects on its own and emits `flat` after a reconnect. `flatSyncProvider` (`features/home/application/flat_sync.dart`) maps each `FlatChangeKind` to the providers it should refresh or invalidate. If you add a new kind of data, you need a new `FlatChangeKind` value and a case in `flatSync`.
 
-**Rotation.** `flatmates_shared/lib/src/planner.dart` holds the pure planning logic (`cd flatmates_shared && dart test` unit-tests it). `turn_service.dart` handles persistence and schedules the turn start, the 3-hour reminder and the turn end as FutureCalls (`future_calls/turn_calls.dart`), so they survive restarts. `SwapDebt` records who owes whom under the Swap rule. Notifications go through `notify/notifier.dart`, which logs them instead of sending when no `fcmServiceAccount` is configured.
+**Rotation.** `flatmates_shared/lib/src/planner.dart` holds the pure planning logic (`cd flatmates_shared && dart test` unit-tests it). `turn_service.dart` handles persistence and schedules each Turn's pushes (start and reminder at its Chore's Turn time, the Flat's 18:00 not-Done and 22:00 night summary) and its end as FutureCalls (`future_calls/turn_calls.dart`), so they survive restarts. `SwapDebt` records who owes whom under the Swap rule. Notifications go through `notify/notifier.dart`, which logs them instead of sending when no `fcmServiceAccount` is configured.
 
 **Offline cache (read-only).** The Flat tables are `database: all`, so the app has SQLite copies of them (`core/providers/read_cache.dart`, file opened in `main.dart`, off on web and in tests). Every repository read goes through `ReadCache.read(key, fetch, load:, clear:, insert:)`: the server's answer is saved after the fetch without blocking it, replacing what that read call saved before (`clear` must cover exactly what the server query covers). A failed save clears that scope; a failed clear deletes the file. A `CachedRead` row (`database: client`) marks each saved read, so "never saved" isn't shown as empty. Offline, reads answer from the cache; on a cold start each read is answered from the cache once until the live connection is up, then `flatChanges` refreshes everything (`UpdatingBar` meanwhile). Nothing is ever written locally: writes go through `requireOnline` (`ActionNotifier.guard` does it). Sign out and leaving the Flat clear the cache. A new read call needs its own key and a `clear` that matches its server query.
 
@@ -55,7 +56,7 @@ flutter run                              # server URL comes from assets/config.j
 
 Shared code lives in `lib/core/` (theme tokens, widgets, `action_runner`). The client provider is `core/providers/client_provider.dart`. Widget tests use `test/support/fakes.dart`, which builds a `FakeBackend` by overriding the repository providers.
 
-**Auth.** Sign-in is Google only, through `serverpod_auth_idp`. `currentUserId(session)` is the single place that reads the auth user.
+**Auth.** Sign-in is Google, or email and password for anyone without Google (hackathon judges), through `serverpod_auth_idp`. On Serverpod Cloud the email codes are sent by its email service; in development they're logged. `currentUserId(session)` is the single place that reads the auth user.
 
 ## Gotchas
 

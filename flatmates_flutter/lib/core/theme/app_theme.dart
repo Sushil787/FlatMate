@@ -104,16 +104,46 @@ class FlatmatesColors extends ThemeExtension<FlatmatesColors> {
       t < 0.5 || other is! FlatmatesColors ? this : other;
 }
 
-/// Mate avatar fill and initial colours, indexed by the server's
-/// `MateColor` (tomato, sky, plum, leaf, marigold, berry). Same in light
-/// and dark.
+/// Each Mate colour and the face that goes with it, indexed by the
+/// server's `MateColor` (tomato, sky, plum, leaf, marigold, berry). Same
+/// in light and dark. [onFill] is for text on the colour.
 const mateColors = [
-  (name: 'Tomato', fill: Color(0xFFC8431F), onFill: Colors.white),
-  (name: 'Sky', fill: Color(0xFF2670AD), onFill: Colors.white),
-  (name: 'Plum', fill: Color(0xFF8E4EA8), onFill: Colors.white),
-  (name: 'Leaf', fill: Color(0xFF1F7A52), onFill: Colors.white),
-  (name: 'Marigold', fill: Color(0xFFE0A100), onFill: Color(0xFF16181A)),
-  (name: 'Berry', fill: Color(0xFFB8356B), onFill: Colors.white),
+  (
+    name: 'Tomato',
+    fill: Color(0xFFC8431F),
+    onFill: Colors.white,
+    face: 'assets/avatars/tomato.svg',
+  ),
+  (
+    name: 'Sky',
+    fill: Color(0xFF2670AD),
+    onFill: Colors.white,
+    face: 'assets/avatars/sky.svg',
+  ),
+  (
+    name: 'Plum',
+    fill: Color(0xFF8E4EA8),
+    onFill: Colors.white,
+    face: 'assets/avatars/plum.svg',
+  ),
+  (
+    name: 'Leaf',
+    fill: Color(0xFF1F7A52),
+    onFill: Colors.white,
+    face: 'assets/avatars/leaf.svg',
+  ),
+  (
+    name: 'Marigold',
+    fill: Color(0xFFE0A100),
+    onFill: Color(0xFF16181A),
+    face: 'assets/avatars/marigold.svg',
+  ),
+  (
+    name: 'Berry',
+    fill: Color(0xFFB8356B),
+    onFill: Colors.white,
+    face: 'assets/avatars/berry.svg',
+  ),
 ];
 
 abstract final class Space {

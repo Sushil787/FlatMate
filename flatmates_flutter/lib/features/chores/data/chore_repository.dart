@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart' hide ChoreRepository;
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:serverpod_database/serverpod_database.dart';
 
@@ -110,14 +111,16 @@ class ChoreRepository {
     required Duration period,
     required DateTime startDay,
     required List<UuidValue> rotation,
-  }) => _client.chore.create(name, period, startDay, rotation);
+    required TurnTime turnTime,
+  }) => _client.chore.create(name, period, startDay, rotation, turnTime);
 
   Future<Chore> update({
     required UuidValue choreId,
     required String name,
     required Duration period,
     required List<UuidValue> rotation,
-  }) => _client.chore.update(choreId, name, period, rotation);
+    required TurnTime turnTime,
+  }) => _client.chore.update(choreId, name, period, rotation, turnTime);
 
   Future<void> archive(UuidValue choreId) => _client.chore.archive(choreId);
 

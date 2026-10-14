@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flatmates_shared/flatmates_shared.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -25,66 +24,27 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
-  late final _google = GoogleAuthController(
-    client: ref.read(clientProvider),
-    onError: (error) => ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
-  )..addListener(() => setState(() {}));
+  GoogleAuthController? _googleController;
 
+  /// Made on first use: the story page doesn't need it.
+  late final GoogleAuthController _google = _googleController =
+      GoogleAuthController(
+        client: ref.read(clientProvider),
+        onError: (error) => ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
+      )..addListener(() => setState(() {}));
+
+  /// Email and password, for anyone without Google (hackathon judges, say).
   void _emailSignIn() => showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (sheet) => Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        24,
-        24,
-        24 + MediaQuery.viewInsetsOf(sheet).bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // The seeded accounts, one tap each.
-          for (final a in devAccounts)
-            OutlinedButton(
-              onPressed: () async {
-                final client = ref.read(clientProvider);
-                try {
-                  await client.auth.updateSignedInUser(
-                    await client.emailIdp.login(
-                      email: a.email,
-                      password: devPassword,
-                    ),
-                  );
-                  if (sheet.mounted) Navigator.of(sheet).pop();
-                } catch (error) {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sign-in failed: $error')),
-                  );
-                }
-              },
-              child: Text('${a.name} (${a.role}) · ${a.email}'),
-            ),
-          const SizedBox(height: 16),
-          EmailSignInWidget(
-            client: ref.read(clientProvider),
-            startScreen: EmailFlowScreen.login,
-            onAuthenticated: () => Navigator.of(sheet).pop(),
-            onError: (error) => ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Sign-in failed: $error'))),
-          ),
-        ],
-      ),
-    ),
+    builder: (_) => const _EmailSheet(),
   );
 
   @override
   void dispose() {
-    _google.dispose();
+    _googleController?.dispose();
     super.dispose();
   }
 
@@ -116,10 +76,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               child: Stack(
                                 children: [
                                   for (final (i, name) in [
-                                    'M',
-                                    'S',
-                                    'P',
-                                    'J',
+                                    'Maya',
+                                    'Sam',
+                                    'Priya',
+                                    'Jonas',
                                   ].indexed)
                                     Positioned(
                                       left: i * 52.0,
@@ -197,16 +157,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           // Debug builds only: the seeded email accounts (see the
                           // server's dev/seed.dart). The server only has email
                           // sign-in in development.
-                          if (kDebugMode)
-                            Center(
-                              child: TextButton(
-                                onPressed: _emailSignIn,
-                                style: TextButton.styleFrom(
-                                  foregroundColor: white,
-                                ),
-                                child: const Text('Sign in with email (debug)'),
+                          Center(
+                            child: TextButton(
+                              onPressed: _emailSignIn,
+                              style: TextButton.styleFrom(
+                                foregroundColor: white,
                               ),
+                              child: const Text('Sign in with email'),
                             ),
+                          ),
                           const SizedBox(height: 16),
                           Text.rich(
                             TextSpan(
@@ -233,6 +192,76 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Email sign-in in a sheet. Its login screen links to signing up. Errors
+/// show in the sheet, as a snackbar would sit behind it, including the
+/// server's own ones the sign-in widget doesn't know (an address that signs
+/// in with Google).
+class _EmailSheet extends ConsumerStatefulWidget {
+  const _EmailSheet();
+
+  @override
+  ConsumerState<_EmailSheet> createState() => _EmailSheetState();
+}
+
+class _EmailSheetState extends ConsumerState<_EmailSheet> {
+  late final _controller = EmailAuthController(
+    client: ref.read(clientProvider),
+    startScreen: EmailFlowScreen.login,
+    onAuthenticated: () => Navigator.of(context).pop(),
+    onError: (error) => setState(() => _message = error.toString()),
+  )..addListener(_changed);
+
+  String? _message;
+
+  void _changed() {
+    final error = _controller.error;
+    if (error is FlatmatesException) {
+      setState(() => _message = error.message);
+    } else if (_controller.state == EmailAuthState.loading &&
+        _message != null) {
+      setState(() => _message = null);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        24,
+        24,
+        24 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_message case final message?) ...[
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                message,
+                style: context.text.bodyMedium?.copyWith(
+                  color: context.fm.dangerFg,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          EmailSignInWidget(controller: _controller),
+        ],
       ),
     );
   }

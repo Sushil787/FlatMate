@@ -1,8 +1,10 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/digests.dart';
 import '../notify/notifier.dart';
 import '../rotation/turn_service.dart';
 
@@ -60,6 +62,7 @@ class ChoreEndpoint extends Endpoint {
     Duration period,
     DateTime startDay,
     List<UuidValue> rotation,
+    TurnTime turnTime,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     await _validate(session, flat, name, period, rotation);
@@ -77,6 +80,7 @@ class ChoreEndpoint extends Endpoint {
         rotation: rotation,
         rotationIndex: -1,
         archived: false,
+        turnTime: turnTime,
       ),
     );
     await TurnService.startChore(session, flat, chore);
@@ -86,13 +90,14 @@ class ChoreEndpoint extends Endpoint {
   }
 
   /// Edits a Chore. The current Turn finishes as planned; changes apply
-  /// from the next Turn.
+  /// from the next Turn, except the Turn time: its pushes move at once.
   Future<Chore> update(
     Session session,
     UuidValue choreId,
     String name,
     Duration period,
     List<UuidValue> rotation,
+    TurnTime turnTime,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
@@ -110,11 +115,14 @@ class ChoreEndpoint extends Endpoint {
           ? -1
           : rotation.indexOf(ownerSlot);
     }
+    final moved = chore.turnTime != turnTime;
     chore
       ..name = name.trim()
       ..period = period
-      ..rotation = rotation;
+      ..rotation = rotation
+      ..turnTime = turnTime;
     await Chore.db.updateRow(session, chore);
+    if (moved) await TurnService.rescheduleOpen(session, flat, chore);
     await _notifyAdded(session, me, chore, added);
     await broadcast(session, flat.id!, FlatChangeKind.chores);
     return chore;
@@ -161,13 +169,16 @@ class ChoreEndpoint extends Endpoint {
     Mate me,
     Chore chore,
     Iterable<UuidValue> mateIds,
-  ) => Notifier.toMates(
-    session,
-    mateIds.where((id) => id != me.id),
-    title: 'You\'ve been added to a Rotation',
-    body: '${me.displayName} added you to ${chore.name}.',
-    kind: NotifyKind.addedToRotation,
-  );
+  ) {
+    final push = addedPush(me.displayName, chore.name);
+    return Notifier.toMates(
+      session,
+      mateIds.where((id) => id != me.id),
+      title: push.title,
+      body: push.body,
+      kind: NotifyKind.addedToRotation,
+    );
+  }
 
   Future<Chore> _find(Session session, Flat flat, UuidValue choreId) async {
     final chore = await Chore.db.findById(session, choreId);
