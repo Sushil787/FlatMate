@@ -18,14 +18,14 @@ import '../../../core/widgets/app_icon.dart';
 /// Admin only: creates a Chore ([name] pre-fills it), or edits [choreId].
 Future<void> showChoreEditor(
   BuildContext context, {
-  int? choreId,
+  UuidValue? choreId,
   String? name,
 }) => showAppSheet(context, _ChoreEditor(choreId: choreId, name: name));
 
 class _ChoreEditor extends ConsumerStatefulWidget {
   const _ChoreEditor({this.choreId, this.name});
 
-  final int? choreId;
+  final UuidValue? choreId;
   final String? name;
 
   @override
@@ -37,7 +37,7 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
   int _days = 7;
   bool _custom = false;
   DateTime _start = DateUtils.dateOnly(DateTime.now());
-  List<int> _rotation = [];
+  List<UuidValue> _rotation = [];
   Chore? _chore;
   String? _error;
 
@@ -287,8 +287,8 @@ class _ChoreEditorState extends ConsumerState<_ChoreEditor> {
 class _RotationEditor extends ConsumerWidget {
   const _RotationEditor({required this.rotation, required this.onChanged});
 
-  final List<int> rotation;
-  final ValueChanged<List<int>> onChanged;
+  final List<UuidValue> rotation;
+  final ValueChanged<List<UuidValue>> onChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -322,7 +322,7 @@ class _RotationEditor extends ConsumerWidget {
           onChanged(next);
         },
         footer: tile(
-          PopupMenuButton<int>(
+          PopupMenuButton<UuidValue>(
             tooltip: 'Add a Mate to the Rotation',
             onSelected: (id) => onChanged([...rotation, id]),
             itemBuilder: (_) => [

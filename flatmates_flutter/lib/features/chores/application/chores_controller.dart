@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart' hide ChoreRepository;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../flat/application/mate_directory.dart';
@@ -20,21 +21,21 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
   }
 
   Future<ChoresOverview> _load(ChoreRepository repo) async {
-    final (chores, turns) = await (repo.list(), repo.activeTurns()).wait;
-    return ChoresOverview(chores: chores, activeTurns: turns);
+    final (chores, turns) = await (repo.list(), repo.currentTurns()).wait;
+    return ChoresOverview(chores: chores, currentTurns: turns);
   }
 
   Future<void> refresh() async {
     state = await AsyncValue.guard(() => _load(_repo));
   }
 
-  Future<void> markDone(int turnId) async {
+  Future<void> markDone(UuidValue turnId) async {
     await _repo.markDone(turnId);
     await refresh();
   }
 
   /// Takes back a Done while the Turn's day is still going.
-  Future<void> undoDone(int turnId) async {
+  Future<void> undoDone(UuidValue turnId) async {
     await _repo.undoDone(turnId);
     await refresh();
   }
@@ -43,7 +44,7 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) async {
     await _repo.create(
       name: name,
@@ -55,10 +56,10 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
   }
 
   Future<void> save({
-    required int choreId,
+    required UuidValue choreId,
     required String name,
     required Duration period,
-    required List<int> rotation,
+    required List<UuidValue> rotation,
   }) async {
     await _repo.update(
       choreId: choreId,
@@ -69,7 +70,7 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
     await refresh();
   }
 
-  Future<void> archive(int choreId) async {
+  Future<void> archive(UuidValue choreId) async {
     await _repo.archive(choreId);
     await refresh();
   }

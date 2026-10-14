@@ -40,104 +40,118 @@ class HomeScreen extends ConsumerWidget {
     final directory = ref.watch(mateDirectoryProvider);
     // The Turn card and Done today both come from the Chore cards, which
     // Mark Done and Undo change at once: the screen moves in one step.
-    return AsyncValueView(
-      value: ref.watch(choresNowProvider),
-      loading: const HomeSkeleton(),
-      onRetry: () => ref.invalidate(choresControllerProvider),
-      data: (cards) {
-        // Loaded first: the cards are built from it.
-        final overview = ref.watch(choresControllerProvider).requireValue;
-        if (overview.chores.isEmpty) {
-          return HeaderScroll(
-            header: _Header(directory: directory),
+    return HeaderScroll(
+      header: _Header(directory: directory),
+      children: [
+        AsyncValueView(
+          value: ref.watch(choresNowProvider),
+          loading: const HomeSkeleton(),
+          onRetry: () => ref.invalidate(choresControllerProvider),
+          data: (cards) => _body(context, ref, directory, cards),
+        ),
+      ],
+    );
+  }
+
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    MateDirectory directory,
+    List<ChoreNow> cards,
+  ) {
+    // Loaded first: the cards are built from it.
+    final overview = ref.watch(choresControllerProvider).requireValue;
+    if (overview.chores.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: Space.lg,
+        children: [
+          if (directory.amAdmin &&
+              directory.mates.length == 1 &&
+              directory.flat.inviteExpiresAt.isAfter(
+                DateTime.now().toUtc(),
+              ))
+            InviteCard(
+              meId: directory.me.id!,
+              flatName: directory.flat.name,
+              inviteCode: directory.flat.inviteCode,
+            ),
+          NoChoresCard(amAdmin: directory.amAdmin),
+          if (directory.amAdmin)
+            PrimaryButton(
+              label: 'Create a Chore',
+              icon: HugeIcons.strokeRoundedAdd01,
+              background: context.fm.heroCard,
+              foreground: context.fm.onHeroCard,
+              onPressed: () => showChoreEditor(context),
+            ),
+        ],
+      );
+    }
+
+    final me = directory.me.id!;
+    // Only a Turn on today: one whose day is over is Missed, even if the
+    // server hasn't said so yet.
+    final now = DateTime.now();
+    final mine = cards.where((c) => directory.isMe(c.turn?.mateId));
+    final myTurn = [
+      for (final c in mine)
+        if (c.dueToday && c.turn!.endsAt.isAfter(now)) (c.chore, c.turn!),
+    ].firstOrNull;
+    final doneToday = [
+      for (final c in mine)
+        if (c.doneToday) c,
+    ];
+    final doneIds = {for (final c in doneToday) c.chore.id};
+    final upNext = [
+      for (final c in overview.chores)
+        if (overview.turnFor(c) case final t?
+            when c.id != myTurn?.$1.id && !doneIds.contains(c.id))
+          (c, t),
+    ]..sort((a, b) => a.$2.startsAt.compareTo(b.$2.startsAt));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: Space.lg,
+      children: [
+        if (myTurn case (final chore, final turn))
+          TurnCard(
+            chore: chore,
+            endsAt: turn.endsAt,
+            nextLabel: _nextLabel(directory, chore),
+            busy: ref.watch(markDoneProvider(turn.id!)).isLoading,
+            onDone: () => runAction(
+              context,
+              ref.read(markDoneProvider(turn.id!).notifier).run,
+            ),
+          )
+        else if (doneToday.isEmpty)
+          _NoTurnCard(overview: overview, me: me),
+        if (doneToday.isNotEmpty) _DoneToday(doneToday),
+        const _NoticeAndGroceries(),
+        if (upNext.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (directory.amAdmin &&
-                  directory.mates.length == 1 &&
-                  directory.flat.inviteExpiresAt.isAfter(
-                    DateTime.now().toUtc(),
-                  ))
-                InviteCard(
-                  meId: directory.me.id!,
-                  flatName: directory.flat.name,
-                  inviteCode: directory.flat.inviteCode,
-                ),
-              NoChoresCard(amAdmin: directory.amAdmin),
-              if (directory.amAdmin)
-                PrimaryButton(
-                  label: 'Create a Chore',
-                  icon: HugeIcons.strokeRoundedAdd01,
-                  background: context.fm.heroCard,
-                  foreground: context.fm.onHeroCard,
-                  onPressed: () => showChoreEditor(context),
-                ),
-            ],
-          );
-        }
-
-        final me = directory.me.id!;
-        // Only a Turn on today: one whose day is over is Missed, even if the
-        // server hasn't said so yet.
-        final now = DateTime.now();
-        final mine = cards.where((c) => directory.isMe(c.turn?.mateId));
-        final myTurn = [
-          for (final c in mine)
-            if (c.dueToday && c.turn!.endsAt.isAfter(now)) (c.chore, c.turn!),
-        ].firstOrNull;
-        final doneToday = [
-          for (final c in mine)
-            if (c.doneToday) c,
-        ];
-        final doneIds = {for (final c in doneToday) c.chore.id};
-        final upNext = [
-          for (final c in overview.chores)
-            if (overview.turnFor(c) case final t?
-                when c.id != myTurn?.$1.id && !doneIds.contains(c.id))
-              (c, t),
-        ]..sort((a, b) => a.$2.startsAt.compareTo(b.$2.startsAt));
-
-        return HeaderScroll(
-          header: _Header(directory: directory),
-          children: [
-            if (myTurn case (final chore, final turn))
-              TurnCard(
-                chore: chore,
-                endsAt: turn.endsAt,
-                nextLabel: _nextLabel(directory, chore),
-                busy: ref.watch(markDoneProvider(turn.id!)).isLoading,
-                onDone: () => runAction(
-                  context,
-                  ref.read(markDoneProvider(turn.id!).notifier).run,
-                ),
-              )
-            else if (doneToday.isEmpty)
-              _NoTurnCard(overview: overview, me: me),
-            if (doneToday.isNotEmpty) _DoneToday(doneToday),
-            const _NoticeAndGroceries(),
-            if (upNext.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              SectionTitle(
+                'Up next in the Flat',
+                action: 'All Chores',
+                onAction: () => context.navigateTo(const ChoresRoute()),
+              ),
+              const SizedBox(height: Space.sm),
+              RowCard(
                 children: [
-                  SectionTitle(
-                    'Up next in the Flat',
-                    action: 'All Chores',
-                    onAction: () => context.navigateTo(const ChoresRoute()),
-                  ),
-                  const SizedBox(height: Space.sm),
-                  RowCard(
-                    children: [
-                      for (final (chore, turn) in upNext.take(3))
-                        _UpNextRow(
-                          chore: chore,
-                          turn: turn,
-                          who: directory.nameOf(turn.mateId),
-                        ),
-                    ],
-                  ),
+                  for (final (chore, turn) in upNext.take(3))
+                    _UpNextRow(
+                      chore: chore,
+                      turn: turn,
+                      who: directory.nameOf(turn.mateId),
+                    ),
                 ],
               ),
-          ],
-        );
-      },
+            ],
+          ),
+      ],
     );
   }
 
@@ -229,7 +243,7 @@ class _DoneToday extends ConsumerWidget {
 class _UndoButton extends ConsumerWidget {
   const _UndoButton(this.turnId);
 
-  final int turnId;
+  final UuidValue turnId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -262,7 +276,7 @@ class _NoTurnCard extends StatelessWidget {
   const _NoTurnCard({required this.overview, required this.me});
 
   final ChoresOverview overview;
-  final int me;
+  final UuidValue me;
 
   @override
   Widget build(BuildContext context) {

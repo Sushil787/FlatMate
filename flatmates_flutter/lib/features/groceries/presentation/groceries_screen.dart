@@ -5,19 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/formatters.dart';
+import '../../../core/utils/action_runner.dart';
 import '../../../core/widgets/app_field.dart';
 import '../../../core/widgets/async_value_view.dart';
-import '../../../core/widgets/banners.dart';
 import '../../../core/widgets/layout.dart';
-import '../../flat/application/flat_changes.dart';
 import '../application/groceries_controller.dart';
-import '../application/grocery_outbox.dart';
 import 'widgets/grocery_row.dart';
 import '../../../core/widgets/app_icon.dart';
 
 /// The Flat's one shared grocery list, with a quick-entry field docked
-/// above the nav. Updates live, and keeps working offline.
+/// above the nav. Updates live.
 @RoutePage()
 class GroceriesScreen extends ConsumerStatefulWidget {
   const GroceriesScreen({super.key});
@@ -39,24 +36,18 @@ class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
     final text = (name ?? _input.text).trim();
     if (text.isEmpty) return;
     if (name == null) _input.clear();
-    ref.read(groceriesControllerProvider.notifier).add(text);
+    runAction(
+      context,
+      () => ref.read(groceriesControllerProvider.notifier).add(text),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final fm = context.fm;
     final groceries = ref.watch(groceriesControllerProvider);
-    final outbox = ref.watch(groceryOutboxProvider);
-    final online = ref.watch(onlineProvider);
-    final controller = ref.read(groceriesControllerProvider.notifier);
-    final synced = controller.lastSynced;
     final open = groceries.value?.where((g) => g.boughtAt == null).length;
-    final status = !online && synced != null
-        ? 'Last synced ${Fmt.time(synced)}'
-        : open == null
-        ? null
-        : '$open to buy';
-    final refused = outbox.refused;
+    final status = open == null ? null : '$open to buy';
 
     return SafeArea(
       child: Column(
@@ -87,32 +78,12 @@ class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
             child: AsyncValueView(
               value: groceries,
               onRetry: () => ref.invalidate(groceriesControllerProvider),
-              data: (items) => items.isEmpty && outbox.queued.isEmpty
+              data: (items) => items.isEmpty
                   ? _Empty(onAdd: _add)
-                  : _List(
-                      // Newest first.
-                      items: items.reversed.toList(),
-                      waiting: {for (final op in outbox.queued) op.item.id},
-                      offline: !online || outbox.queued.isNotEmpty,
-                    ),
+                  // Newest first.
+                  : _List(items: items.reversed.toList()),
             ),
           ),
-          if (refused != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Space.screenMargin,
-                Space.sm,
-                Space.screenMargin,
-                0,
-              ),
-              child: ErrorCard(
-                title:
-                    'Couldn\'t ${_verb(refused.op)} "${refused.op.item.name}"',
-                message: refused.message,
-                onDismiss: ref.read(groceryOutboxProvider.notifier).dismiss,
-                onRetry: controller.retry,
-              ),
-            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               Space.screenMargin,
@@ -150,22 +121,10 @@ class _GroceriesScreenState extends ConsumerState<GroceriesScreen> {
   }
 }
 
-String _verb(GroceryOp op) => switch (op.change) {
-  GroceryChange.add => 'add',
-  GroceryChange.setBought => op.item.boughtAt != null ? 'tick off' : 'untick',
-  GroceryChange.remove => 'remove',
-};
-
 class _List extends ConsumerWidget {
-  const _List({
-    required this.items,
-    required this.waiting,
-    required this.offline,
-  });
+  const _List({required this.items});
 
   final List<GroceryItem> items;
-  final Set<int?> waiting;
-  final bool offline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -181,7 +140,6 @@ class _List extends ConsumerWidget {
             GroceryRow(
               key: ValueKey(rows[i].id),
               item: rows[i],
-              waiting: waiting.contains(rows[i].id),
             ),
           ],
         ],
@@ -214,7 +172,7 @@ class _List extends ConsumerWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: controller.clearTicked,
+                    onPressed: () => runAction(context, controller.clearTicked),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: Space.sm,
@@ -230,20 +188,6 @@ class _List extends ConsumerWidget {
             ),
             card(ticked),
           ],
-          if (offline)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Space.xs,
-                10,
-                Space.xs,
-                0,
-              ),
-              child: Text(
-                'You can keep adding and ticking. We\'ll sync with your '
-                'Mates when you\'re back online.',
-                style: context.text.bodySmall,
-              ),
-            ),
         ],
       ),
     );

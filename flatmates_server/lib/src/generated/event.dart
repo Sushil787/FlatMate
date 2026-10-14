@@ -14,7 +14,7 @@ import 'package:serverpod/serverpod.dart' as _is;
 
 /// A one-off happening on the Flat's shared calendar.
 abstract class FlatEvent
-    implements _is.TableRow<int?>, _is.ProtocolSerialization {
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   FlatEvent._({
     this.id,
     required this.flatId,
@@ -31,9 +31,9 @@ abstract class FlatEvent
        updatedAt = updatedAt ?? DateTime.now();
 
   factory FlatEvent({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required String title,
     String? note,
     required DateTime startsAt,
@@ -45,9 +45,11 @@ abstract class FlatEvent
 
   factory FlatEvent.fromJson(Map<String, dynamic> jsonSerialization) {
     return FlatEvent(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
+      mateId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       title: jsonSerialization['title'] as String,
       note: jsonSerialization['note'] as String?,
       startsAt: _is.DateTimeJsonExtension.fromJson(
@@ -73,11 +75,11 @@ abstract class FlatEvent
   static const db = FlatEventRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
-  int mateId;
+  _is.UuidValue mateId;
 
   String title;
 
@@ -97,15 +99,15 @@ abstract class FlatEvent
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [FlatEvent]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   FlatEvent copyWith({
-    int? id,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     String? title,
     String? note,
     DateTime? startsAt,
@@ -118,9 +120,9 @@ abstract class FlatEvent
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'FlatEvent',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
@@ -135,9 +137,9 @@ abstract class FlatEvent
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'FlatEvent',
-      if (id != null) 'id': id,
-      'flatId': flatId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
+      'mateId': mateId.toJson(),
       'title': title,
       if (note != null) 'note': note,
       'startsAt': startsAt.toJson(),
@@ -180,9 +182,9 @@ class _Undefined {}
 
 class _FlatEventImpl extends FlatEvent {
   _FlatEventImpl({
-    int? id,
-    required int flatId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
+    required _is.UuidValue mateId,
     required String title,
     String? note,
     required DateTime startsAt,
@@ -209,8 +211,8 @@ class _FlatEventImpl extends FlatEvent {
   @override
   FlatEvent copyWith({
     Object? id = _Undefined,
-    int? flatId,
-    int? mateId,
+    _is.UuidValue? flatId,
+    _is.UuidValue? mateId,
     String? title,
     Object? note = _Undefined,
     DateTime? startsAt,
@@ -220,7 +222,7 @@ class _FlatEventImpl extends FlatEvent {
     DateTime? updatedAt,
   }) {
     return FlatEvent(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       mateId: mateId ?? this.mateId,
       title: title ?? this.title,
@@ -237,15 +239,17 @@ class _FlatEventImpl extends FlatEvent {
 class FlatEventUpdateTable extends _is.UpdateTable<FlatEventTable> {
   FlatEventUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> mateId(int value) => _is.ColumnValue(
-    table.mateId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mateId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.mateId,
+        value,
+      );
 
   _is.ColumnValue<String, String> title(String value) => _is.ColumnValue(
     table.title,
@@ -287,14 +291,14 @@ class FlatEventUpdateTable extends _is.UpdateTable<FlatEventTable> {
       );
 }
 
-class FlatEventTable extends _is.Table<int?> {
+class FlatEventTable extends _is.Table<_is.UuidValue?> {
   FlatEventTable({super.tableRelation}) : super(tableName: 'flat_event') {
     updateTable = FlatEventUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
-    mateId = _is.ColumnInt(
+    mateId = _is.ColumnUuid(
       'mateId',
       this,
     );
@@ -333,9 +337,9 @@ class FlatEventTable extends _is.Table<int?> {
 
   late final FlatEventUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
-  late final _is.ColumnInt mateId;
+  late final _is.ColumnUuid mateId;
 
   late final _is.ColumnString title;
 
@@ -376,7 +380,7 @@ class FlatEventInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => FlatEvent.t;
+  _is.Table<_is.UuidValue?> get table => FlatEvent.t;
 }
 
 class FlatEventIncludeList extends _is.IncludeList {
@@ -395,7 +399,7 @@ class FlatEventIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => FlatEvent.t;
+  _is.Table<_is.UuidValue?> get table => FlatEvent.t;
 }
 
 class FlatEventRepository {
@@ -487,7 +491,7 @@ class FlatEventRepository {
   /// Finds a single [FlatEvent] by its [id] or null if no such row exists.
   Future<FlatEvent?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -656,7 +660,7 @@ class FlatEventRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<FlatEvent?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<FlatEventUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

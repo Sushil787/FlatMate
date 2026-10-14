@@ -10,11 +10,12 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod/serverpod.dart' as _is;
-import 'away_rule.dart' as _isc380kv;
 
 /// The shared home; the boundary for everything else.
-abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Flat
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Flat._({
     this.id,
     required this.name,
@@ -31,13 +32,13 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Flat({
-    int? id,
+    _is.UuidValue? id,
     required String name,
     required String timezone,
-    int? adminMateId,
+    _is.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -45,15 +46,21 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   factory Flat.fromJson(Map<String, dynamic> jsonSerialization) {
     return Flat(
-      id: jsonSerialization['id'] as int?,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
       name: jsonSerialization['name'] as String,
       timezone: jsonSerialization['timezone'] as String,
-      adminMateId: jsonSerialization['adminMateId'] as int?,
+      adminMateId: jsonSerialization['adminMateId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['adminMateId'],
+            ),
       inviteCode: jsonSerialization['inviteCode'] as String,
       inviteExpiresAt: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['inviteExpiresAt'],
       ),
-      awayRule: _isc380kv.AwayRule.fromJson(
+      awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
       morningSummaryAt: jsonSerialization['morningSummaryAt'] as int?,
@@ -71,21 +78,21 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = FlatRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
   String name;
 
   /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   String timezone;
 
-  int? adminMateId;
+  _is.UuidValue? adminMateId;
 
   String inviteCode;
 
   /// When [inviteCode] stops working; 7 days after it was made.
   DateTime inviteExpiresAt;
 
-  _isc380kv.AwayRule awayRule;
+  _ij0lpv6z.AwayRule awayRule;
 
   /// When each Mate gets the push about their Turns starting that day, in
   /// minutes after local midnight; the Admin sets it.
@@ -96,19 +103,19 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Flat]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Flat copyWith({
-    int? id,
+    _is.UuidValue? id,
     String? name,
     String? timezone,
-    int? adminMateId,
+    _is.UuidValue? adminMateId,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -117,10 +124,10 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Flat',
-      if (id != null) 'id': id,
+      if (id != null) 'id': id?.toJson(),
       'name': name,
       'timezone': timezone,
-      if (adminMateId != null) 'adminMateId': adminMateId,
+      if (adminMateId != null) 'adminMateId': adminMateId?.toJson(),
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
@@ -134,10 +141,10 @@ abstract class Flat implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Flat',
-      if (id != null) 'id': id,
+      if (id != null) 'id': id?.toJson(),
       'name': name,
       'timezone': timezone,
-      if (adminMateId != null) 'adminMateId': adminMateId,
+      if (adminMateId != null) 'adminMateId': adminMateId?.toJson(),
       'inviteCode': inviteCode,
       'inviteExpiresAt': inviteExpiresAt.toJson(),
       'awayRule': awayRule.toJson(),
@@ -179,13 +186,13 @@ class _Undefined {}
 
 class _FlatImpl extends Flat {
   _FlatImpl({
-    int? id,
+    _is.UuidValue? id,
     required String name,
     required String timezone,
-    int? adminMateId,
+    _is.UuidValue? adminMateId,
     required String inviteCode,
     required DateTime inviteExpiresAt,
-    required _isc380kv.AwayRule awayRule,
+    required _ij0lpv6z.AwayRule awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -213,16 +220,18 @@ class _FlatImpl extends Flat {
     Object? adminMateId = _Undefined,
     String? inviteCode,
     DateTime? inviteExpiresAt,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     int? morningSummaryAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Flat(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       name: name ?? this.name,
       timezone: timezone ?? this.timezone,
-      adminMateId: adminMateId is int? ? adminMateId : this.adminMateId,
+      adminMateId: adminMateId is _is.UuidValue?
+          ? adminMateId
+          : this.adminMateId,
       inviteCode: inviteCode ?? this.inviteCode,
       inviteExpiresAt: inviteExpiresAt ?? this.inviteExpiresAt,
       awayRule: awayRule ?? this.awayRule,
@@ -246,7 +255,9 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
     value,
   );
 
-  _is.ColumnValue<int, int> adminMateId(int? value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> adminMateId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
     table.adminMateId,
     value,
   );
@@ -262,8 +273,8 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
         value,
       );
 
-  _is.ColumnValue<_isc380kv.AwayRule, _isc380kv.AwayRule> awayRule(
-    _isc380kv.AwayRule value,
+  _is.ColumnValue<_ij0lpv6z.AwayRule, _ij0lpv6z.AwayRule> awayRule(
+    _ij0lpv6z.AwayRule value,
   ) => _is.ColumnValue(
     table.awayRule,
     value,
@@ -287,7 +298,7 @@ class FlatUpdateTable extends _is.UpdateTable<FlatTable> {
       );
 }
 
-class FlatTable extends _is.Table<int?> {
+class FlatTable extends _is.Table<_is.UuidValue?> {
   FlatTable({super.tableRelation}) : super(tableName: 'flat') {
     updateTable = FlatUpdateTable(this);
     name = _is.ColumnString(
@@ -298,7 +309,7 @@ class FlatTable extends _is.Table<int?> {
       'timezone',
       this,
     );
-    adminMateId = _is.ColumnInt(
+    adminMateId = _is.ColumnUuid(
       'adminMateId',
       this,
     );
@@ -339,14 +350,14 @@ class FlatTable extends _is.Table<int?> {
   /// IANA name, e.g. Asia/Kathmandu: when the Flat's days start and end.
   late final _is.ColumnString timezone;
 
-  late final _is.ColumnInt adminMateId;
+  late final _is.ColumnUuid adminMateId;
 
   late final _is.ColumnString inviteCode;
 
   /// When [inviteCode] stops working; 7 days after it was made.
   late final _is.ColumnDateTime inviteExpiresAt;
 
-  late final _is.ColumnEnum<_isc380kv.AwayRule> awayRule;
+  late final _is.ColumnEnum<_ij0lpv6z.AwayRule> awayRule;
 
   /// When each Mate gets the push about their Turns starting that day, in
   /// minutes after local midnight; the Admin sets it.
@@ -378,7 +389,7 @@ class FlatInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Flat.t;
+  _is.Table<_is.UuidValue?> get table => Flat.t;
 }
 
 class FlatIncludeList extends _is.IncludeList {
@@ -397,7 +408,7 @@ class FlatIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Flat.t;
+  _is.Table<_is.UuidValue?> get table => Flat.t;
 }
 
 class FlatRepository {
@@ -489,7 +500,7 @@ class FlatRepository {
   /// Finds a single [Flat] by its [id] or null if no such row exists.
   Future<Flat?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -658,7 +669,7 @@ class FlatRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Flat?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<FlatUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

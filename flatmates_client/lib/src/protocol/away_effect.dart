@@ -10,10 +10,11 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
-import 'away_rule.dart' as _isc380kv;
 
 /// What a planned Away would do to one of the Mate's Turns (Away preview).
+/// The app works it out; no endpoint sends it.
 abstract class AwayEffect
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   AwayEffect._({
@@ -26,22 +27,28 @@ abstract class AwayEffect
   });
 
   factory AwayEffect({
-    required int choreId,
+    required _isc.UuidValue choreId,
     required DateTime day,
-    required _isc380kv.AwayRule awayRule,
-    int? coverMateId,
+    required _ij0lpv6z.AwayRule awayRule,
+    _isc.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   }) = _AwayEffectImpl;
 
   factory AwayEffect.fromJson(Map<String, dynamic> jsonSerialization) {
     return AwayEffect(
-      choreId: jsonSerialization['choreId'] as int,
+      choreId: _isc.UuidValueJsonExtension.fromJson(
+        jsonSerialization['choreId'],
+      ),
       day: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['day']),
-      awayRule: _isc380kv.AwayRule.fromJson(
+      awayRule: _ij0lpv6z.AwayRule.fromJson(
         (jsonSerialization['awayRule'] as String),
       ),
-      coverMateId: jsonSerialization['coverMateId'] as int?,
+      coverMateId: jsonSerialization['coverMateId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['coverMateId'],
+            ),
       newDay: jsonSerialization['newDay'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['newDay']),
@@ -53,15 +60,15 @@ abstract class AwayEffect
     );
   }
 
-  int choreId;
+  _isc.UuidValue choreId;
 
   /// The Turn's day as planned now.
   DateTime day;
 
-  _isc380kv.AwayRule awayRule;
+  _ij0lpv6z.AwayRule awayRule;
 
   /// Swap/Skip: the Mate who takes the Turn.
-  int? coverMateId;
+  _isc.UuidValue? coverMateId;
 
   /// Pause, or nobody free to cover: the Turn's new days.
   DateTime? newDay;
@@ -72,10 +79,10 @@ abstract class AwayEffect
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   AwayEffect copyWith({
-    int? choreId,
+    _isc.UuidValue? choreId,
     DateTime? day,
-    _isc380kv.AwayRule? awayRule,
-    int? coverMateId,
+    _ij0lpv6z.AwayRule? awayRule,
+    _isc.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   });
@@ -83,10 +90,10 @@ abstract class AwayEffect
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'AwayEffect',
-      'choreId': choreId,
+      'choreId': choreId.toJson(),
       'day': day.toJson(),
       'awayRule': awayRule.toJson(),
-      if (coverMateId != null) 'coverMateId': coverMateId,
+      if (coverMateId != null) 'coverMateId': coverMateId?.toJson(),
       if (newDay != null) 'newDay': newDay?.toJson(),
       if (newLastDay != null) 'newLastDay': newLastDay?.toJson(),
     };
@@ -96,10 +103,10 @@ abstract class AwayEffect
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'AwayEffect',
-      'choreId': choreId,
+      'choreId': choreId.toJson(),
       'day': day.toJson(),
       'awayRule': awayRule.toJson(),
-      if (coverMateId != null) 'coverMateId': coverMateId,
+      if (coverMateId != null) 'coverMateId': coverMateId?.toJson(),
       if (newDay != null) 'newDay': newDay?.toJson(),
       if (newLastDay != null) 'newLastDay': newLastDay?.toJson(),
     };
@@ -115,10 +122,10 @@ class _Undefined {}
 
 class _AwayEffectImpl extends AwayEffect {
   _AwayEffectImpl({
-    required int choreId,
+    required _isc.UuidValue choreId,
     required DateTime day,
-    required _isc380kv.AwayRule awayRule,
-    int? coverMateId,
+    required _ij0lpv6z.AwayRule awayRule,
+    _isc.UuidValue? coverMateId,
     DateTime? newDay,
     DateTime? newLastDay,
   }) : super._(
@@ -135,9 +142,9 @@ class _AwayEffectImpl extends AwayEffect {
   @_isc.useResult
   @override
   AwayEffect copyWith({
-    int? choreId,
+    _isc.UuidValue? choreId,
     DateTime? day,
-    _isc380kv.AwayRule? awayRule,
+    _ij0lpv6z.AwayRule? awayRule,
     Object? coverMateId = _Undefined,
     Object? newDay = _Undefined,
     Object? newLastDay = _Undefined,
@@ -146,7 +153,9 @@ class _AwayEffectImpl extends AwayEffect {
       choreId: choreId ?? this.choreId,
       day: day ?? this.day,
       awayRule: awayRule ?? this.awayRule,
-      coverMateId: coverMateId is int? ? coverMateId : this.coverMateId,
+      coverMateId: coverMateId is _isc.UuidValue?
+          ? coverMateId
+          : this.coverMateId,
       newDay: newDay is DateTime? ? newDay : this.newDay,
       newLastDay: newLastDay is DateTime? ? newLastDay : this.newLastDay,
     );

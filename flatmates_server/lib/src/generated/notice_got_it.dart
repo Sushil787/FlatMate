@@ -14,7 +14,7 @@ import 'package:serverpod/serverpod.dart' as _is;
 
 /// A Mate saying "Got it" on a Notice: they've read it.
 abstract class NoticeGotIt
-    implements _is.TableRow<int?>, _is.ProtocolSerialization {
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   NoticeGotIt._({
     this.id,
     required this.noticeId,
@@ -23,17 +23,21 @@ abstract class NoticeGotIt
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory NoticeGotIt({
-    int? id,
-    required int noticeId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue noticeId,
+    required _is.UuidValue mateId,
     DateTime? createdAt,
   }) = _NoticeGotItImpl;
 
   factory NoticeGotIt.fromJson(Map<String, dynamic> jsonSerialization) {
     return NoticeGotIt(
-      id: jsonSerialization['id'] as int?,
-      noticeId: jsonSerialization['noticeId'] as int,
-      mateId: jsonSerialization['mateId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      noticeId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['noticeId'],
+      ),
+      mateId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['mateId']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -45,33 +49,33 @@ abstract class NoticeGotIt
   static const db = NoticeGotItRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int noticeId;
+  _is.UuidValue noticeId;
 
-  int mateId;
+  _is.UuidValue mateId;
 
   DateTime createdAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [NoticeGotIt]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   NoticeGotIt copyWith({
-    int? id,
-    int? noticeId,
-    int? mateId,
+    _is.UuidValue? id,
+    _is.UuidValue? noticeId,
+    _is.UuidValue? mateId,
     DateTime? createdAt,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'NoticeGotIt',
-      if (id != null) 'id': id,
-      'noticeId': noticeId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'noticeId': noticeId.toJson(),
+      'mateId': mateId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -80,9 +84,9 @@ abstract class NoticeGotIt
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'NoticeGotIt',
-      if (id != null) 'id': id,
-      'noticeId': noticeId,
-      'mateId': mateId,
+      if (id != null) 'id': id?.toJson(),
+      'noticeId': noticeId.toJson(),
+      'mateId': mateId.toJson(),
       'createdAt': createdAt.toJson(),
     };
   }
@@ -119,9 +123,9 @@ class _Undefined {}
 
 class _NoticeGotItImpl extends NoticeGotIt {
   _NoticeGotItImpl({
-    int? id,
-    required int noticeId,
-    required int mateId,
+    _is.UuidValue? id,
+    required _is.UuidValue noticeId,
+    required _is.UuidValue mateId,
     DateTime? createdAt,
   }) : super._(
          id: id,
@@ -136,12 +140,12 @@ class _NoticeGotItImpl extends NoticeGotIt {
   @override
   NoticeGotIt copyWith({
     Object? id = _Undefined,
-    int? noticeId,
-    int? mateId,
+    _is.UuidValue? noticeId,
+    _is.UuidValue? mateId,
     DateTime? createdAt,
   }) {
     return NoticeGotIt(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       noticeId: noticeId ?? this.noticeId,
       mateId: mateId ?? this.mateId,
       createdAt: createdAt ?? this.createdAt,
@@ -152,15 +156,17 @@ class _NoticeGotItImpl extends NoticeGotIt {
 class NoticeGotItUpdateTable extends _is.UpdateTable<NoticeGotItTable> {
   NoticeGotItUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> noticeId(int value) => _is.ColumnValue(
-    table.noticeId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> noticeId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.noticeId,
+        value,
+      );
 
-  _is.ColumnValue<int, int> mateId(int value) => _is.ColumnValue(
-    table.mateId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mateId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.mateId,
+        value,
+      );
 
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
@@ -169,14 +175,14 @@ class NoticeGotItUpdateTable extends _is.UpdateTable<NoticeGotItTable> {
       );
 }
 
-class NoticeGotItTable extends _is.Table<int?> {
+class NoticeGotItTable extends _is.Table<_is.UuidValue?> {
   NoticeGotItTable({super.tableRelation}) : super(tableName: 'notice_got_it') {
     updateTable = NoticeGotItUpdateTable(this);
-    noticeId = _is.ColumnInt(
+    noticeId = _is.ColumnUuid(
       'noticeId',
       this,
     );
-    mateId = _is.ColumnInt(
+    mateId = _is.ColumnUuid(
       'mateId',
       this,
     );
@@ -189,9 +195,9 @@ class NoticeGotItTable extends _is.Table<int?> {
 
   late final NoticeGotItUpdateTable updateTable;
 
-  late final _is.ColumnInt noticeId;
+  late final _is.ColumnUuid noticeId;
 
-  late final _is.ColumnInt mateId;
+  late final _is.ColumnUuid mateId;
 
   late final _is.ColumnDateTime createdAt;
 
@@ -211,7 +217,7 @@ class NoticeGotItInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => NoticeGotIt.t;
+  _is.Table<_is.UuidValue?> get table => NoticeGotIt.t;
 }
 
 class NoticeGotItIncludeList extends _is.IncludeList {
@@ -230,7 +236,7 @@ class NoticeGotItIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => NoticeGotIt.t;
+  _is.Table<_is.UuidValue?> get table => NoticeGotIt.t;
 }
 
 class NoticeGotItRepository {
@@ -322,7 +328,7 @@ class NoticeGotItRepository {
   /// Finds a single [NoticeGotIt] by its [id] or null if no such row exists.
   Future<NoticeGotIt?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -491,7 +497,7 @@ class NoticeGotItRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<NoticeGotIt?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<NoticeGotItUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

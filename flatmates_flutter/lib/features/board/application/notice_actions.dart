@@ -18,24 +18,24 @@ class PostNotice extends ActionNotifier {
 
 /// Saying Got it on a Notice, by Notice id.
 final gotItProvider = AsyncNotifierProvider.autoDispose
-    .family<GotIt, void, int>(GotIt.new);
+    .family<GotIt, void, UuidValue>(GotIt.new);
 
 class GotIt extends ActionNotifier {
   GotIt(this.noticeId);
 
-  final int noticeId;
+  final UuidValue noticeId;
 
   Future<bool> run(Notice notice) => guard(() => _notices(ref).gotIt(notice));
 }
 
 /// Pinning or unpinning a Notice, by Notice id.
 final pinNoticeProvider = AsyncNotifierProvider.autoDispose
-    .family<PinNotice, void, int>(PinNotice.new);
+    .family<PinNotice, void, UuidValue>(PinNotice.new);
 
 class PinNotice extends ActionNotifier {
   PinNotice(this.noticeId);
 
-  final int noticeId;
+  final UuidValue noticeId;
 
   Future<bool> run(Notice notice, bool pinned) =>
       guard(() => _notices(ref).setPinned(notice, pinned));
@@ -43,12 +43,12 @@ class PinNotice extends ActionNotifier {
 
 /// Deleting a Notice, by Notice id.
 final deleteNoticeProvider = AsyncNotifierProvider.autoDispose
-    .family<DeleteNotice, void, int>(DeleteNotice.new);
+    .family<DeleteNotice, void, UuidValue>(DeleteNotice.new);
 
 class DeleteNotice extends ActionNotifier {
   DeleteNotice(this.noticeId);
 
-  final int noticeId;
+  final UuidValue noticeId;
 
   Future<bool> run(Notice notice) => guard(() => _notices(ref).delete(notice));
 }

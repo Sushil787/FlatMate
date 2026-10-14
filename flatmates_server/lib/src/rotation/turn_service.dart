@@ -1,3 +1,4 @@
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../day.dart';
@@ -6,7 +7,6 @@ import '../generated/future_calls.dart';
 import '../generated/protocol.dart';
 import '../notify/digests.dart';
 import '../notify/notifier.dart';
-import 'planner.dart';
 
 /// How long before a Turn ends its Mate is reminded.
 const reminderLead = Duration(hours: 3);
@@ -21,13 +21,11 @@ class TurnService {
   // ---------------------------------------------------------------------------
   // Planning
 
-  /// [extraAway] adds an Away that isn't saved, for the Away preview.
   static Future<PlannerState> plannerState(
     Session session,
     Flat flat,
-    Chore chore, {
-    AwaySpan? extraAway,
-  }) async {
+    Chore chore,
+  ) async {
     final mates = await activeMates(session, flat.id!);
     final aways = await Away.db.find(
       session,
@@ -44,7 +42,6 @@ class TurnService {
       activeMateIds: mates.map((m) => m.id!).toSet(),
       aways: [
         for (final a in aways) AwaySpan(a.mateId, a.startDay, a.lastDay),
-        ?extraAway,
       ],
       debts: [
         for (final d in debts) Debt(d.debtorMateId, d.creditorMateId),
@@ -132,60 +129,10 @@ class TurnService {
     return turn;
   }
 
-  /// Projects upcoming Turns for every Chore in the Flat up to the day
-  /// [until], starting after each Chore's latest real Turn. Projected Turns
-  /// have no id.
-  static Future<List<Turn>> projectTurns(
-    Session session,
-    Flat flat,
-    DateTime until, {
-    AwaySpan? extraAway,
-  }) async {
-    final chores = await Chore.db.find(
-      session,
-      where: (t) => t.flatId.equals(flat.id!) & t.archived.equals(false),
-    );
-    final projected = <Turn>[];
-    for (final chore in chores) {
-      final latest = await Turn.db.findFirstRow(
-        session,
-        where: (t) => t.choreId.equals(chore.id!),
-        orderBy: (t) => t.id.desc(),
-      );
-      if (latest == null) continue;
-      final state = await plannerState(
-        session,
-        flat,
-        chore,
-        extraAway: extraAway,
-      );
-      var index = chore.rotationIndex;
-      var day = nextTurnDay(latest.day, latest.lastDay, chore.period);
-      for (var i = 0; i < 200 && !day.isAfter(until); i++) {
-        final plan = planNextTurn(state, index, day);
-        if (plan == null) break;
-        projected.add(
-          Turn(
-            flatId: flat.id!,
-            choreId: chore.id!,
-            mateId: plan.mateId,
-            coveringForMateId: plan.coveringForMateId,
-            day: plan.day,
-            lastDay: plan.lastDay,
-            status: TurnStatus.active,
-          ),
-        );
-        index = plan.rotationIndex;
-        day = nextTurnDay(plan.day, plan.lastDay, chore.period);
-      }
-    }
-    return projected;
-  }
-
   // ---------------------------------------------------------------------------
   // Scheduling
 
-  static String _id(int turnId, String what) => 'turn-$turnId-$what';
+  static String _id(UuidValue turnId, String what) => 'turn-$turnId-$what';
 
   /// When the Turn starts and ends: the Flat's local midnights.
   static ({DateTime start, DateTime end}) instants(Flat flat, Turn turn) => (
@@ -277,7 +224,7 @@ class TurnService {
     }
   }
 
-  static Future<void> _cancel(Session session, int turnId) async {
+  static Future<void> _cancel(Session session, UuidValue turnId) async {
     final calls = session.serverpod.futureCalls;
     for (final what in ['start', 'reminder', 'end']) {
       await calls.cancel(_id(turnId, what));
@@ -290,7 +237,7 @@ class TurnService {
   /// The Turn with its Chore and Flat, or null if any is gone.
   static Future<({Turn turn, Chore chore, Flat flat})?> _load(
     Session session,
-    int turnId,
+    UuidValue turnId,
   ) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null) return null;
@@ -322,13 +269,13 @@ class TurnService {
     );
   }
 
-  /// The Flat's open Turns matching [where], oldest first, or nothing
-  /// unless [turnId] is the oldest. Every one of them has a call at the
-  /// same time, so this lets the first call speak for all of them.
+  /// The Flat's open Turns matching [where] in id order, or nothing unless
+  /// [turnId] is the first. Every one of them has a call at the same time,
+  /// so this lets one call speak for all of them.
   static Future<List<Turn>> _ifFirst(
     Session session,
     Flat flat,
-    int turnId,
+    UuidValue turnId,
     WhereExpressionBuilder<TurnTable> where,
   ) async {
     final turns = await Turn.db.find(
@@ -342,7 +289,7 @@ class TurnService {
     return turns.firstOrNull?.id == turnId ? turns : const [];
   }
 
-  static Future<Map<int, String>> _choreNames(
+  static Future<Map<UuidValue, String>> _choreNames(
     Session session,
     Iterable<Turn> turns,
   ) async => {
@@ -355,7 +302,7 @@ class TurnService {
 
   /// The morning summary: each Mate gets one push listing their Turns that
   /// start today.
-  static Future<void> onTurnStarted(Session session, int turnId) async {
+  static Future<void> onTurnStarted(Session session, UuidValue turnId) async {
     final loaded = await _load(session, turnId);
     if (loaded == null) return;
     final flat = loaded.flat;
@@ -377,7 +324,7 @@ class TurnService {
       ))
         m.id!: m.displayName,
     };
-    final byMate = <int, List<Turn>>{};
+    final byMate = <UuidValue, List<Turn>>{};
     for (final t in turns) {
       (byMate[t.mateId] ??= []).add(t);
     }
@@ -407,7 +354,7 @@ class TurnService {
   /// The evening push, [reminderLead] before the day ends: each Mate gets
   /// one push with their own Turns not Done yet and, unless they are Away,
   /// their Mates' ones.
-  static Future<void> onTurnReminder(Session session, int turnId) async {
+  static Future<void> onTurnReminder(Session session, UuidValue turnId) async {
     final loaded = await _load(session, turnId);
     if (loaded == null) return;
     final flat = loaded.flat;
@@ -464,7 +411,7 @@ class TurnService {
     }
   }
 
-  static Future<void> onTurnEnded(Session session, int turnId) async {
+  static Future<void> onTurnEnded(Session session, UuidValue turnId) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null) return;
     await _locked(turn.flatId, () => _end(session, turnId));
@@ -487,7 +434,7 @@ class TurnService {
             final latest = (await Turn.db.find(
               session,
               where: (t) => t.choreId.equals(chore.id!),
-              orderBy: (t) => t.id.desc(),
+              orderBy: (t) => t.day.desc(),
               limit: 1,
             )).firstOrNull;
             if (latest == null || !latest.lastDay.isBefore(today)) break;
@@ -500,9 +447,9 @@ class TurnService {
   /// [catchUp] can't both start the next Turn.
   // ponytail: in-process only; a Postgres advisory lock if the server ever
   // runs as more than one instance.
-  static final _flatLocks = <int, Future<void>>{};
+  static final _flatLocks = <UuidValue, Future<void>>{};
 
-  static Future<void> _locked(int flatId, Future<void> Function() body) {
+  static Future<void> _locked(UuidValue flatId, Future<void> Function() body) {
     final run = (_flatLocks[flatId] ?? Future<void>.value())
         .catchError((_) {})
         .then((_) => body());
@@ -514,7 +461,7 @@ class TurnService {
 
   /// Ends Turn [turnId] if its time is up: Missed if not Done, then the
   /// next Turn starts. Returns whether it handed over.
-  static Future<bool> _end(Session session, int turnId) async {
+  static Future<bool> _end(Session session, UuidValue turnId) async {
     final loaded = await _load(session, turnId);
     if (loaded == null) return false;
     final (:turn, :chore, :flat) = loaded;
@@ -523,9 +470,10 @@ class TurnService {
     if (end.isAfter(DateTime.now().toUtc().add(_slack))) return false;
 
     // Only the Chore's latest Turn hands over; guards against a re-run.
+    // Each Turn starts after the one before it ends, so later means newer.
     final newer = await Turn.db.count(
       session,
-      where: (t) => t.choreId.equals(turn.choreId) & (t.id > turnId),
+      where: (t) => t.choreId.equals(turn.choreId) & (t.day > turn.day),
     );
     if (newer > 0) return false;
 
@@ -557,7 +505,7 @@ class TurnService {
     Session session,
     Flat flat,
     Mate me,
-    int turnId,
+    UuidValue turnId,
   ) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null || turn.flatId != me.flatId) fail('Turn not found.');
@@ -581,7 +529,7 @@ class TurnService {
     Session session,
     Flat flat,
     Mate me,
-    int turnId,
+    UuidValue turnId,
   ) async {
     final turn = await Turn.db.findById(session, turnId);
     if (turn == null || turn.flatId != me.flatId) fail('Turn not found.');
@@ -647,103 +595,12 @@ class TurnService {
     }
   }
 
-  /// What marking [me] Away for [away] would do to their Turns, without
-  /// saving anything: their open Turns as [applyAway] would treat them, then
-  /// projected ones, each matched with the Turn in the same place in the
-  /// projection with the Away.
-  // ponytail: ignores knock-on effects of changing an open Turn on the
-  // projected ones after it; good enough for a preview.
-  static Future<List<AwayEffect>> previewAway(
-    Session session,
-    Flat flat,
-    Mate me,
-    AwaySpan away,
-  ) async {
-    final today = Day.today(flat.timezone);
-    final effects = <AwayEffect>[];
-    // Who does the Turn on which days once the Away is in.
-    AwayEffect effect(
-      int choreId,
-      DateTime day,
-      int mateId,
-      DateTime newDay,
-      DateTime newLastDay,
-    ) {
-      final moved = mateId == me.id;
-      return AwayEffect(
-        choreId: choreId,
-        day: day,
-        awayRule: flat.awayRule,
-        coverMateId: moved ? null : mateId,
-        newDay: moved ? newDay : null,
-        newLastDay: moved ? newLastDay : null,
-      );
-    }
-
-    final open = await Turn.db.find(
-      session,
-      where: (t) =>
-          t.mateId.equals(me.id!) &
-          t.status.equals(TurnStatus.active) &
-          (t.day <= away.lastDay) &
-          (t.lastDay >= away.startDay),
-      orderBy: (t) => t.day,
-    );
-    for (final turn in open) {
-      final chore = await Chore.db.findById(session, turn.choreId);
-      if (chore == null) continue;
-      final state = await plannerState(session, flat, chore, extraAway: away);
-      final outcome = awayOutcome(
-        state,
-        chore.rotationIndex,
-        me.id!,
-        turn.day,
-        turn.lastDay,
-        canMoveStart: turn.day.isAfter(today),
-      );
-      effects.add(
-        effect(
-          chore.id!,
-          turn.day,
-          outcome.cover?.mateId ?? me.id!,
-          outcome.day,
-          outcome.lastDay,
-        ),
-      );
-    }
-
-    // Pause can push a Turn back by at most the Away's length.
-    final length = Day.between(away.startDay, away.lastDay) + 1;
-    final before = await projectTurns(session, flat, away.lastDay);
-    final after = await projectTurns(
-      session,
-      flat,
-      Day.add(away.lastDay, length),
-      extraAway: away,
-    );
-    for (final choreId in before.map((t) => t.choreId).toSet()) {
-      final was = before.where((t) => t.choreId == choreId).toList();
-      final now = after.where((t) => t.choreId == choreId).toList();
-      for (var i = 0; i < was.length; i++) {
-        final turn = was[i];
-        if (turn.mateId != me.id || !away.overlaps(turn.day, turn.lastDay)) {
-          continue;
-        }
-        if (i >= now.length) continue;
-        effects.add(
-          effect(choreId, turn.day, now[i].mateId, now[i].day, now[i].lastDay),
-        );
-      }
-    }
-    return effects;
-  }
-
   static Future<void> _reassign(
     Session session,
     Flat flat,
     Chore chore,
     Turn turn,
-    ({int index, int mateId}) cover, {
+    ({int index, UuidValue mateId}) cover, {
     required bool owesBack,
   }) async {
     final awayMateId = turn.mateId;

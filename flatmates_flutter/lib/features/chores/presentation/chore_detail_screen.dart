@@ -25,9 +25,10 @@ import 'chore_editor_sheet.dart';
 /// A Chore's Rotation, Turns done per Mate, and Turn history.
 @RoutePage()
 class ChoreDetailScreen extends ConsumerStatefulWidget {
-  const ChoreDetailScreen({super.key, @PathParam() required this.choreId});
+  const ChoreDetailScreen({super.key, required this.choreId});
 
-  final int choreId;
+  /// Typed, so only a real Chore id can be passed in; not in the URL.
+  final UuidValue choreId;
 
   @override
   ConsumerState<ChoreDetailScreen> createState() => _ChoreDetailScreenState();
@@ -44,7 +45,7 @@ class _ChoreDetailScreenState extends ConsumerState<ChoreDetailScreen> {
     }
   }
 
-  void _markDone(int turnId) =>
+  void _markDone(UuidValue turnId) =>
       runAction(context, ref.read(markDoneProvider(turnId).notifier).run);
 
   @override
@@ -76,77 +77,102 @@ class _ChoreDetailScreenState extends ConsumerState<ChoreDetailScreen> {
               ),
             )
           : null,
-      body: AsyncValueView(
-        value: overview,
-        onRetry: () => ref.invalidate(choresControllerProvider),
-        data: (overview) {
-          final chore = overview.choreById(widget.choreId);
-          return ScreenList(
-            underNav: false,
-            gap: 14,
-            children: [
-              Row(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Space.screenMargin,
+                Space.lg,
+                Space.screenMargin,
+                0,
+              ),
+              child: Row(
                 children: [
                   const CircleButton.back(tooltip: 'Back to Chores'),
                   const Spacer(),
-                  if (directory.amAdmin && chore != null)
+                  if (directory.amAdmin &&
+                      overview.value?.choreById(widget.choreId) != null)
                     PillButton(label: 'Edit', onPressed: _edit),
                 ],
               ),
-              if (chore == null)
-                Text(
-                  'This Chore no longer exists.',
-                  style: context.text.bodyMedium,
-                )
-              else ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: Space.sm,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        chore.name,
-                        style: context.text.displaySmall?.copyWith(
-                          fontSize: 34,
-                          height: 1.05,
+            ),
+          ),
+          Expanded(
+            // The row above already sits below the status bar.
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: AsyncValueView(
+                value: overview,
+                onRetry: () => ref.invalidate(choresControllerProvider),
+                data: (overview) {
+                  final chore = overview.choreById(widget.choreId);
+                  return ScreenList(
+                    underNav: false,
+                    gap: 14,
+                    children: [
+                      if (chore == null)
+                        Text(
+                          'This Chore no longer exists.',
+                          style: context.text.bodyMedium,
+                        )
+                      else ...[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: Space.sm,
+                          children: [
+                            Semantics(
+                              header: true,
+                              child: Text(
+                                chore.name,
+                                style: context.text.displaySmall?.copyWith(
+                                  fontSize: 34,
+                                  height: 1.05,
+                                ),
+                              ),
+                            ),
+                            Wrap(
+                              spacing: Space.sm,
+                              runSpacing: Space.sm,
+                              children: [
+                                Tag(
+                                  'Rotation period · '
+                                  '${periodLabel(chore.period).toLowerCase()}',
+                                  tone: TagTone.plain,
+                                ),
+                                Tag(
+                                  'Away rule · ${directory.flat.awayRule.label}',
+                                  tone: TagTone.plain,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                    Wrap(
-                      spacing: Space.sm,
-                      runSpacing: Space.sm,
-                      children: [
-                        Tag(
-                          'Rotation period · '
-                          '${periodLabel(chore.period).toLowerCase()}',
-                          tone: TagTone.plain,
-                        ),
-                        Tag(
-                          'Away rule · ${directory.flat.awayRule.label}',
-                          tone: TagTone.plain,
+                        AsyncValueView(
+                          value: history,
+                          onRetry: () => ref.invalidate(
+                            choreHistoryProvider(widget.choreId),
+                          ),
+                          data: (history) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            spacing: 14,
+                            children: [
+                              _RotationCard(chore: chore, history: history),
+                              _HistoryCard(history: history),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-                AsyncValueView(
-                  value: history,
-                  onRetry: () =>
-                      ref.invalidate(choreHistoryProvider(widget.choreId)),
-                  data: (history) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 14,
-                    children: [
-                      _RotationCard(chore: chore, history: history),
-                      _HistoryCard(history: history),
                     ],
-                  ),
-                ),
-              ],
-            ],
-          );
-        },
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -167,7 +193,7 @@ class _RotationCard extends ConsumerWidget {
     final debts = ref.watch(swapDebtsProvider).value ?? const [];
     final current = history.current;
 
-    Widget cell(int id) {
+    Widget cell(UuidValue id) {
       final away = awayOn(aways, id, history.today) != null;
       final now =
           current != null && current.mateId == id && history.isToday(current);

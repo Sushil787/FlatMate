@@ -4,9 +4,39 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/day.dart';
+import '../../away/application/aways_controller.dart';
+import '../../flat/application/mate_directory.dart';
 import '../data/chore_repository.dart';
 import '../domain/chore_turns.dart';
+import '../domain/planned_turns.dart';
 import 'chores_controller.dart';
+
+/// Turns on the days [from]..[to]: real ones from the server, then the
+/// planned ones projected here from the Chores, Aways and Swap debts.
+/// Recomputes when any of those change.
+Future<List<Turn>> turnsBetween(Ref ref, DateTime from, DateTime to) async {
+  final directory = ref.watch(mateDirectoryProvider);
+  final (real, overview, aways, debts) = await (
+    ref.watch(choreRepositoryProvider).turnsBetween(from, to),
+    ref.watch(choresControllerProvider.future),
+    ref.watch(awaysControllerProvider.future),
+    ref.watch(swapDebtsProvider.future),
+  ).wait;
+  final planned = plannedTurns(
+    chores: overview.chores,
+    current: overview.currentTurns,
+    awayRule: directory.flat.awayRule,
+    mates: directory.mates,
+    aways: aways,
+    debts: debts,
+    until: to,
+  );
+  return [
+    ...real,
+    for (final t in planned)
+      if (!t.lastDay.isBefore(from)) t,
+  ];
+}
 
 /// Every Chore's card on the Chores tab and the Turns on Home: your Turns
 /// due today first, Done today last. Reloads with the Chores.
@@ -22,12 +52,11 @@ class ChoresNowController extends AsyncNotifier<List<ChoreNow>> {
     final today = Day.fromLocal(DateTime.now());
     // Far enough ahead to see each Chore's next Turn.
     final days = overview.chores.fold(7, (m, c) => max(m, c.period.inDays));
-    final turns = await ref
-        .watch(choreRepositoryProvider)
-        .turnsBetween(
-          today.subtract(const Duration(days: 1)),
-          today.add(Duration(days: days * 2)),
-        );
+    final turns = await turnsBetween(
+      ref,
+      today.subtract(const Duration(days: 1)),
+      today.add(Duration(days: days * 2)),
+    );
     return _sorted([
       for (final c in overview.chores) ChoreNow.of(c, turns, today),
     ]);
@@ -47,21 +76,21 @@ class ChoresNowController extends AsyncNotifier<List<ChoreNow>> {
   /// Marks the Turn Done on screen straight away, then on the server; puts
   /// it back if the server refuses. The reload that follows brings the same
   /// state, so the screen moves once.
-  Future<void> markDone(int turnId) => _change(
+  Future<void> markDone(UuidValue turnId) => _change(
     turnId,
     (t) => t.copyWith(status: TurnStatus.done, doneAt: DateTime.now().toUtc()),
     () => ref.read(choresControllerProvider.notifier).markDone(turnId),
   );
 
   /// Takes a Done back, the same way.
-  Future<void> undoDone(int turnId) => _change(
+  Future<void> undoDone(UuidValue turnId) => _change(
     turnId,
     (t) => t.copyWith(status: TurnStatus.active, doneAt: null),
     () => ref.read(choresControllerProvider.notifier).undoDone(turnId),
   );
 
   Future<void> _change(
-    int turnId,
+    UuidValue turnId,
     Turn Function(Turn) change,
     Future<void> Function() send,
   ) async {
@@ -93,21 +122,20 @@ Future<List<SwapDebt>> _swapDebts(Ref ref) async {
 final swapDebtsProvider = FutureProvider<List<SwapDebt>>(_swapDebts);
 
 /// [choreId]'s Turns over the last 8 weeks and one Rotation ahead.
-Future<ChoreHistory> _choreHistory(Ref ref, int choreId) async {
+Future<ChoreHistory> _choreHistory(Ref ref, UuidValue choreId) async {
   final overview = await ref.watch(choresControllerProvider.future);
   final chore = overview.choreById(choreId);
   final today = Day.fromLocal(DateTime.now());
   final ahead = chore == null
       ? 0
       : chore.period.inDays * (chore.rotation.length + 1);
-  final turns = await ref
-      .watch(choreRepositoryProvider)
-      .turnsBetween(
-        today.subtract(const Duration(days: 56)),
-        today.add(Duration(days: ahead)),
-      );
+  final turns = await turnsBetween(
+    ref,
+    today.subtract(const Duration(days: 56)),
+    today.add(Duration(days: ahead)),
+  );
   return ChoreHistory(turns.where((t) => t.choreId == choreId).toList(), today);
 }
 
 final choreHistoryProvider = FutureProvider.autoDispose
-    .family<ChoreHistory, int>(_choreHistory);
+    .family<ChoreHistory, UuidValue>(_choreHistory);

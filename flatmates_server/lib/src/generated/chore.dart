@@ -14,7 +14,8 @@ import 'package:flatmates_server/src/generated/protocol.dart' as _ikjds9rx;
 import 'package:serverpod/serverpod.dart' as _is;
 
 /// A recurring responsibility passed round-robin through [rotation].
-abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Chore
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Chore._({
     this.id,
     required this.flatId,
@@ -30,12 +31,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Chore({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<_is.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
     DateTime? createdAt,
@@ -44,14 +45,16 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   factory Chore.fromJson(Map<String, dynamic> jsonSerialization) {
     return Chore(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       name: jsonSerialization['name'] as String,
       period: _is.DurationJsonExtension.fromJson(jsonSerialization['period']),
       startDay: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['startDay'],
       ),
-      rotation: _ikjds9rx.Protocol().deserialize<List<int>>(
+      rotation: _ikjds9rx.Protocol().deserialize<List<_is.UuidValue>>(
         jsonSerialization['rotation'],
       ),
       rotationIndex: jsonSerialization['rotationIndex'] as int,
@@ -70,9 +73,9 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = ChoreRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
   String name;
 
@@ -83,7 +86,7 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
-  List<int> rotation;
+  List<_is.UuidValue> rotation;
 
   /// Index in [rotation] of the slot the latest Turn was taken from.
   int rotationIndex;
@@ -95,18 +98,18 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Chore]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Chore copyWith({
-    int? id,
-    int? flatId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
     String? name,
     Duration? period,
     DateTime? startDay,
-    List<int>? rotation,
+    List<_is.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
     DateTime? createdAt,
@@ -116,12 +119,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Chore',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       'period': period.toJson(),
       'startDay': startDay.toJson(),
-      'rotation': rotation.toJson(),
+      'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
       'createdAt': createdAt.toJson(),
@@ -133,12 +136,12 @@ abstract class Chore implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Chore',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       'period': period.toJson(),
       'startDay': startDay.toJson(),
-      'rotation': rotation.toJson(),
+      'rotation': rotation.toJson(valueToJson: (v) => v.toJson()),
       'rotationIndex': rotationIndex,
       'archived': archived,
       'createdAt': createdAt.toJson(),
@@ -178,12 +181,12 @@ class _Undefined {}
 
 class _ChoreImpl extends Chore {
   _ChoreImpl({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required String name,
     required Duration period,
     required DateTime startDay,
-    required List<int> rotation,
+    required List<_is.UuidValue> rotation,
     required int rotationIndex,
     required bool archived,
     DateTime? createdAt,
@@ -207,18 +210,18 @@ class _ChoreImpl extends Chore {
   @override
   Chore copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _is.UuidValue? flatId,
     String? name,
     Duration? period,
     DateTime? startDay,
-    List<int>? rotation,
+    List<_is.UuidValue>? rotation,
     int? rotationIndex,
     bool? archived,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Chore(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       period: period ?? this.period,
@@ -235,10 +238,11 @@ class _ChoreImpl extends Chore {
 class ChoreUpdateTable extends _is.UpdateTable<ChoreTable> {
   ChoreUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
   _is.ColumnValue<String, String> name(String value) => _is.ColumnValue(
     table.name,
@@ -256,11 +260,12 @@ class ChoreUpdateTable extends _is.UpdateTable<ChoreTable> {
         value,
       );
 
-  _is.ColumnValue<List<int>, List<int>> rotation(List<int> value) =>
-      _is.ColumnValue(
-        table.rotation,
-        value,
-      );
+  _is.ColumnValue<List<_is.UuidValue>, List<_is.UuidValue>> rotation(
+    List<_is.UuidValue> value,
+  ) => _is.ColumnValue(
+    table.rotation,
+    value,
+  );
 
   _is.ColumnValue<int, int> rotationIndex(int value) => _is.ColumnValue(
     table.rotationIndex,
@@ -285,10 +290,10 @@ class ChoreUpdateTable extends _is.UpdateTable<ChoreTable> {
       );
 }
 
-class ChoreTable extends _is.Table<int?> {
+class ChoreTable extends _is.Table<_is.UuidValue?> {
   ChoreTable({super.tableRelation}) : super(tableName: 'chore') {
     updateTable = ChoreUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
@@ -304,7 +309,7 @@ class ChoreTable extends _is.Table<int?> {
       'startDay',
       this,
     );
-    rotation = _is.ColumnSerializable<List<int>>(
+    rotation = _is.ColumnSerializable<List<_is.UuidValue>>(
       'rotation',
       this,
     );
@@ -330,7 +335,7 @@ class ChoreTable extends _is.Table<int?> {
 
   late final ChoreUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
   late final _is.ColumnString name;
 
@@ -341,7 +346,7 @@ class ChoreTable extends _is.Table<int?> {
   late final _is.ColumnDateTime startDay;
 
   /// Mate ids in order; a Mate may appear more than once.
-  late final _is.ColumnSerializable<List<int>> rotation;
+  late final _is.ColumnSerializable<List<_is.UuidValue>> rotation;
 
   /// Index in [rotation] of the slot the latest Turn was taken from.
   late final _is.ColumnInt rotationIndex;
@@ -374,7 +379,7 @@ class ChoreInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Chore.t;
+  _is.Table<_is.UuidValue?> get table => Chore.t;
 }
 
 class ChoreIncludeList extends _is.IncludeList {
@@ -393,7 +398,7 @@ class ChoreIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Chore.t;
+  _is.Table<_is.UuidValue?> get table => Chore.t;
 }
 
 class ChoreRepository {
@@ -485,7 +490,7 @@ class ChoreRepository {
   /// Finds a single [Chore] by its [id] or null if no such row exists.
   Future<Chore?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -654,7 +659,7 @@ class ChoreRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Chore?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<ChoreUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

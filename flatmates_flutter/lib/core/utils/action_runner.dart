@@ -1,10 +1,11 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/material.dart';
 
+import '../providers/read_cache.dart';
 import '../theme/app_theme.dart';
 
 /// A message fit to show the user for any error from the server.
-String describeError(Object error) => switch (error) {
+String describeError(Object error) => switch (firstError(error)) {
   FlatmatesException(:final message) => message,
   ServerpodClientException() => 'Couldn\'t reach the server. Try again.',
   _ => 'Something went wrong. Try again.',
@@ -21,17 +22,27 @@ Future<bool> runAction(
   final messenger = ScaffoldMessenger.of(context);
   try {
     if (await action() == false) return false;
-    if (success != null) {
-      messenger.showSnackBar(SnackBar(content: Text(success)));
-    }
+    if (success != null) showMessage(messenger, success);
     return true;
   } catch (e) {
     debugPrint('Action failed: $e');
-    messenger.showSnackBar(
-      SnackBar(content: Text(describeError(e))),
-    );
+    showMessage(messenger, describeError(e));
     return false;
   }
+}
+
+String? _showing;
+
+/// Shows [message] in a snackbar in place of any other, so repeated taps
+/// (offline, say) don't line up a queue; nothing if it's already showing.
+void showMessage(ScaffoldMessengerState messenger, String message) {
+  if (_showing == message) return;
+  _showing = message;
+  messenger
+    ..removeCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message))).closed.then((_) {
+      if (_showing == message) _showing = null;
+    });
 }
 
 /// Asks a yes/no question; resolves to true only on confirm.

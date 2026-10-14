@@ -44,7 +44,7 @@ class GroceryEndpoint extends Endpoint {
   /// Ticks an item as bought by the caller, or unticks it.
   Future<GroceryItem> setBought(
     Session session,
-    int itemId,
+    UuidValue itemId,
     bool bought,
   ) async {
     final (:me, :flat) = await requireMate(session);
@@ -57,14 +57,18 @@ class GroceryEndpoint extends Endpoint {
     return item;
   }
 
-  Future<void> delete(Session session, int itemId) async {
+  Future<void> delete(Session session, UuidValue itemId) async {
     final (:me, :flat) = await requireMate(session);
     final item = await _find(session, flat, itemId);
     await GroceryItem.db.deleteRow(session, item);
     await broadcast(session, flat.id!, FlatChangeKind.groceries);
   }
 
-  Future<GroceryItem> _find(Session session, Flat flat, int itemId) async {
+  Future<GroceryItem> _find(
+    Session session,
+    Flat flat,
+    UuidValue itemId,
+  ) async {
     final item = await GroceryItem.db.findById(session, itemId);
     if (item == null || item.flatId != flat.id) fail('Item not found.');
     return item;

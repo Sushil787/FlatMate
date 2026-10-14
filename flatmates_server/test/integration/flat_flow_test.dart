@@ -1,8 +1,10 @@
 import 'package:flatmates_server/src/day.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flatmates_server/src/generated/protocol.dart';
 import 'package:flatmates_server/src/notify/notifier.dart';
 import 'package:flatmates_server/src/rotation/turn_service.dart';
 import 'package:flatmates_server/src/updated_at.dart';
+import 'package:serverpod/serverpod.dart' show UuidValue;
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
@@ -22,7 +24,7 @@ void main() {
     final alex = as('00000000-0000-4000-8000-000000000003');
 
     late MyFlat flat;
-    late int priyaId, samId, alexId;
+    late UuidValue priyaId, samId, alexId;
 
     setUp(() async {
       flat = await endpoints.flat.create(priya, 'Elm St', 'Priya', tz);
@@ -51,7 +53,7 @@ void main() {
     }
 
     Future<Turn> onlyActiveTurn() async {
-      final turns = await endpoints.chore.activeTurns(priya);
+      final turns = await endpoints.chore.currentTurns(priya);
       expect(turns, hasLength(1));
       return turns.single;
     }
@@ -291,23 +293,45 @@ void main() {
       );
     });
 
-    test('the calendar includes projected turns', () async {
-      await endpoints.chore.create(
-        priya,
-        'Bins',
-        week,
-        today(),
-        [priyaId, samId, alexId],
+    test('a Mate can\'t be Away twice on the same day', () async {
+      await endpoints.away.create(sam, today(3), today(5));
+      await expectLater(
+        endpoints.away.create(sam, today(5), today(6)),
+        throwsA(isA<FlatmatesException>()),
       );
-      final turns = await endpoints.chore.turnsBetween(
-        priya,
-        today(),
-        today(27),
-      );
-      expect(turns.map((t) => t.mateId), [priyaId, samId, alexId, priyaId]);
-      expect(turns.first.id, isNotNull);
-      expect(turns.skip(1).every((t) => t.id == null), isTrue);
+      // Someone else's Away on those days is fine.
+      await endpoints.away.create(alex, today(3), today(5));
+      expect(await endpoints.away.list(priya), hasLength(2));
     });
+
+    test(
+      'turnsBetween lists real Turns only; currentTurns the latest',
+      () async {
+        final bins = await endpoints.chore.create(
+          priya,
+          'Bins',
+          week,
+          today(),
+          [priyaId, samId, alexId],
+        );
+        final turns = await endpoints.chore.turnsBetween(
+          priya,
+          today(),
+          today(27),
+        );
+        expect(turns.map((t) => t.mateId), [priyaId]);
+        expect(turns.single.id, isNotNull);
+
+        final current = await endpoints.chore.currentTurns(priya);
+        expect(current.single.choreId, bins.id);
+        await endpoints.chore.markDone(priya, current.single.id!);
+        // Still today's Turn once it's Done: the app projects from it.
+        expect(
+          (await endpoints.chore.currentTurns(priya)).single.status,
+          TurnStatus.done,
+        );
+      },
+    );
 
     test('the admin can\'t leave without handing over the role', () async {
       await expectLater(
@@ -383,9 +407,12 @@ void main() {
       final notice = await endpoints.notice.post(sam, 'Boiler check Friday');
       await endpoints.notice.gotIt(alex, notice.id!);
       await endpoints.notice.gotIt(alex, notice.id!);
-      expect((await endpoints.notice.list(priya)).single.gotItMateIds, [
-        alexId,
-      ]);
+      expect(
+        [for (final g in await endpoints.notice.gotIts(priya)) g.mateId],
+        [
+          alexId,
+        ],
+      );
       await expectLater(
         endpoints.notice.gotIt(sam, notice.id!),
         throwsA(isA<FlatmatesException>()),
@@ -436,9 +463,9 @@ void main() {
 
       /// Runs every active Turn's scheduled [call], as at its time.
       Future<void> runAll(
-        Future<void> Function(TestSessionBuilder, int) call,
+        Future<void> Function(TestSessionBuilder, UuidValue) call,
       ) async {
-        for (final t in await endpoints.chore.activeTurns(priya)) {
+        for (final t in await endpoints.chore.currentTurns(priya)) {
           await call(sessionBuilder, t.id!);
         }
       }
@@ -491,7 +518,7 @@ void main() {
             [mate],
           );
         }
-        final mopTurn = (await endpoints.chore.activeTurns(
+        final mopTurn = (await endpoints.chore.currentTurns(
           alex,
         )).singleWhere((t) => t.choreId == mop.id);
         await endpoints.chore.markDone(alex, mopTurn.id!);
@@ -645,36 +672,6 @@ void main() {
         ),
         throwsA(isA<FlatmatesException>()),
       );
-    });
-
-    test('the Away preview shows covers and paused turns', () async {
-      await endpoints.chore.create(
-        priya,
-        'Bins',
-        week,
-        today(),
-        [samId, alexId, priyaId],
-      );
-      final bins = (await onlyActiveTurn()).choreId;
-
-      // Sam's open Turn today, covered by Alex under Swap.
-      var effects = await endpoints.away.preview(sam, today(), today(1));
-      expect(
-        effects.map((e) => (e.choreId, e.day, e.coverMateId, e.newDay)),
-        [(bins, today(), alexId, null)],
-      );
-
-      // Alex's projected Turn next week waits under Pause.
-      await endpoints.flat.setAwayRule(priya, AwayRule.pause);
-      effects = await endpoints.away.preview(alex, today(7), today(8));
-      expect(
-        effects.map((e) => (e.day, e.awayRule, e.coverMateId, e.newDay)),
-        [(today(7), AwayRule.pause, null, today(9))],
-      );
-
-      // Nothing was saved.
-      expect(await endpoints.away.list(priya), isEmpty);
-      expect((await onlyActiveTurn()).mateId, samId);
     });
   });
 }

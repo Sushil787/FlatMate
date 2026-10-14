@@ -194,7 +194,7 @@ class _TurnCallsFutureCallDispatcher {
 
   final _InvokeFutureCall _invokeFutureCall;
 
-  Future<void> started(int turnId) {
+  Future<void> started(_is.UuidValue turnId) {
     var object = _icfcmm02.TurnCallsStartedModel(turnId: turnId);
     return _invokeFutureCall(
       'TurnCallsStartedFutureCall',
@@ -202,7 +202,7 @@ class _TurnCallsFutureCallDispatcher {
     );
   }
 
-  Future<void> reminder(int turnId) {
+  Future<void> reminder(_is.UuidValue turnId) {
     var object = _irgon17h.TurnCallsReminderModel(turnId: turnId);
     return _invokeFutureCall(
       'TurnCallsReminderFutureCall',
@@ -210,7 +210,7 @@ class _TurnCallsFutureCallDispatcher {
     );
   }
 
-  Future<void> ended(int turnId) {
+  Future<void> ended(_is.UuidValue turnId) {
     var object = _ijoy4xkx.TurnCallsEndedModel(turnId: turnId);
     return _invokeFutureCall(
       'TurnCallsEndedFutureCall',

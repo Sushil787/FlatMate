@@ -2,12 +2,14 @@ import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'core/providers/client_provider.dart';
+import 'core/providers/read_cache.dart';
 import 'core/providers/theme_mode_provider.dart';
 
 Future<void> main() async {
@@ -30,6 +32,18 @@ Future<void> main() async {
     );
   }
 
+  // The read-only offline cache. Off on web, where SQLite needs more setup.
+  CacheDb? cache;
+  if (!kIsWeb) {
+    final dir = await getApplicationSupportDirectory();
+    final path = '${dir.path}/cache.db';
+    cache = CacheDb(
+      path,
+      () => client.createSession(path, isDebugMode: kDebugMode),
+    );
+    await cache.open();
+  }
+
   final prefs = await SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
       allowList: {ThemeModeController.key},
@@ -40,6 +54,7 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         clientProvider.overrideWithValue(client),
+        cacheDbProvider.overrideWithValue(cache),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const FlatmatesApp(),

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flatmates_client/flatmates_client.dart';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,6 @@ import 'package:motor/motor.dart';
 import '../core/services/push_service.dart';
 import '../core/theme/app_theme.dart';
 import '../core/widgets/banners.dart';
-import '../features/flat/application/flat_changes.dart';
 import '../features/flat/application/my_flat_controller.dart';
 import '../features/flat/presentation/widgets/new_mate_dialog.dart';
 import '../features/groceries/application/groceries_controller.dart';
@@ -18,6 +19,8 @@ import '../features/home/application/flat_sync.dart';
 import 'router.gr.dart';
 import 'session.dart';
 import '../core/widgets/app_icon.dart';
+import '../core/providers/online_provider.dart';
+import '../core/providers/read_cache.dart';
 
 /// The five tabs (Home, Chores, Calendar, Groceries, Flat) under a floating
 /// nav. Keeps the Flat's data live while mounted.
@@ -76,7 +79,7 @@ class _TabsShellState extends ConsumerState<TabsShell> {
   }
 
   /// New Mates the Admin was already asked about while the app is open.
-  final _askedAbout = <int>{};
+  final _askedAbout = <UuidValue>{};
   bool _asking = false;
 
   /// Admin only: asks about each Mate who joined and hasn't been welcomed,
@@ -127,6 +130,7 @@ class _TabsShellState extends ConsumerState<TabsShell> {
     }
     ref.watch(flatSyncProvider);
     final online = ref.watch(onlineProvider);
+    final showingSaved = ref.watch(readCacheProvider);
     final openGroceries = ref
         .watch(groceriesControllerProvider)
         .value
@@ -169,6 +173,15 @@ class _TabsShellState extends ConsumerState<TabsShell> {
                     ),
                   ],
                 ),
+                // Saved data on screen while the server's answer comes in.
+                // Drawn over the content, so nothing moves when it goes.
+                if (online && showingSaved)
+                  Positioned(
+                    top: MediaQuery.paddingOf(context).top,
+                    left: 0,
+                    right: 0,
+                    child: const UpdatingBar(),
+                  ),
                 Positioned(
                   top: 0,
                   left: 0,

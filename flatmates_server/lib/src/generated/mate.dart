@@ -14,7 +14,8 @@ import 'package:serverpod/serverpod.dart' as _is;
 import 'mate_color.dart' as _ieys87jp;
 
 /// A member of a Flat. A Mate with [leftAt] set has left the Flat.
-abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
+abstract class Mate
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   Mate._({
     this.id,
     required this.flatId,
@@ -42,8 +43,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
        updatedAt = updatedAt ?? DateTime.now();
 
   factory Mate({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required _is.UuidValue authUserId,
     required String displayName,
     required DateTime joinedAt,
@@ -61,8 +62,10 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
 
   factory Mate.fromJson(Map<String, dynamic> jsonSerialization) {
     return Mate(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       authUserId: _is.UuidValueJsonExtension.fromJson(
         jsonSerialization['authUserId'],
       ),
@@ -116,9 +119,9 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
   static const db = MateRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
   _is.UuidValue authUserId;
 
@@ -151,14 +154,14 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [Mate]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   Mate copyWith({
-    int? id,
-    int? flatId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
     _is.UuidValue? authUserId,
     String? displayName,
     DateTime? joinedAt,
@@ -177,8 +180,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'Mate',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'authUserId': authUserId.toJson(),
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
@@ -199,8 +202,8 @@ abstract class Mate implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'Mate',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'authUserId': authUserId.toJson(),
       'displayName': displayName,
       'joinedAt': joinedAt.toJson(),
@@ -249,8 +252,8 @@ class _Undefined {}
 
 class _MateImpl extends Mate {
   _MateImpl({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required _is.UuidValue authUserId,
     required String displayName,
     required DateTime joinedAt,
@@ -288,7 +291,7 @@ class _MateImpl extends Mate {
   @override
   Mate copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _is.UuidValue? flatId,
     _is.UuidValue? authUserId,
     String? displayName,
     DateTime? joinedAt,
@@ -304,7 +307,7 @@ class _MateImpl extends Mate {
     DateTime? updatedAt,
   }) {
     return Mate(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       authUserId: authUserId ?? this.authUserId,
       displayName: displayName ?? this.displayName,
@@ -327,10 +330,11 @@ class _MateImpl extends Mate {
 class MateUpdateTable extends _is.UpdateTable<MateTable> {
   MateUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
   _is.ColumnValue<_is.UuidValue, _is.UuidValue> authUserId(
     _is.UuidValue value,
@@ -407,10 +411,10 @@ class MateUpdateTable extends _is.UpdateTable<MateTable> {
       );
 }
 
-class MateTable extends _is.Table<int?> {
+class MateTable extends _is.Table<_is.UuidValue?> {
   MateTable({super.tableRelation}) : super(tableName: 'mate') {
     updateTable = MateUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
@@ -480,7 +484,7 @@ class MateTable extends _is.Table<int?> {
 
   late final MateUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
   late final _is.ColumnUuid authUserId;
 
@@ -539,7 +543,7 @@ class MateInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => Mate.t;
+  _is.Table<_is.UuidValue?> get table => Mate.t;
 }
 
 class MateIncludeList extends _is.IncludeList {
@@ -558,7 +562,7 @@ class MateIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => Mate.t;
+  _is.Table<_is.UuidValue?> get table => Mate.t;
 }
 
 class MateRepository {
@@ -650,7 +654,7 @@ class MateRepository {
   /// Finds a single [Mate] by its [id] or null if no such row exists.
   Future<Mate?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -819,7 +823,7 @@ class MateRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<Mate?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<MateUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

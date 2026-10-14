@@ -14,7 +14,7 @@ import 'package:serverpod/serverpod.dart' as _is;
 
 /// Something on the Flat's shared grocery list.
 abstract class GroceryItem
-    implements _is.TableRow<int?>, _is.ProtocolSerialization {
+    implements _is.TableRow<_is.UuidValue?>, _is.ProtocolSerialization {
   GroceryItem._({
     this.id,
     required this.flatId,
@@ -29,12 +29,12 @@ abstract class GroceryItem
        updatedAt = updatedAt ?? DateTime.now();
 
   factory GroceryItem({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required String name,
     String? note,
-    required int addedByMateId,
-    int? boughtByMateId,
+    required _is.UuidValue addedByMateId,
+    _is.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -42,12 +42,20 @@ abstract class GroceryItem
 
   factory GroceryItem.fromJson(Map<String, dynamic> jsonSerialization) {
     return GroceryItem(
-      id: jsonSerialization['id'] as int?,
-      flatId: jsonSerialization['flatId'] as int,
+      id: jsonSerialization['id'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      flatId: _is.UuidValueJsonExtension.fromJson(jsonSerialization['flatId']),
       name: jsonSerialization['name'] as String,
       note: jsonSerialization['note'] as String?,
-      addedByMateId: jsonSerialization['addedByMateId'] as int,
-      boughtByMateId: jsonSerialization['boughtByMateId'] as int?,
+      addedByMateId: _is.UuidValueJsonExtension.fromJson(
+        jsonSerialization['addedByMateId'],
+      ),
+      boughtByMateId: jsonSerialization['boughtByMateId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['boughtByMateId'],
+            ),
       boughtAt: jsonSerialization['boughtAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['boughtAt']),
@@ -65,17 +73,17 @@ abstract class GroceryItem
   static const db = GroceryItemRepository._();
 
   @override
-  int? id;
+  _is.UuidValue? id;
 
-  int flatId;
+  _is.UuidValue flatId;
 
   String name;
 
   String? note;
 
-  int addedByMateId;
+  _is.UuidValue addedByMateId;
 
-  int? boughtByMateId;
+  _is.UuidValue? boughtByMateId;
 
   DateTime? boughtAt;
 
@@ -84,18 +92,18 @@ abstract class GroceryItem
   DateTime updatedAt;
 
   @override
-  _is.Table<int?> get table => t;
+  _is.Table<_is.UuidValue?> get table => t;
 
   /// Returns a shallow copy of this [GroceryItem]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   GroceryItem copyWith({
-    int? id,
-    int? flatId,
+    _is.UuidValue? id,
+    _is.UuidValue? flatId,
     String? name,
     String? note,
-    int? addedByMateId,
-    int? boughtByMateId,
+    _is.UuidValue? addedByMateId,
+    _is.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -104,12 +112,12 @@ abstract class GroceryItem
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'GroceryItem',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       if (note != null) 'note': note,
-      'addedByMateId': addedByMateId,
-      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
+      'addedByMateId': addedByMateId.toJson(),
+      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId?.toJson(),
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -120,12 +128,12 @@ abstract class GroceryItem
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'GroceryItem',
-      if (id != null) 'id': id,
-      'flatId': flatId,
+      if (id != null) 'id': id?.toJson(),
+      'flatId': flatId.toJson(),
       'name': name,
       if (note != null) 'note': note,
-      'addedByMateId': addedByMateId,
-      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId,
+      'addedByMateId': addedByMateId.toJson(),
+      if (boughtByMateId != null) 'boughtByMateId': boughtByMateId?.toJson(),
       if (boughtAt != null) 'boughtAt': boughtAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -164,12 +172,12 @@ class _Undefined {}
 
 class _GroceryItemImpl extends GroceryItem {
   _GroceryItemImpl({
-    int? id,
-    required int flatId,
+    _is.UuidValue? id,
+    required _is.UuidValue flatId,
     required String name,
     String? note,
-    required int addedByMateId,
-    int? boughtByMateId,
+    required _is.UuidValue addedByMateId,
+    _is.UuidValue? boughtByMateId,
     DateTime? boughtAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -191,22 +199,22 @@ class _GroceryItemImpl extends GroceryItem {
   @override
   GroceryItem copyWith({
     Object? id = _Undefined,
-    int? flatId,
+    _is.UuidValue? flatId,
     String? name,
     Object? note = _Undefined,
-    int? addedByMateId,
+    _is.UuidValue? addedByMateId,
     Object? boughtByMateId = _Undefined,
     Object? boughtAt = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return GroceryItem(
-      id: id is int? ? id : this.id,
+      id: id is _is.UuidValue? ? id : this.id,
       flatId: flatId ?? this.flatId,
       name: name ?? this.name,
       note: note is String? ? note : this.note,
       addedByMateId: addedByMateId ?? this.addedByMateId,
-      boughtByMateId: boughtByMateId is int?
+      boughtByMateId: boughtByMateId is _is.UuidValue?
           ? boughtByMateId
           : this.boughtByMateId,
       boughtAt: boughtAt is DateTime? ? boughtAt : this.boughtAt,
@@ -219,10 +227,11 @@ class _GroceryItemImpl extends GroceryItem {
 class GroceryItemUpdateTable extends _is.UpdateTable<GroceryItemTable> {
   GroceryItemUpdateTable(super.table);
 
-  _is.ColumnValue<int, int> flatId(int value) => _is.ColumnValue(
-    table.flatId,
-    value,
-  );
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> flatId(_is.UuidValue value) =>
+      _is.ColumnValue(
+        table.flatId,
+        value,
+      );
 
   _is.ColumnValue<String, String> name(String value) => _is.ColumnValue(
     table.name,
@@ -234,12 +243,16 @@ class GroceryItemUpdateTable extends _is.UpdateTable<GroceryItemTable> {
     value,
   );
 
-  _is.ColumnValue<int, int> addedByMateId(int value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> addedByMateId(
+    _is.UuidValue value,
+  ) => _is.ColumnValue(
     table.addedByMateId,
     value,
   );
 
-  _is.ColumnValue<int, int> boughtByMateId(int? value) => _is.ColumnValue(
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> boughtByMateId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
     table.boughtByMateId,
     value,
   );
@@ -263,10 +276,10 @@ class GroceryItemUpdateTable extends _is.UpdateTable<GroceryItemTable> {
       );
 }
 
-class GroceryItemTable extends _is.Table<int?> {
+class GroceryItemTable extends _is.Table<_is.UuidValue?> {
   GroceryItemTable({super.tableRelation}) : super(tableName: 'grocery_item') {
     updateTable = GroceryItemUpdateTable(this);
-    flatId = _is.ColumnInt(
+    flatId = _is.ColumnUuid(
       'flatId',
       this,
     );
@@ -278,11 +291,11 @@ class GroceryItemTable extends _is.Table<int?> {
       'note',
       this,
     );
-    addedByMateId = _is.ColumnInt(
+    addedByMateId = _is.ColumnUuid(
       'addedByMateId',
       this,
     );
-    boughtByMateId = _is.ColumnInt(
+    boughtByMateId = _is.ColumnUuid(
       'boughtByMateId',
       this,
     );
@@ -304,15 +317,15 @@ class GroceryItemTable extends _is.Table<int?> {
 
   late final GroceryItemUpdateTable updateTable;
 
-  late final _is.ColumnInt flatId;
+  late final _is.ColumnUuid flatId;
 
   late final _is.ColumnString name;
 
   late final _is.ColumnString note;
 
-  late final _is.ColumnInt addedByMateId;
+  late final _is.ColumnUuid addedByMateId;
 
-  late final _is.ColumnInt boughtByMateId;
+  late final _is.ColumnUuid boughtByMateId;
 
   late final _is.ColumnDateTime boughtAt;
 
@@ -341,7 +354,7 @@ class GroceryItemInclude extends _is.IncludeObject {
   Map<String, _is.Include?> get includes => {};
 
   @override
-  _is.Table<int?> get table => GroceryItem.t;
+  _is.Table<_is.UuidValue?> get table => GroceryItem.t;
 }
 
 class GroceryItemIncludeList extends _is.IncludeList {
@@ -360,7 +373,7 @@ class GroceryItemIncludeList extends _is.IncludeList {
   Map<String, _is.Include?> get includes => include?.includes ?? {};
 
   @override
-  _is.Table<int?> get table => GroceryItem.t;
+  _is.Table<_is.UuidValue?> get table => GroceryItem.t;
 }
 
 class GroceryItemRepository {
@@ -452,7 +465,7 @@ class GroceryItemRepository {
   /// Finds a single [GroceryItem] by its [id] or null if no such row exists.
   Future<GroceryItem?> findById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     _is.Transaction? transaction,
     _is.LockMode? lockMode,
     _is.LockBehavior? lockBehavior,
@@ -621,7 +634,7 @@ class GroceryItemRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<GroceryItem?> updateById(
     _is.DatabaseSession session,
-    int id, {
+    _is.UuidValue id, {
     required _is.ColumnValueListBuilder<GroceryItemUpdateTable> columnValues,
     _is.Transaction? transaction,
   }) async {

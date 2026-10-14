@@ -15,7 +15,11 @@ dependencies:
     sdk: flutter
   flatmates_client:
     path: ../flatmates_client
+  flatmates_shared:
+    path: ../flatmates_shared
   serverpod_flutter: ^4.0.3
+  serverpod_database: ^4.0.3
+  path_provider: ^2.1.5
   serverpod_auth_idp_flutter: ^4.0.3
   intl: ^0.20.2
   firebase_core: ^4.15.0

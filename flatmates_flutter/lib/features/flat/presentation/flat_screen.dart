@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -181,7 +182,7 @@ class FlatScreen extends ConsumerWidget {
   }
 
   /// "Away · back in 3 days" for a Mate who is Away today, else null.
-  static String? _awayLabel(List<Away> aways, int mateId) {
+  static String? _awayLabel(List<Away> aways, UuidValue mateId) {
     final today = Day.fromLocal(DateTime.now());
     DateTime? last;
     for (final a in aways) {

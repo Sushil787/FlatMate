@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
 import 'package:auto_route/auto_route.dart' as _i13;
+import 'package:flatmates_client/flatmates_client.dart' as _i15;
 import 'package:flatmates_flutter/app/splash_screen.dart' as _i11;
 import 'package:flatmates_flutter/app/tabs_shell.dart' as _i12;
 import 'package:flatmates_flutter/features/auth/presentation/sign_in_screen.dart'
@@ -72,12 +73,11 @@ class CalendarRoute extends _i13.PageRouteInfo<void> {
 class ChoreDetailRoute extends _i13.PageRouteInfo<ChoreDetailRouteArgs> {
   ChoreDetailRoute({
     _i14.Key? key,
-    required int choreId,
+    required _i15.UuidValue choreId,
     List<_i13.PageRouteInfo>? children,
   }) : super(
          ChoreDetailRoute.name,
          args: ChoreDetailRouteArgs(key: key, choreId: choreId),
-         rawPathParams: {'choreId': choreId},
          initialChildren: children,
        );
 
@@ -86,11 +86,7 @@ class ChoreDetailRoute extends _i13.PageRouteInfo<ChoreDetailRouteArgs> {
   static _i13.PageInfo page = _i13.PageInfo(
     name,
     builder: (data) {
-      final pathParams = data.inheritedPathParams;
-      final args = data.argsAs<ChoreDetailRouteArgs>(
-        orElse: () =>
-            ChoreDetailRouteArgs(choreId: pathParams.getInt('choreId')),
-      );
+      final args = data.argsAs<ChoreDetailRouteArgs>();
       return _i3.ChoreDetailScreen(key: args.key, choreId: args.choreId);
     },
   );
@@ -101,7 +97,7 @@ class ChoreDetailRouteArgs {
 
   final _i14.Key? key;
 
-  final int choreId;
+  final _i15.UuidValue choreId;
 
   @override
   String toString() {

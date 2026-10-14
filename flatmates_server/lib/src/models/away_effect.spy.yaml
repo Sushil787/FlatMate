@@ -1,12 +1,13 @@
 ### What a planned Away would do to one of the Mate's Turns (Away preview).
+### The app works it out; no endpoint sends it.
 class: AwayEffect
 fields:
-  choreId: int
+  choreId: UuidValue
   ### The Turn's day as planned now.
   day: DateTime
   awayRule: AwayRule
   ### Swap/Skip: the Mate who takes the Turn.
-  coverMateId: int?
+  coverMateId: UuidValue?
   ### Pause, or nobody free to cover: the Turn's new days.
   newDay: DateTime?
   newLastDay: DateTime?

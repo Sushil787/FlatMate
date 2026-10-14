@@ -12,8 +12,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:flatmates_client/src/protocol/away.dart' as _irs4lusq;
-import 'package:flatmates_client/src/protocol/away_effect.dart' as _ivmd14y1;
-import 'package:flatmates_client/src/protocol/away_rule.dart' as _i2aenio5;
 import 'package:flatmates_client/src/protocol/chore.dart' as _ipou5iyr;
 import 'package:flatmates_client/src/protocol/event.dart' as _igj22k42;
 import 'package:flatmates_client/src/protocol/flat.dart' as _iy3ygg88;
@@ -23,15 +21,201 @@ import 'package:flatmates_client/src/protocol/mate.dart' as _iynws3fs;
 import 'package:flatmates_client/src/protocol/mate_color.dart' as _ioi9k01f;
 import 'package:flatmates_client/src/protocol/my_flat.dart' as _i9fyr2h8;
 import 'package:flatmates_client/src/protocol/notice.dart' as _iynhw2wx;
+import 'package:flatmates_client/src/protocol/notice_got_it.dart' as _i8dhtq4g;
 import 'package:flatmates_client/src/protocol/swap_debt.dart' as _icdhy1dj;
 import 'package:flatmates_client/src/protocol/turn.dart' as _i4k8bhoi;
+import 'package:flatmates_shared/flatmates_shared.dart' as _ij0lpv6z;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'package:serverpod_database/serverpod_database.dart' as _isd;
 import 'protocol.dart' as _il2as5qe;
+import 'package:flatmates_client/migrations/migration_registry.dart';
+
+/// Email sign-in, for development only: the provider behind it is only set
+/// up when the server runs in development mode (see server.dart).
+/// {@category Endpoint}
+class EndpointEmailIdp extends _iaic.EndpointEmailIdpBase {
+  EndpointEmailIdp(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'emailIdp';
+
+  /// Logs in the user and returns a new session.
+  ///
+  /// Throws an [EmailAccountLoginException] in case of errors, with reason:
+  /// - [EmailAccountLoginExceptionReason.invalidCredentials] if the email or
+  ///   password is incorrect.
+  /// - [EmailAccountLoginExceptionReason.tooManyAttempts] if there have been
+  ///   too many failed login attempts.
+  ///
+  /// Throws an [AuthUserBlockedException] if the auth user is blocked.
+  @override
+  _ida.Future<_iacc.AuthSuccess> login({
+    required String email,
+    required String password,
+  }) => caller.callServerEndpoint<_iacc.AuthSuccess>(
+    'emailIdp',
+    'login',
+    {
+      'email': email,
+      'password': password,
+    },
+  );
+
+  /// Starts the registration for a new user account with an email-based login
+  /// associated to it.
+  ///
+  /// Upon successful completion of this method, an email will have been
+  /// sent to [email] with a verification link, which the user must open to
+  /// complete the registration.
+  ///
+  /// Always returns a account request ID, which can be used to complete the
+  /// registration. If the email is already registered, the returned ID will not
+  /// be valid.
+  @override
+  _ida.Future<_isc.UuidValue> startRegistration({required String email}) =>
+      caller.callServerEndpoint<_isc.UuidValue>(
+        'emailIdp',
+        'startRegistration',
+        {'email': email},
+      );
+
+  /// Verifies an account request code and returns a token
+  /// that can be used to complete the account creation.
+  ///
+  /// Throws an [EmailAccountRequestException] in case of errors, with reason:
+  /// - [EmailAccountRequestExceptionReason.expired] if the account request has
+  ///   already expired.
+  /// - [EmailAccountRequestExceptionReason.policyViolation] if the password
+  ///   does not comply with the password policy.
+  /// - [EmailAccountRequestExceptionReason.invalid] if no request exists
+  ///   for the given [accountRequestId] or [verificationCode] is invalid.
+  @override
+  _ida.Future<String> verifyRegistrationCode({
+    required _isc.UuidValue accountRequestId,
+    required String verificationCode,
+  }) => caller.callServerEndpoint<String>(
+    'emailIdp',
+    'verifyRegistrationCode',
+    {
+      'accountRequestId': accountRequestId,
+      'verificationCode': verificationCode,
+    },
+  );
+
+  /// Completes a new account registration, creating a new auth user with a
+  /// profile and attaching the given email account to it.
+  ///
+  /// Throws an [EmailAccountRequestException] in case of errors, with reason:
+  /// - [EmailAccountRequestExceptionReason.expired] if the account request has
+  ///   already expired.
+  /// - [EmailAccountRequestExceptionReason.policyViolation] if the password
+  ///   does not comply with the password policy.
+  /// - [EmailAccountRequestExceptionReason.invalid] if the [registrationToken]
+  ///   is invalid.
+  ///
+  /// Throws an [AuthUserBlockedException] if the auth user is blocked.
+  ///
+  /// Returns a session for the newly created user.
+  @override
+  _ida.Future<_iacc.AuthSuccess> finishRegistration({
+    required String registrationToken,
+    required String password,
+  }) => caller.callServerEndpoint<_iacc.AuthSuccess>(
+    'emailIdp',
+    'finishRegistration',
+    {
+      'registrationToken': registrationToken,
+      'password': password,
+    },
+  );
+
+  /// Requests a password reset for [email].
+  ///
+  /// If the email address is registered, an email with reset instructions will
+  /// be send out. If the email is unknown, this method will have no effect.
+  ///
+  /// Always returns a password reset request ID, which can be used to complete
+  /// the reset. If the email is not registered, the returned ID will not be
+  /// valid.
+  ///
+  /// Throws an [EmailAccountPasswordResetException] in case of errors, with reason:
+  /// - [EmailAccountPasswordResetExceptionReason.tooManyAttempts] if the user has
+  ///   made too many attempts trying to request a password reset.
+  ///
+  @override
+  _ida.Future<_isc.UuidValue> startPasswordReset({required String email}) =>
+      caller.callServerEndpoint<_isc.UuidValue>(
+        'emailIdp',
+        'startPasswordReset',
+        {'email': email},
+      );
+
+  /// Verifies a password reset code and returns a finishPasswordResetToken
+  /// that can be used to finish the password reset.
+  ///
+  /// Throws an [EmailAccountPasswordResetException] in case of errors, with reason:
+  /// - [EmailAccountPasswordResetExceptionReason.expired] if the password reset
+  ///   request has already expired.
+  /// - [EmailAccountPasswordResetExceptionReason.tooManyAttempts] if the user has
+  ///   made too many attempts trying to verify the password reset.
+  /// - [EmailAccountPasswordResetExceptionReason.invalid] if no request exists
+  ///   for the given [passwordResetRequestId] or [verificationCode] is invalid.
+  ///
+  /// If multiple steps are required to complete the password reset, this endpoint
+  /// should be overridden to return credentials for the next step instead
+  /// of the credentials for setting the password.
+  @override
+  _ida.Future<String> verifyPasswordResetCode({
+    required _isc.UuidValue passwordResetRequestId,
+    required String verificationCode,
+  }) => caller.callServerEndpoint<String>(
+    'emailIdp',
+    'verifyPasswordResetCode',
+    {
+      'passwordResetRequestId': passwordResetRequestId,
+      'verificationCode': verificationCode,
+    },
+  );
+
+  /// Completes a password reset request by setting a new password.
+  ///
+  /// The [verificationCode] returned from [verifyPasswordResetCode] is used to
+  /// validate the password reset request.
+  ///
+  /// Throws an [EmailAccountPasswordResetException] in case of errors, with reason:
+  /// - [EmailAccountPasswordResetExceptionReason.expired] if the password reset
+  ///   request has already expired.
+  /// - [EmailAccountPasswordResetExceptionReason.policyViolation] if the new
+  ///   password does not comply with the password policy.
+  /// - [EmailAccountPasswordResetExceptionReason.invalid] if no request exists
+  ///   for the given [passwordResetRequestId] or [verificationCode] is invalid.
+  ///
+  /// Throws an [AuthUserBlockedException] if the auth user is blocked.
+  @override
+  _ida.Future<void> finishPasswordReset({
+    required String finishPasswordResetToken,
+    required String newPassword,
+  }) => caller.callServerEndpoint<void>(
+    'emailIdp',
+    'finishPasswordReset',
+    {
+      'finishPasswordResetToken': finishPasswordResetToken,
+      'newPassword': newPassword,
+    },
+  );
+
+  @override
+  _ida.Future<bool> hasAccount() => caller.callServerEndpoint<bool>(
+    'emailIdp',
+    'hasAccount',
+    {},
+  );
+}
 
 /// Makes Google sign-in available to the app.
 /// {@category Endpoint}
@@ -147,7 +331,7 @@ class EndpointAway extends _isc.EndpointRef {
       );
 
   /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
-  /// Away can't start in the past.
+  /// Away can't start in the past, nor overlap one of the caller's Aways.
   _ida.Future<_irs4lusq.Away> create(
     DateTime startDay,
     DateTime lastDay,
@@ -160,27 +344,14 @@ class EndpointAway extends _isc.EndpointRef {
     },
   );
 
-  /// What marking the caller Away for [startDay]..[lastDay] would do to
-  /// their Turns. Saves nothing.
-  _ida.Future<List<_ivmd14y1.AwayEffect>> preview(
-    DateTime startDay,
-    DateTime lastDay,
-  ) => caller.callServerEndpoint<List<_ivmd14y1.AwayEffect>>(
-    'away',
-    'preview',
-    {
-      'startDay': startDay,
-      'lastDay': lastDay,
-    },
-  );
-
   /// Cancels one of the caller's Away periods before it starts. Covers
   /// already arranged for it stay as they are.
-  _ida.Future<void> cancel(int awayId) => caller.callServerEndpoint<void>(
-    'away',
-    'cancel',
-    {'awayId': awayId},
-  );
+  _ida.Future<void> cancel(_isc.UuidValue awayId) =>
+      caller.callServerEndpoint<void>(
+        'away',
+        'cancel',
+        {'awayId': awayId},
+      );
 }
 
 /// Chores, their Rotations and Turns.
@@ -198,16 +369,17 @@ class EndpointChore extends _isc.EndpointRef {
         {},
       );
 
-  /// Every open Turn in the Flat: in progress, or waiting to start.
-  _ida.Future<List<_i4k8bhoi.Turn>> activeTurns() =>
+  /// Each Chore's latest Turn: the open one, or today's once it's Done.
+  /// The app projects the planned Turns that follow from these.
+  _ida.Future<List<_i4k8bhoi.Turn>> currentTurns() =>
       caller.callServerEndpoint<List<_i4k8bhoi.Turn>>(
         'chore',
-        'activeTurns',
+        'currentTurns',
         {},
       );
 
-  /// Turns on the days [from]..[to] (inclusive): real ones, plus projected
-  /// future ones (which have no id).
+  /// Real Turns on the days [from]..[to] (inclusive). Planned ones are
+  /// projected by the app with the shared planner.
   _ida.Future<List<_i4k8bhoi.Turn>> turnsBetween(
     DateTime from,
     DateTime to,
@@ -224,7 +396,7 @@ class EndpointChore extends _isc.EndpointRef {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<_isc.UuidValue> rotation,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'create',
@@ -239,10 +411,10 @@ class EndpointChore extends _isc.EndpointRef {
   /// Edits a Chore. The current Turn finishes as planned; changes apply
   /// from the next Turn.
   _ida.Future<_ipou5iyr.Chore> update(
-    int choreId,
+    _isc.UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<_isc.UuidValue> rotation,
   ) => caller.callServerEndpoint<_ipou5iyr.Chore>(
     'chore',
     'update',
@@ -254,20 +426,21 @@ class EndpointChore extends _isc.EndpointRef {
     },
   );
 
-  _ida.Future<void> archive(int choreId) => caller.callServerEndpoint<void>(
-    'chore',
-    'archive',
-    {'choreId': choreId},
-  );
+  _ida.Future<void> archive(_isc.UuidValue choreId) =>
+      caller.callServerEndpoint<void>(
+        'chore',
+        'archive',
+        {'choreId': choreId},
+      );
 
-  _ida.Future<_i4k8bhoi.Turn> markDone(int turnId) =>
+  _ida.Future<_i4k8bhoi.Turn> markDone(_isc.UuidValue turnId) =>
       caller.callServerEndpoint<_i4k8bhoi.Turn>(
         'chore',
         'markDone',
         {'turnId': turnId},
       );
 
-  _ida.Future<_i4k8bhoi.Turn> undoDone(int turnId) =>
+  _ida.Future<_i4k8bhoi.Turn> undoDone(_isc.UuidValue turnId) =>
       caller.callServerEndpoint<_i4k8bhoi.Turn>(
         'chore',
         'undoDone',
@@ -325,11 +498,12 @@ class EndpointEvent extends _isc.EndpointRef {
   );
 
   /// Deletes an Event; only its creator or the Admin can.
-  _ida.Future<void> delete(int eventId) => caller.callServerEndpoint<void>(
-    'event',
-    'delete',
-    {'eventId': eventId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue eventId) =>
+      caller.callServerEndpoint<void>(
+        'event',
+        'delete',
+        {'eventId': eventId},
+      );
 }
 
 /// Creating, joining and running a Flat.
@@ -425,7 +599,7 @@ class EndpointFlat extends _isc.EndpointRef {
   );
 
   /// Sets the Flat-wide Away rule.
-  _ida.Future<_iy3ygg88.Flat> setAwayRule(_i2aenio5.AwayRule rule) =>
+  _ida.Future<_iy3ygg88.Flat> setAwayRule(_ij0lpv6z.AwayRule rule) =>
       caller.callServerEndpoint<_iy3ygg88.Flat>(
         'flat',
         'setAwayRule',
@@ -436,8 +610,8 @@ class EndpointFlat extends _isc.EndpointRef {
   /// of each of [choreIds]' Rotations. Does nothing if they were already
   /// welcomed (say, from the Admin's other phone).
   _ida.Future<void> welcomeMate(
-    int mateId,
-    List<int> choreIds,
+    _isc.UuidValue mateId,
+    List<_isc.UuidValue> choreIds,
   ) => caller.callServerEndpoint<void>(
     'flat',
     'welcomeMate',
@@ -457,7 +631,7 @@ class EndpointFlat extends _isc.EndpointRef {
       );
 
   /// Hands the Admin role to another Mate.
-  _ida.Future<void> transferAdmin(int mateId) =>
+  _ida.Future<void> transferAdmin(_isc.UuidValue mateId) =>
       caller.callServerEndpoint<void>(
         'flat',
         'transferAdmin',
@@ -467,11 +641,12 @@ class EndpointFlat extends _isc.EndpointRef {
   /// Removes a Mate from the Flat. The Admin can remove anyone; anyone can
   /// remove themselves. The Admin must hand over the role before leaving,
   /// unless they're the last Mate.
-  _ida.Future<void> removeMate(int mateId) => caller.callServerEndpoint<void>(
-    'flat',
-    'removeMate',
-    {'mateId': mateId},
-  );
+  _ida.Future<void> removeMate(_isc.UuidValue mateId) =>
+      caller.callServerEndpoint<void>(
+        'flat',
+        'removeMate',
+        {'mateId': mateId},
+      );
 
   /// Leaves the caller's Flat.
   _ida.Future<void> leave() => caller.callServerEndpoint<void>(
@@ -533,7 +708,7 @@ class EndpointGrocery extends _isc.EndpointRef {
 
   /// Ticks an item as bought by the caller, or unticks it.
   _ida.Future<_iy9ydfy6.GroceryItem> setBought(
-    int itemId,
+    _isc.UuidValue itemId,
     bool bought,
   ) => caller.callServerEndpoint<_iy9ydfy6.GroceryItem>(
     'grocery',
@@ -544,11 +719,12 @@ class EndpointGrocery extends _isc.EndpointRef {
     },
   );
 
-  _ida.Future<void> delete(int itemId) => caller.callServerEndpoint<void>(
-    'grocery',
-    'delete',
-    {'itemId': itemId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue itemId) =>
+      caller.callServerEndpoint<void>(
+        'grocery',
+        'delete',
+        {'itemId': itemId},
+      );
 }
 
 /// The Flat's notice board.
@@ -560,10 +736,20 @@ class EndpointNotice extends _isc.EndpointRef {
   String get name => 'notice';
 
   /// Pinned Notices first, then newest first.
+  /// The Flat's Notices, pinned first, then newest first. Who said Got it
+  /// comes from [gotIts].
   _ida.Future<List<_iynhw2wx.Notice>> list() =>
       caller.callServerEndpoint<List<_iynhw2wx.Notice>>(
         'notice',
         'list',
+        {},
+      );
+
+  /// Every Got it on the Flat's Notices, oldest first.
+  _ida.Future<List<_i8dhtq4g.NoticeGotIt>> gotIts() =>
+      caller.callServerEndpoint<List<_i8dhtq4g.NoticeGotIt>>(
+        'notice',
+        'gotIts',
         {},
       );
 
@@ -575,7 +761,7 @@ class EndpointNotice extends _isc.EndpointRef {
       );
 
   _ida.Future<void> setPinned(
-    int noticeId,
+    _isc.UuidValue noticeId,
     bool pinned,
   ) => caller.callServerEndpoint<void>(
     'notice',
@@ -587,18 +773,20 @@ class EndpointNotice extends _isc.EndpointRef {
   );
 
   /// Says "Got it" on someone else's Notice. Saying it twice is fine.
-  _ida.Future<void> gotIt(int noticeId) => caller.callServerEndpoint<void>(
-    'notice',
-    'gotIt',
-    {'noticeId': noticeId},
-  );
+  _ida.Future<void> gotIt(_isc.UuidValue noticeId) =>
+      caller.callServerEndpoint<void>(
+        'notice',
+        'gotIt',
+        {'noticeId': noticeId},
+      );
 
   /// Deletes a Notice; only its author or the Admin can.
-  _ida.Future<void> delete(int noticeId) => caller.callServerEndpoint<void>(
-    'notice',
-    'delete',
-    {'noticeId': noticeId},
-  );
+  _ida.Future<void> delete(_isc.UuidValue noticeId) =>
+      caller.callServerEndpoint<void>(
+        'notice',
+        'delete',
+        {'noticeId': noticeId},
+      );
 }
 
 class Modules {
@@ -639,6 +827,7 @@ class Client extends _isc.ServerpodClientShared {
              disconnectStreamsOnLostInternetConnection,
          httpClientOverride: httpClientOverride,
        ) {
+    emailIdp = EndpointEmailIdp(this);
     googleIdp = EndpointGoogleIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     away = EndpointAway(this);
@@ -649,6 +838,8 @@ class Client extends _isc.ServerpodClientShared {
     notice = EndpointNotice(this);
     modules = Modules(this);
   }
+
+  late final EndpointEmailIdp emailIdp;
 
   late final EndpointGoogleIdp googleIdp;
 
@@ -670,6 +861,7 @@ class Client extends _isc.ServerpodClientShared {
 
   @override
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
+    'emailIdp': emailIdp,
     'googleIdp': googleIdp,
     'jwtRefresh': jwtRefresh,
     'away': away,
@@ -685,4 +877,31 @@ class Client extends _isc.ServerpodClientShared {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
     'serverpod_auth_core': modules.serverpod_auth_core,
   };
+
+  /// Creates a new client-side database session for the given path.
+  ///
+  /// The [path] is the file path to the SQLite database file. Since SQLite uses
+  /// WAL mode, note that `[path]-shm` and `[path]-wal` files might also exist
+  /// transiently for the database while the session is open.
+  ///
+  /// If [runMigrations] is true, pending migrations will be applied when
+  /// opening the database. Be careful when setting this to false, as it might
+  /// lead to inconsistencies between the models and the database.
+  ///
+  /// If [isDebugMode] is true, the database integrity will be verified after
+  /// the migrations are applied to provide feedback of possible issues. On a
+  /// Flutter application, this should be set to [kDebugMode].
+  _ida.Future<_isd.ClientDatabaseSession> createSession(
+    String path, {
+    bool runMigrations = true,
+    bool isDebugMode = false,
+  }) async {
+    return await _isd.ClientDatabaseSession.open(
+      path,
+      _il2as5qe.Protocol(),
+      clientMigrations: MigrationRegistry.migrations,
+      runMigrations: runMigrations,
+      isDebugMode: isDebugMode,
+    );
+  }
 }

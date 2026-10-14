@@ -1,9 +1,11 @@
 ### A one-off happening on the Flat's shared calendar.
 class: FlatEvent
 table: flat_event
+database: all
 fields:
-  flatId: int
-  mateId: int
+  id: UuidValue?, defaultPersist=random_v7
+  flatId: UuidValue
+  mateId: UuidValue
   title: String
   note: String?
   startsAt: DateTime

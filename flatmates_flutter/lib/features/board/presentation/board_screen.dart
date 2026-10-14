@@ -54,18 +54,20 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
     return Scaffold(
       body: Column(
         children: [
+          const SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(Space.lg, Space.lg, Space.lg, 0),
+              child: header,
+            ),
+          ),
           Expanded(
             child: SafeArea(
+              top: false,
               bottom: false,
               child: AsyncValueView(
                 value: notices,
                 onRetry: () => ref.invalidate(noticesControllerProvider),
-                loading: const Column(
-                  children: [
-                    Padding(padding: EdgeInsets.all(Space.lg), child: header),
-                    Expanded(child: Center(child: CircularProgressIndicator())),
-                  ],
-                ),
                 data: (list) {
                   Notice? newest;
                   for (final n in list.where((n) => n.isNewFor(me))) {
@@ -80,13 +82,12 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
                         .refresh,
                     child: ListView.separated(
                       padding: const EdgeInsets.all(Space.lg),
-                      itemCount: list.isEmpty ? 2 : list.length + 1,
+                      itemCount: list.isEmpty ? 1 : list.length,
                       separatorBuilder: (_, _) =>
                           const SizedBox(height: Space.md),
                       itemBuilder: (_, i) {
-                        if (i == 0) return header;
                         if (list.isEmpty) return const _Empty();
-                        final n = list[i - 1];
+                        final n = list[i];
                         return _NoticeCard(
                           key: ValueKey(n.id),
                           notice: n,

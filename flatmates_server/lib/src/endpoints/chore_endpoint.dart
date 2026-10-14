@@ -20,20 +20,23 @@ class ChoreEndpoint extends Endpoint {
     );
   }
 
-  /// Every open Turn in the Flat: in progress, or waiting to start.
-  Future<List<Turn>> activeTurns(Session session) async {
+  /// Each Chore's latest Turn: the open one, or today's once it's Done.
+  /// The app projects the planned Turns that follow from these.
+  Future<List<Turn>> currentTurns(Session session) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
-    return Turn.db.find(
+    // After catchUp only a Chore's latest Turn can still reach today.
+    final turns = await Turn.db.find(
       session,
       where: (t) =>
-          t.flatId.equals(flat.id!) & t.status.equals(TurnStatus.active),
-      orderBy: (t) => t.lastDay,
+          t.flatId.equals(flat.id!) & (t.lastDay >= Day.today(flat.timezone)),
+      orderBy: (t) => t.day,
     );
+    return {for (final t in turns) t.choreId: t}.values.toList();
   }
 
-  /// Turns on the days [from]..[to] (inclusive): real ones, plus projected
-  /// future ones (which have no id).
+  /// Real Turns on the days [from]..[to] (inclusive). Planned ones are
+  /// projected by the app with the shared planner.
   Future<List<Turn>> turnsBetween(
     Session session,
     DateTime from,
@@ -43,17 +46,12 @@ class ChoreEndpoint extends Endpoint {
     await TurnService.catchUp(session, flat);
     from = Day.from(from);
     to = Day.from(to);
-    final real = await Turn.db.find(
+    return Turn.db.find(
       session,
       where: (t) =>
           t.flatId.equals(flat.id!) & (t.day <= to) & (t.lastDay >= from),
       orderBy: (t) => t.day,
     );
-    final projected = await TurnService.projectTurns(session, flat, to);
-    return [
-      ...real,
-      ...projected.where((t) => !t.lastDay.isBefore(from)),
-    ];
   }
 
   Future<Chore> create(
@@ -61,7 +59,7 @@ class ChoreEndpoint extends Endpoint {
     String name,
     Duration period,
     DateTime startDay,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     await _validate(session, flat, name, period, rotation);
@@ -91,10 +89,10 @@ class ChoreEndpoint extends Endpoint {
   /// from the next Turn.
   Future<Chore> update(
     Session session,
-    int choreId,
+    UuidValue choreId,
     String name,
     Duration period,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
@@ -122,7 +120,7 @@ class ChoreEndpoint extends Endpoint {
     return chore;
   }
 
-  Future<void> archive(Session session, int choreId) async {
+  Future<void> archive(Session session, UuidValue choreId) async {
     final (:me, :flat) = await requireAdmin(session);
     final chore = await _find(session, flat, choreId);
     chore.archived = true;
@@ -131,13 +129,13 @@ class ChoreEndpoint extends Endpoint {
     await broadcast(session, flat.id!, FlatChangeKind.chores);
   }
 
-  Future<Turn> markDone(Session session, int turnId) async {
+  Future<Turn> markDone(Session session, UuidValue turnId) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
     return TurnService.markDone(session, flat, me, turnId);
   }
 
-  Future<Turn> undoDone(Session session, int turnId) async {
+  Future<Turn> undoDone(Session session, UuidValue turnId) async {
     final (:me, :flat) = await requireMate(session);
     await TurnService.catchUp(session, flat);
     return TurnService.undoDone(session, flat, me, turnId);
@@ -162,7 +160,7 @@ class ChoreEndpoint extends Endpoint {
     Session session,
     Mate me,
     Chore chore,
-    Iterable<int> mateIds,
+    Iterable<UuidValue> mateIds,
   ) => Notifier.toMates(
     session,
     mateIds.where((id) => id != me.id),
@@ -171,7 +169,7 @@ class ChoreEndpoint extends Endpoint {
     kind: NotifyKind.addedToRotation,
   );
 
-  Future<Chore> _find(Session session, Flat flat, int choreId) async {
+  Future<Chore> _find(Session session, Flat flat, UuidValue choreId) async {
     final chore = await Chore.db.findById(session, choreId);
     if (chore == null || chore.flatId != flat.id || chore.archived) {
       fail('Chore not found.');
@@ -184,7 +182,7 @@ class ChoreEndpoint extends Endpoint {
     Flat flat,
     String name,
     Duration period,
-    List<int> rotation,
+    List<UuidValue> rotation,
   ) async {
     if (name.trim().isEmpty) fail('Give the chore a name.');
     if (period < const Duration(days: 1) || period.inHours % 24 != 0) {

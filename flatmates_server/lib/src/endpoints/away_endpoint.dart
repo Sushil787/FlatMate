@@ -3,7 +3,6 @@ import 'package:serverpod/serverpod.dart';
 import '../day.dart';
 import '../flat_access.dart';
 import '../generated/protocol.dart';
-import '../rotation/planner.dart';
 import '../rotation/turn_service.dart';
 
 /// Marking yourself Away.
@@ -23,7 +22,7 @@ class AwayEndpoint extends Endpoint {
   }
 
   /// Marks the caller Away for the days [startDay]..[lastDay] (inclusive).
-  /// Away can't start in the past.
+  /// Away can't start in the past, nor overlap one of the caller's Aways.
   Future<Away> create(
     Session session,
     DateTime startDay,
@@ -31,6 +30,14 @@ class AwayEndpoint extends Endpoint {
   ) async {
     final (:me, :flat) = await requireMate(session);
     final days = _days(flat, startDay, lastDay);
+    final overlapping = await Away.db.count(
+      session,
+      where: (t) =>
+          t.mateId.equals(me.id!) &
+          (t.startDay <= days.lastDay) &
+          (t.lastDay >= days.startDay),
+    );
+    if (overlapping > 0) fail('You\'re already Away on some of these days.');
     final away = await Away.db.insertRow(
       session,
       Away(
@@ -45,26 +52,9 @@ class AwayEndpoint extends Endpoint {
     return away;
   }
 
-  /// What marking the caller Away for [startDay]..[lastDay] would do to
-  /// their Turns. Saves nothing.
-  Future<List<AwayEffect>> preview(
-    Session session,
-    DateTime startDay,
-    DateTime lastDay,
-  ) async {
-    final (:me, :flat) = await requireMate(session);
-    final days = _days(flat, startDay, lastDay);
-    return TurnService.previewAway(
-      session,
-      flat,
-      me,
-      AwaySpan(me.id!, days.startDay, days.lastDay),
-    );
-  }
-
   /// Cancels one of the caller's Away periods before it starts. Covers
   /// already arranged for it stay as they are.
-  Future<void> cancel(Session session, int awayId) async {
+  Future<void> cancel(Session session, UuidValue awayId) async {
     final (:me, :flat) = await requireMate(session);
     final away = await Away.db.findById(session, awayId);
     if (away == null || away.mateId != me.id) fail('Away not found.');

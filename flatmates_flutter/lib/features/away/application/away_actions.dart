@@ -1,3 +1,4 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/action_notifier.dart';
@@ -17,12 +18,12 @@ class MarkAway extends ActionNotifier {
 
 /// Cancelling an Away, by Away id.
 final cancelAwayProvider = AsyncNotifierProvider.autoDispose
-    .family<CancelAway, void, int>(CancelAway.new);
+    .family<CancelAway, void, UuidValue>(CancelAway.new);
 
 class CancelAway extends ActionNotifier {
   CancelAway(this.awayId);
 
-  final int awayId;
+  final UuidValue awayId;
 
   Future<bool> run() =>
       guard(() => ref.read(awaysControllerProvider.notifier).cancel(awayId));

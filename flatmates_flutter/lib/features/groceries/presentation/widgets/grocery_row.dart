@@ -7,7 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/banners.dart';
 import '../../../../core/widgets/mate_avatar.dart';
-import '../../../../core/widgets/tag.dart';
+import '../../../../core/utils/action_runner.dart';
 import '../../../flat/application/mate_directory.dart';
 import '../../application/groceries_controller.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -15,12 +15,9 @@ import '../../../../core/widgets/app_icon.dart';
 /// One Grocery item: tap to tick it off (or back on), swipe left to remove.
 /// Shows who added it, or who ticked it off.
 class GroceryRow extends ConsumerWidget {
-  const GroceryRow({super.key, required this.item, this.waiting = false});
+  const GroceryRow({super.key, required this.item});
 
   final GroceryItem item;
-
-  /// Changed offline and not sent yet.
-  final bool waiting;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +34,7 @@ class GroceryRow extends ConsumerWidget {
         DateTime.now().difference(item.createdAt) < const Duration(minutes: 1);
 
     final row = InkWell(
-      onTap: () => controller.toggle(item),
+      onTap: () => runAction(context, () => controller.toggle(item)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Sizes.touchMin),
         child: Padding(
@@ -67,22 +64,17 @@ class GroceryRow extends ConsumerWidget {
                         decorationColor: fm.inkSoft,
                       ),
                     ),
-                    if (waiting)
-                      const Tag('Waiting to send')
-                    else
-                      Text(
-                        ticked
-                            ? '$name ticked it'
-                            : justNow
-                            ? '$name · just now'
-                            : name,
-                        style: context.text.labelMedium?.copyWith(
-                          fontWeight: justNow
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                          color: justNow ? fm.ink : fm.inkSoft,
-                        ),
+                    Text(
+                      ticked
+                          ? '$name ticked it'
+                          : justNow
+                          ? '$name · just now'
+                          : name,
+                      style: context.text.labelMedium?.copyWith(
+                        fontWeight: justNow ? FontWeight.w700 : FontWeight.w400,
+                        color: justNow ? fm.ink : fm.inkSoft,
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -99,7 +91,7 @@ class GroceryRow extends ConsumerWidget {
         checked: ticked,
         customSemanticsActions: {
           const CustomSemanticsAction(label: 'Remove'): () =>
-              controller.remove(item),
+              runAction(context, () => controller.remove(item)),
         },
         child: Dismissible(
           key: ValueKey(item.id),
@@ -120,7 +112,7 @@ class GroceryRow extends ConsumerWidget {
               ),
             ),
           ),
-          onDismissed: (_) => controller.remove(item),
+          onDismissed: (_) => runAction(context, () => controller.remove(item)),
           // Opaque, so the Remove behind only shows where the row slid away.
           child: Material(
             color: fm.surface,

@@ -1,9 +1,10 @@
+import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/day.dart';
 import '../../away/application/aways_controller.dart';
 import '../../chores/application/chores_controller.dart';
-import '../../chores/data/chore_repository.dart';
+import '../../chores/application/chore_turns.dart';
 import '../../flat/application/mate_directory.dart';
 import '../data/event_repository.dart';
 import '../domain/calendar_entry.dart';
@@ -19,9 +20,7 @@ Future<List<CalendarEntry>> _calendarMonth(Ref ref, DateTime month) async {
   final to = DateTime(month.year, month.month + 1).add(const Duration(days: 7));
 
   final (turns, events) = await (
-    ref
-        .watch(choreRepositoryProvider)
-        .turnsBetween(Day.fromLocal(from), Day.fromLocal(to)),
+    turnsBetween(ref, Day.fromLocal(from), Day.fromLocal(to)),
     ref.watch(eventRepositoryProvider).between(from, to),
   ).wait;
   final chores = await ref.watch(choresControllerProvider.future);
@@ -68,7 +67,7 @@ class EventsController extends Notifier<void> {
     ref.invalidate(calendarMonthProvider);
   }
 
-  Future<void> delete(int eventId) async {
+  Future<void> delete(UuidValue eventId) async {
     await ref.read(eventRepositoryProvider).delete(eventId);
     ref.invalidate(calendarMonthProvider);
   }
