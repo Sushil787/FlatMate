@@ -13,7 +13,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_serialization/serverpod_serialization.dart' as _iss;
 import 'away_rule.dart' as _isc380kv;
+import 'turn_time.dart' as _inz57gy4;
 export 'away_rule.dart';
+export 'turn_time.dart';
 
 class Protocol extends _iss.SerializationManager {
   Protocol._();
@@ -61,8 +63,14 @@ class Protocol extends _iss.SerializationManager {
     if (t == _isc380kv.AwayRule) {
       return _isc380kv.AwayRule.fromJson(data) as T;
     }
+    if (t == _inz57gy4.TurnTime) {
+      return _inz57gy4.TurnTime.fromJson(data) as T;
+    }
     if (t == _iss.getType<_isc380kv.AwayRule?>()) {
       return (data != null ? _isc380kv.AwayRule.fromJson(data) : null) as T;
+    }
+    if (t == _iss.getType<_inz57gy4.TurnTime?>()) {
+      return (data != null ? _inz57gy4.TurnTime.fromJson(data) : null) as T;
     }
     return super.deserialize<T>(data, t);
   }
@@ -70,6 +78,7 @@ class Protocol extends _iss.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _isc380kv.AwayRule => 'AwayRule',
+      _inz57gy4.TurnTime => 'TurnTime',
       _ => null,
     };
   }
@@ -86,6 +95,8 @@ class Protocol extends _iss.SerializationManager {
     switch (data) {
       case _isc380kv.AwayRule():
         return 'AwayRule';
+      case _inz57gy4.TurnTime():
+        return 'TurnTime';
     }
     return null;
   }
@@ -98,6 +109,9 @@ class Protocol extends _iss.SerializationManager {
     }
     if (dataClassName == 'AwayRule') {
       return deserialize<_isc380kv.AwayRule>(data['data']);
+    }
+    if (dataClassName == 'TurnTime') {
+      return deserialize<_inz57gy4.TurnTime>(data['data']);
     }
     return super.deserializeByClassName(data);
   }

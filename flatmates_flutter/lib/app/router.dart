@@ -43,6 +43,7 @@ class AppRouter extends RootStackRouter {
       AutoRoute(page: ChoreDetailRoute.page, guards: ready),
       AutoRoute(page: BoardRoute.page, guards: ready),
       AutoRoute(page: SettingsRoute.page, guards: ready),
+      AutoRoute(page: NotificationsAskRoute.page, guards: ready),
     ];
   }
 }

@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/digests.dart';
 import '../notify/notifier.dart';
 
 /// The Flat's notice board.
@@ -51,11 +52,12 @@ class NoticeEndpoint extends Endpoint {
         pinned: false,
       ),
     );
+    final push = noticePush(me.displayName, notice.text);
     await Notifier.toFlat(
       session,
       flat.id!,
-      title: '${me.displayName} posted a Notice',
-      body: notice.text,
+      title: push.title,
+      body: push.body,
       exceptMateId: me.id,
       kind: NotifyKind.notice,
     );

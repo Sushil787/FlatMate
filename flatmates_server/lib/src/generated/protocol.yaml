@@ -1,6 +1,6 @@
 emailIdp:
-  - login:
   - startRegistration:
+  - login:
   - verifyRegistrationCode:
   - finishRegistration:
   - startPasswordReset:
@@ -43,7 +43,6 @@ flat:
   - setAwayRule:
   - welcomeMate:
   - finishOnboarding:
-  - setMorningSummaryAt:
   - transferAdmin:
   - removeMate:
   - leave:

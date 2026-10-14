@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -71,7 +72,8 @@ class TurnCard extends StatelessWidget {
             ),
             const SizedBox(height: Space.xs),
             Text(
-              '${everyLabel(chore.period)} · $nextLabel',
+              '${everyLabel(chore.period)} · ${chore.turnTime.label} · '
+              '$nextLabel',
               style: context.text.bodyMedium?.copyWith(
                 fontSize: 14,
                 color: fm.onHeroCard,

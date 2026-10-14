@@ -1,6 +1,7 @@
 import 'package:flatmates_client/flatmates_client.dart';
 import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flatmates_flutter/app/app.dart';
+import 'package:flatmates_flutter/features/auth/application/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -125,7 +126,10 @@ void main() {
     expect(find.text('3 Mates'), findsOneWidget);
     await tester.tap(find.text('Save Chore'));
     await tester.pumpAndSettle();
-    expect(find.text('Every week · You, Maya and Sam'), findsOneWidget);
+    expect(
+      find.text('Every week · Evening · You, Maya and Sam'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
@@ -167,6 +171,50 @@ void main() {
     await tester.pumpAndSettle();
     await practiseDoneAndAway(tester, cover: 'Sam');
     expect(find.text('Turn on notifications'), findsOneWidget);
+  });
+
+  testWidgets('Settings shows notifications are off on this phone and asks '
+      'again', (tester) async {
+    final backend = FakeBackend()..pushAllowed = false;
+    await pumpApp(tester, backend);
+    await tester.tap(find.byTooltip('Profile and settings'));
+    await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Off on this phone'));
+
+    expect(find.text('My Turn starts'), findsOneWidget);
+    expect(find.text('Night summary'), findsOneWidget);
+    await tester.ensureVisible(find.text('Turn on'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Turn on'));
+    await tester.pumpAndSettle();
+    expect(backend.pushAsked, 1);
+    expect(find.text('Off on this phone'), findsNothing);
+  });
+
+  testWidgets('signing in on a phone without notifications asks once', (
+    tester,
+  ) async {
+    final backend = FakeBackend(signedIn: false)..pushAllowed = false;
+    await pumpApp(tester, backend);
+    expect(find.text('There\'s a better way'), findsOneWidget);
+
+    final app = ProviderScope.containerOf(
+      tester.element(find.byType(FlatmatesApp)),
+    );
+    (app.read(authControllerProvider.notifier) as FakeAuth).signIn();
+    await tester.pumpAndSettle();
+    expect(find.text('Know when it\'s your Turn'), findsOneWidget);
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hi Priya'), findsOneWidget);
+    expect(backend.pushAsked, 0);
+  });
+
+  testWidgets('opening the app signed in doesn\'t ask', (tester) async {
+    final backend = FakeBackend()..pushAllowed = false;
+    await pumpApp(tester, backend);
+    expect(find.text('Hi Priya'), findsOneWidget);
+    expect(find.text('Know when it\'s your Turn'), findsNothing);
   });
 
   testWidgets('a Mate past onboarding goes straight to Home', (tester) async {
@@ -244,10 +292,15 @@ void main() {
       find.widgetWithText(TextField, 'Take out bins'),
       'Bathroom',
     );
+    await tester.ensureVisible(find.text('Morning'));
+    await tester.tap(find.text('Morning'));
+    await tester.pump();
+    expect(find.textContaining('Starts 7:00 AM'), findsOneWidget);
     await tester.tap(find.text('Save Chore'));
     await tester.pumpAndSettle();
 
     expect(backend.chores.single.name, 'Bathroom');
+    expect(backend.chores.single.turnTime, TurnTime.morning);
     expect(find.text('Bathroom'), findsOneWidget);
   });
 

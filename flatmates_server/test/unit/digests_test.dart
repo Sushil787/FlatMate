@@ -1,54 +1,71 @@
 import 'package:flatmates_server/src/notify/digests.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('one Turn in the morning reads as that Turn', () {
+  test('one Turn at its start reads as that Turn', () {
     expect(
-      morningPush([(chore: 'Bins', coveringFor: null)], due: 'in 16h'),
-      (title: 'Your Turn: Bins', body: 'It\'s yours, due in 16h.'),
+      startPush([(chore: 'Bins', coveringFor: null)], when: 'this evening'),
+      (title: 'Your Turn: Bins', body: 'It\'s yours this evening.'),
     );
     expect(
-      morningPush([(chore: 'Bins', coveringFor: 'Sam')], due: 'in 16h'),
-      (title: 'You\'re covering: Bins', body: 'Doing Sam\'s turn, due in 16h.'),
+      startPush([(chore: 'Bins', coveringFor: 'Sam')], when: 'today'),
+      (title: 'You\'re covering: Bins', body: 'Doing Sam\'s Turn today.'),
     );
   });
 
-  test('several Turns in the morning make one push', () {
+  test('several Turns at one Turn time make one push', () {
     expect(
-      morningPush([
+      startPush([
         (chore: 'Bins', coveringFor: null),
         (chore: 'Dishes', coveringFor: 'Sam'),
-      ], due: 'in 16h'),
-      (title: 'Your Turns today', body: 'Bins, Dishes (covering Sam)'),
+      ], when: 'this morning'),
+      (title: 'Your Turns this morning', body: 'Bins, Dishes (covering Sam)'),
     );
   });
 
-  test('the evening push lists my Turns, then my Mates\' ones', () {
-    final others = {
-      'Sam': ['Hoover'],
-      'Alex': ['Bins', 'Mop'],
-    };
+  test('the reminder names the Chores and the Turn time', () {
+    expect(reminderPush(['Bins', 'Dishes'], TurnTime.night), (
+      title: 'Bins, Dishes: 1 hour left tonight',
+      body: 'Done already? Tap to tell your Mates.',
+    ));
+  });
+
+  test('Mates\' Turns not Done list each Mate, or nothing', () {
     expect(
-      eveningPush(['Dishes'], const {}, hoursLeft: 3),
+      matesNotDonePush({
+        'Sam': ['Hoover'],
+        'Alex': ['Bins', 'Mop'],
+      }),
+      (title: 'Not Done yet', body: 'Sam: Hoover. Alex: Bins, Mop.'),
+    );
+    expect(matesNotDonePush(const {}), isNull);
+  });
+
+  test('the night summary leaves out what is empty', () {
+    expect(
+      nightSummaryPush(
+        'Elm St',
+        done: [(chore: 'Bins', who: 'you')],
+        notDone: const [],
+        tonight: [(chore: 'Recycling', who: 'Sam')],
+      ),
       (
-        title: '3 hours left for Dishes',
-        body: 'Done already? Tap to tell your Mates.',
+        title: 'Today in Elm St',
+        body: 'Done: Bins (you). Still tonight: Recycling (Sam).',
       ),
     );
     expect(
-      eveningPush(['Dishes', 'Plants'], others, hoursLeft: 3),
-      (
-        title: '3 hours left for Dishes, Plants',
-        body: 'Also not Done yet: Sam (Hoover), Alex (Bins, Mop)',
-      ),
+      nightSummaryPush('Elm St', done: [], notDone: [], tonight: []),
+      isNull,
     );
-    expect(
-      eveningPush(const [], others, hoursLeft: 3),
-      (
-        title: 'Not Done yet',
-        body: 'Sam (Hoover), Alex (Bins, Mop). 3 hours left.',
-      ),
-    );
-    expect(eveningPush(const [], const {}, hoursLeft: 3), isNull);
+  });
+
+  test('every Turn time\'s pushes stay clear of the Flat-wide ones', () {
+    final flatWide = {matesNotDoneAt, nightSummaryAt};
+    for (final t in TurnTime.values) {
+      expect(t.startsAt < t.remindAt && t.remindAt < t.endsAt, isTrue);
+      expect(flatWide.intersection({t.startsAt, t.remindAt}), isEmpty);
+    }
   });
 }

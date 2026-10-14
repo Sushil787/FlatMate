@@ -116,9 +116,6 @@ class FlatRepository {
 
   Future<Flat> setAwayRule(AwayRule rule) => _client.flat.setAwayRule(rule);
 
-  Future<Flat> setMorningSummaryAt(int minutes) =>
-      _client.flat.setMorningSummaryAt(minutes);
-
   Future<Flat> rename(String name) => _client.flat.rename(name);
 
   Future<Mate> setMyName(String displayName) =>
@@ -133,6 +130,7 @@ class FlatRepository {
     matesNotDone: me.notifyMatesNotDone,
     notice: me.notifyNotice,
     addedToRotation: me.notifyAddedToRotation,
+    nightSummary: me.notifyNightSummary,
   );
 
   Future<Mate> finishOnboarding() => _client.flat.finishOnboarding();

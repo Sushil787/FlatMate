@@ -244,6 +244,13 @@ class Protocol extends _isd.DatabaseSerializationManager {
           dartType: 'bool',
         ),
         _isd.ColumnDefinition(
+          name: 'turnTime',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'flatmates_shared:TurnTime',
+          columnDefault: '\'evening\'',
+        ),
+        _isd.ColumnDefinition(
           name: 'createdAt',
           columnType: _isd.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -324,13 +331,6 @@ class Protocol extends _isd.DatabaseSerializationManager {
           columnType: _isd.ColumnType.text,
           isNullable: false,
           dartType: 'flatmates_shared:AwayRule',
-        ),
-        _isd.ColumnDefinition(
-          name: 'morningSummaryAt',
-          columnType: _isd.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '480',
         ),
         _isd.ColumnDefinition(
           name: 'createdAt',
@@ -620,6 +620,13 @@ class Protocol extends _isd.DatabaseSerializationManager {
         ),
         _isd.ColumnDefinition(
           name: 'notifyAddedToRotation',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'notifyNightSummary',
           columnType: _isd.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',

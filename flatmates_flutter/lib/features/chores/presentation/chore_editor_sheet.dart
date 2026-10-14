@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -27,6 +28,7 @@ Future<void> showChoreEditor(
 typedef ChoreDraft = ({
   String name,
   Duration period,
+  TurnTime turnTime,
   DateTime startDay,
   List<UuidValue> rotation,
 });
@@ -52,6 +54,7 @@ class _ChoreEditor extends ConsumerWidget {
           period: d.period,
           startDay: d.startDay,
           rotation: d.rotation,
+          turnTime: d.turnTime,
         ),
       );
     }
@@ -75,6 +78,7 @@ class _ChoreEditor extends ConsumerWidget {
             name: d.name,
             period: d.period,
             rotation: d.rotation,
+            turnTime: d.turnTime,
           ),
       onDelete: ref.read(archiveChoreProvider(id).notifier).run,
     );
@@ -111,6 +115,7 @@ class _ChoreEditorViewState extends State<ChoreEditorView> {
   final _name = TextEditingController();
   int _days = 7;
   bool _custom = false;
+  TurnTime _turnTime = TurnTime.evening;
   DateTime _start = DateUtils.dateOnly(DateTime.now());
   List<UuidValue> _rotation = [];
   String? _error;
@@ -130,6 +135,7 @@ class _ChoreEditorViewState extends State<ChoreEditorView> {
       _name.text = chore.name;
       _days = chore.period.inDays;
       _custom = !_presets.containsKey(_days);
+      _turnTime = chore.turnTime;
       _rotation = [...chore.rotation];
     } else {
       _name.text = widget.name ?? '';
@@ -178,6 +184,7 @@ class _ChoreEditorViewState extends State<ChoreEditorView> {
       () => widget.onSave((
         name: name,
         period: Duration(days: _days),
+        turnTime: _turnTime,
         startDay: Day.fromLocal(_start),
         rotation: _rotation,
       )),
@@ -264,6 +271,29 @@ class _ChoreEditorViewState extends State<ChoreEditorView> {
                 days: _days,
                 onChanged: (d) => setState(() => _days = d),
               ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 6,
+          children: [
+            Text('Turn time', style: label),
+            _PeriodChips(
+              options: [
+                for (final t in TurnTime.values)
+                  (
+                    t.label,
+                    _turnTime == t,
+                    () => setState(() => _turnTime = t),
+                  ),
+              ],
+            ),
+            Text(
+              'Starts ${_clock(context, _turnTime.startsAt)}. If it isn\'t '
+              'Done by ${_clock(context, _turnTime.remindAt)}, its Mate is '
+              'reminded.',
+              style: context.text.bodySmall,
+            ),
           ],
         ),
         if (_isNew)
@@ -431,6 +461,10 @@ class _RotationEditor extends StatelessWidget {
     );
   }
 }
+
+/// "07:00" (or "7:00 AM"), [minutes] after midnight.
+String _clock(BuildContext context, int minutes) =>
+    TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60).format(context);
 
 /// Equal-width choice pills; two per row when the text is large.
 class _PeriodChips extends StatelessWidget {

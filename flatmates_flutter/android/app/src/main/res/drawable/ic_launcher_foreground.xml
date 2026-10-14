@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The mark from design/icons, scaled into the adaptive icon's 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1080">
+    <group
+        android:scaleX="0.66"
+        android:scaleY="0.66"
+        android:translateX="126.2"
+        android:translateY="182.9">
+        <path
+            android:fillColor="#2670AD"
+            android:pathData="M228,497 a74,74 0 1,0 148,0 a74,74 0 1,0 -148,0 Z M264,582 H336 A52,52 0 0,1 388,634 V740 A52,52 0 0,1 336,792 H264 A52,52 0 0,1 212,740 V634 A52,52 0 0,1 264,582 Z"/>
+        <path
+            android:fillColor="#C8431F"
+            android:pathData="M878,497 a74,74 0 1,0 148,0 a74,74 0 1,0 -148,0 Z M918,582 H990 A52,52 0 0,1 1042,634 V740 A52,52 0 0,1 990,792 H918 A52,52 0 0,1 866,740 V634 A52,52 0 0,1 918,582 Z"/>
+        <path
+            android:strokeColor="@color/ic_launcher_arch"
+            android:strokeWidth="78"
+            android:strokeLineCap="round"
+            android:pathData="M451,753 V505 A176,176 0 0,1 803,505 V753"/>
+        <path
+            android:fillColor="#C8F169"
+            android:pathData="M528,776 V513 A98,98 0 0,1 724,513 V776 Q724,792 708,792 H544 Q528,792 528,776 Z"/>
+        <path
+            android:fillColor="#16181A"
+            android:pathData="M633,630 a28,28 0 1,0 56,0 a28,28 0 1,0 -56,0 Z"/>
+    </group>
+</vector>

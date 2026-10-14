@@ -26,6 +26,22 @@ void main() {
     late MyFlat flat;
     late UuidValue priyaId, samId, alexId;
 
+    Future<Chore> createChore(
+      TestSessionBuilder who,
+      String name,
+      Duration period,
+      DateTime startDay,
+      List<UuidValue> rotation, [
+      TurnTime turnTime = TurnTime.evening,
+    ]) => endpoints.chore.create(
+      who,
+      name,
+      period,
+      startDay,
+      rotation,
+      turnTime,
+    );
+
     setUp(() async {
       flat = await endpoints.flat.create(priya, 'Elm St', 'Priya', tz);
       priyaId = flat.me.id!;
@@ -122,7 +138,7 @@ void main() {
         {for (final m in mine!.mates) m.displayName: m.welcomed},
         {'Priya': true, 'Sam': false, 'Alex': false},
       );
-      final bins = await endpoints.chore.create(
+      final bins = await createChore(
         priya,
         'Bins',
         week,
@@ -147,7 +163,7 @@ void main() {
 
     test('only the admin can create chores', () async {
       await expectLater(
-        endpoints.chore.create(sam, 'Bins', week, today(), [samId]),
+        createChore(sam, 'Bins', week, today(), [samId]),
         throwsA(isA<FlatmatesException>()),
       );
     });
@@ -155,7 +171,7 @@ void main() {
     test(
       'a Turn whose day is over hands over even if its end call never ran',
       () async {
-        await endpoints.chore.create(
+        await createChore(
           priya,
           'Dishes',
           const Duration(days: 1),
@@ -187,7 +203,7 @@ void main() {
     );
 
     test('turns pass round-robin and a missed turn is marked', () async {
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -212,7 +228,7 @@ void main() {
     });
 
     test('only the turn\'s mate can mark it done', () async {
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -227,7 +243,7 @@ void main() {
     });
 
     test('Swap: going Away hands the turn over and it is paid back', () async {
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -257,7 +273,7 @@ void main() {
 
     test('Skip: the next mate takes the turn and nothing is owed', () async {
       await endpoints.flat.setAwayRule(priya, AwayRule.skip);
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -281,7 +297,7 @@ void main() {
 
     test('Pause: Away in the middle of a turn extends it', () async {
       await endpoints.flat.setAwayRule(priya, AwayRule.pause);
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -317,7 +333,7 @@ void main() {
     test(
       'turnsBetween lists real Turns only; currentTurns the latest',
       () async {
-        final bins = await endpoints.chore.create(
+        final bins = await createChore(
           priya,
           'Bins',
           week,
@@ -355,7 +371,7 @@ void main() {
     });
 
     test('a leaving mate\'s turn goes to the next mate', () async {
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,
@@ -368,13 +384,13 @@ void main() {
 
     test('a chore\'s first turn can\'t be in the past', () async {
       await expectLater(
-        endpoints.chore.create(priya, 'Bins', week, today(-1), [priyaId]),
+        createChore(priya, 'Bins', week, today(-1), [priyaId]),
         throwsA(isA<FlatmatesException>()),
       );
     });
 
     test('a turn ends at midnight in the flat\'s timezone', () async {
-      await endpoints.chore.create(priya, 'Bins', week, today(), [priyaId]);
+      await createChore(priya, 'Bins', week, today(), [priyaId]);
       final turn = await onlyActiveTurn();
       final (:start, :end) = TurnService.instants(flat.flat, turn);
       // Kathmandu is UTC+05:45, so local midnight is 18:15 UTC.
@@ -480,87 +496,168 @@ void main() {
         }
       }
 
-      test('the morning summary is one push per Mate', () async {
-        const day = Duration(days: 1);
-        for (final (chore, mate) in [
-          ('Bins', samId),
-          ('Dishes', samId),
-          ('Hoover', alexId),
-        ]) {
-          await endpoints.chore.create(priya, chore, day, today(), [mate]);
-        }
-        Notifier.sent!.clear(); // pushes on creation if it's past 8:00
-
-        await runAll(endpoints.futureCalls.turnCalls.started);
-        expect(
-          {for (final p in Notifier.sent!) p.mateId: p.title},
-          {samId: 'Your Turns today', alexId: 'Your Turn: Hoover'},
-        );
-        expect(Notifier.sent, hasLength(2));
-      });
-
-      test('the evening push tells each Mate what is not Done', () async {
-        // A fixed offset where it's 19:00 now, before the 21:00 push.
+      /// Moves the Flat to a fixed offset where it's [minutes] after
+      /// midnight now, and returns that day.
+      Future<DateTime> clockAt(int minutes) async {
         final now = DateTime.now().toUtc();
-        var minutes = 19 * 60 - (now.hour * 60 + now.minute);
-        if (minutes <= -12 * 60) minutes += 24 * 60;
-        if (minutes > 12 * 60) minutes -= 24 * 60;
+        var shift = minutes - (now.hour * 60 + now.minute);
+        if (shift <= -12 * 60) shift += 24 * 60;
+        if (shift > 12 * 60) shift -= 24 * 60;
         final offset =
-            '${minutes < 0 ? '-' : '+'}'
-            '${(minutes.abs() ~/ 60).toString().padLeft(2, '0')}'
-            '${(minutes.abs() % 60).toString().padLeft(2, '0')}';
-        final session = sessionBuilder.build();
-        await Flat.db.updateRow(session, flat.flat..timezone = offset);
-        final day = Day.today(offset);
+            '${shift < 0 ? '-' : '+'}'
+            '${(shift.abs() ~/ 60).toString().padLeft(2, '0')}'
+            '${(shift.abs() % 60).toString().padLeft(2, '0')}';
+        await Flat.db.updateRow(
+          sessionBuilder.build(),
+          flat.flat..timezone = offset,
+        );
+        return Day.today(offset);
+      }
 
-        late Chore mop;
-        for (final (name, mate) in [
-          ('Bins', samId),
-          ('Dishes', samId),
-          ('Hoover', alexId),
-          ('Mop', alexId),
-        ]) {
-          mop = await endpoints.chore.create(
+      /// Makes daily Chores starting [day], one per (name, Mate, Turn time).
+      Future<List<Chore>> chores(
+        DateTime day,
+        List<(String, UuidValue, TurnTime)> list,
+      ) async => [
+        for (final (name, mate, time) in list)
+          await createChore(
             priya,
             name,
             const Duration(days: 1),
             day,
             [mate],
-          );
-        }
-        final mopTurn = (await endpoints.chore.currentTurns(
-          alex,
-        )).singleWhere((t) => t.choreId == mop.id);
-        await endpoints.chore.markDone(alex, mopTurn.id!);
-        // Priya is Away today, so she isn't told about anyone's Turns.
-        await Away.db.insertRow(
-          session,
-          Away(
-            flatId: flat.flat.id!,
-            mateId: priyaId,
-            startDay: day,
-            lastDay: day,
+            time,
           ),
+      ];
+
+      Future<void> markDone(TestSessionBuilder who, Chore chore) async {
+        final turn = (await endpoints.chore.currentTurns(
+          who,
+        )).singleWhere((t) => t.choreId == chore.id);
+        await endpoints.chore.markDone(who, turn.id!);
+      }
+
+      test('a Turn time starts with one push per Mate', () async {
+        final day = await clockAt(16 * 60 + 50);
+        await chores(day, [
+          ('Bins', samId, TurnTime.evening),
+          ('Dishes', samId, TurnTime.evening),
+          ('Hoover', alexId, TurnTime.evening),
+          // Its Turn time is over: announced on creation, not now.
+          ('Plants', samId, TurnTime.morning),
+        ]);
+        Notifier.sent!.clear();
+
+        await runAll(endpoints.futureCalls.turnCalls.started);
+        expect(
+          {for (final p in Notifier.sent!) p.mateId: p.title},
+          {samId: 'Your Turns this evening', alexId: 'Your Turn: Hoover'},
         );
+        expect(Notifier.sent, hasLength(2));
+      });
+
+      test('the reminder comes an hour before the Turn time ends, for '
+          'Turns not Done', () async {
+        final day = await clockAt(19 * 60 + 55);
+        final list = await chores(day, [
+          ('Bins', samId, TurnTime.evening),
+          ('Dishes', samId, TurnTime.evening),
+          ('Hoover', alexId, TurnTime.evening),
+          ('Mop', alexId, TurnTime.evening),
+          // Its reminder was this morning.
+          ('Plants', samId, TurnTime.morning),
+        ]);
+        await markDone(alex, list[3]);
         Notifier.sent!.clear();
 
         await runAll(endpoints.futureCalls.turnCalls.reminder);
         expect(Notifier.sent, [
           (
             mateId: samId,
-            title: '3 hours left for Bins, Dishes',
-            body: 'Also not Done yet: Alex (Hoover)',
+            title: 'Bins, Dishes: 1 hour left this evening',
+            body: 'Done already? Tap to tell your Mates.',
           ),
           (
             mateId: alexId,
-            title: '3 hours left for Hoover',
-            body: 'Also not Done yet: Sam (Bins, Dishes)',
+            title: 'Hoover: 1 hour left this evening',
+            body: 'Done already? Tap to tell your Mates.',
           ),
         ]);
       });
 
+      test(
+        'at 18:00 Mates hear about earlier Turns not Done, unless Away',
+        () async {
+          final day = await clockAt(17 * 60 + 55);
+          final list = await chores(day, [
+            ('Bins', samId, TurnTime.morning),
+            ('Hoover', alexId, TurnTime.afternoon),
+            ('Mop', alexId, TurnTime.afternoon),
+            // Still has its Turn time to go.
+            ('Dishes', samId, TurnTime.evening),
+          ]);
+          await markDone(alex, list[2]);
+          await Away.db.insertRow(
+            sessionBuilder.build(),
+            Away(
+              flatId: flat.flat.id!,
+              mateId: priyaId,
+              startDay: day,
+              lastDay: day,
+            ),
+          );
+          Notifier.sent!.clear();
+
+          await runAll(endpoints.futureCalls.turnCalls.matesNotDone);
+          expect(Notifier.sent, [
+            (mateId: samId, title: 'Not Done yet', body: 'Alex: Hoover.'),
+            (mateId: alexId, title: 'Not Done yet', body: 'Sam: Bins.'),
+          ]);
+        },
+      );
+
+      test(
+        'the night summary tells everyone who wants it about the day',
+        () async {
+          final day = await clockAt(21 * 60 + 55);
+          final list = await chores(day, [
+            ('Bins', samId, TurnTime.evening),
+            ('Hoover', alexId, TurnTime.morning),
+            ('Recycling', alexId, TurnTime.night),
+          ]);
+          await markDone(sam, list[0]);
+          await endpoints.flat.setNotifications(
+            priya,
+            turnStarts: true,
+            reminder: true,
+            notice: true,
+            addedToRotation: true,
+            nightSummary: false,
+          );
+          Notifier.sent!.clear();
+
+          await runAll(endpoints.futureCalls.turnCalls.nightSummary);
+          expect(Notifier.sent, [
+            (
+              mateId: samId,
+              title: 'Today in Elm St',
+              body:
+                  'Done: Bins (you). Not Done: Hoover (Alex). '
+                  'Still tonight: Recycling (Alex).',
+            ),
+            (
+              mateId: alexId,
+              title: 'Today in Elm St',
+              body:
+                  'Done: Bins (Sam). Not Done: Hoover (you). '
+                  'Still tonight: Recycling (you).',
+            ),
+          ]);
+        },
+      );
+
       test('a Done tells nobody, and neither does a Missed', () async {
-        await endpoints.chore.create(priya, 'Bins', week, today(), [samId]);
+        await createChore(priya, 'Bins', week, today(), [samId]);
         final turn = await onlyActiveTurn();
         Notifier.sent!.clear();
         await endpoints.chore.markDone(sam, turn.id!);
@@ -573,21 +670,8 @@ void main() {
       });
     });
 
-    test('only the admin moves the morning summary, to before 21:00', () async {
-      await expectLater(
-        endpoints.flat.setMorningSummaryAt(sam, 7 * 60),
-        throwsA(isA<FlatmatesException>()),
-      );
-      await expectLater(
-        endpoints.flat.setMorningSummaryAt(priya, 21 * 60),
-        throwsA(isA<FlatmatesException>()),
-      );
-      final moved = await endpoints.flat.setMorningSummaryAt(priya, 7 * 60);
-      expect(moved.morningSummaryAt, 7 * 60);
-    });
-
     test('a Done can be undone only by its mate, on its day', () async {
-      await endpoints.chore.create(priya, 'Bins', week, today(), [priyaId]);
+      await createChore(priya, 'Bins', week, today(), [priyaId]);
       final turn = await onlyActiveTurn();
       await endpoints.chore.markDone(priya, turn.id!);
       await expectLater(
@@ -630,7 +714,7 @@ void main() {
     });
 
     test('swap debts are listed for the flat', () async {
-      await endpoints.chore.create(
+      await createChore(
         priya,
         'Bins',
         week,

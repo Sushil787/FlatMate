@@ -30,6 +30,7 @@ abstract class Mate
     bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? notifyNightSummary,
     bool? welcomed,
     this.onboardedAt,
     DateTime? createdAt,
@@ -40,6 +41,7 @@ abstract class Mate
        notifyMatesNotDone = notifyMatesNotDone ?? true,
        notifyNotice = notifyNotice ?? true,
        notifyAddedToRotation = notifyAddedToRotation ?? true,
+       notifyNightSummary = notifyNightSummary ?? true,
        welcomed = welcomed ?? true,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
@@ -57,6 +59,7 @@ abstract class Mate
     bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? notifyNightSummary,
     bool? welcomed,
     DateTime? onboardedAt,
     DateTime? createdAt,
@@ -107,6 +110,11 @@ abstract class Mate
           : _isc.BoolJsonExtension.fromJson(
               jsonSerialization['notifyAddedToRotation'],
             ),
+      notifyNightSummary: jsonSerialization['notifyNightSummary'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(
+              jsonSerialization['notifyNightSummary'],
+            ),
       welcomed: jsonSerialization['welcomed'] == null
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['welcomed']),
@@ -155,6 +163,9 @@ abstract class Mate
 
   bool notifyAddedToRotation;
 
+  /// The 22:00 summary of the day: who did what, what's still open.
+  bool notifyNightSummary;
+
   /// False until the Admin has seen that this Mate joined and picked their
   /// Chores (or chose to do it later).
   bool welcomed;
@@ -186,6 +197,7 @@ abstract class Mate
     bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? notifyNightSummary,
     bool? welcomed,
     DateTime? onboardedAt,
     DateTime? createdAt,
@@ -207,6 +219,7 @@ abstract class Mate
       'notifyMatesNotDone': notifyMatesNotDone,
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
+      'notifyNightSummary': notifyNightSummary,
       'welcomed': welcomed,
       if (onboardedAt != null) 'onboardedAt': onboardedAt?.toJson(),
       'createdAt': createdAt.toJson(),
@@ -230,6 +243,7 @@ abstract class Mate
       'notifyMatesNotDone': notifyMatesNotDone,
       'notifyNotice': notifyNotice,
       'notifyAddedToRotation': notifyAddedToRotation,
+      'notifyNightSummary': notifyNightSummary,
       'welcomed': welcomed,
       if (onboardedAt != null) 'onboardedAt': onboardedAt?.toJson(),
       'createdAt': createdAt.toJson(),
@@ -281,6 +295,7 @@ class _MateImpl extends Mate {
     bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? notifyNightSummary,
     bool? welcomed,
     DateTime? onboardedAt,
     DateTime? createdAt,
@@ -298,6 +313,7 @@ class _MateImpl extends Mate {
          notifyMatesNotDone: notifyMatesNotDone,
          notifyNotice: notifyNotice,
          notifyAddedToRotation: notifyAddedToRotation,
+         notifyNightSummary: notifyNightSummary,
          welcomed: welcomed,
          onboardedAt: onboardedAt,
          createdAt: createdAt,
@@ -321,6 +337,7 @@ class _MateImpl extends Mate {
     bool? notifyMatesNotDone,
     bool? notifyNotice,
     bool? notifyAddedToRotation,
+    bool? notifyNightSummary,
     bool? welcomed,
     Object? onboardedAt = _Undefined,
     DateTime? createdAt,
@@ -340,6 +357,7 @@ class _MateImpl extends Mate {
       notifyNotice: notifyNotice ?? this.notifyNotice,
       notifyAddedToRotation:
           notifyAddedToRotation ?? this.notifyAddedToRotation,
+      notifyNightSummary: notifyNightSummary ?? this.notifyNightSummary,
       welcomed: welcomed ?? this.welcomed,
       onboardedAt: onboardedAt is DateTime? ? onboardedAt : this.onboardedAt,
       createdAt: createdAt ?? this.createdAt,
@@ -414,6 +432,12 @@ class MateUpdateTable extends _isd.UpdateTable<MateTable> {
   _isd.ColumnValue<bool, bool> notifyAddedToRotation(bool value) =>
       _isd.ColumnValue(
         table.notifyAddedToRotation,
+        value,
+      );
+
+  _isd.ColumnValue<bool, bool> notifyNightSummary(bool value) =>
+      _isd.ColumnValue(
+        table.notifyNightSummary,
         value,
       );
 
@@ -495,6 +519,11 @@ class MateTable extends _isd.Table<_isc.UuidValue?> {
       this,
       hasDefault: true,
     );
+    notifyNightSummary = _isd.ColumnBool(
+      'notifyNightSummary',
+      this,
+      hasDefault: true,
+    );
     welcomed = _isd.ColumnBool(
       'welcomed',
       this,
@@ -542,6 +571,9 @@ class MateTable extends _isd.Table<_isc.UuidValue?> {
 
   late final _isd.ColumnBool notifyAddedToRotation;
 
+  /// The 22:00 summary of the day: who did what, what's still open.
+  late final _isd.ColumnBool notifyNightSummary;
+
   /// False until the Admin has seen that this Mate joined and picked their
   /// Chores (or chose to do it later).
   late final _isd.ColumnBool welcomed;
@@ -568,6 +600,7 @@ class MateTable extends _isd.Table<_isc.UuidValue?> {
     notifyMatesNotDone,
     notifyNotice,
     notifyAddedToRotation,
+    notifyNightSummary,
     welcomed,
     onboardedAt,
     createdAt,

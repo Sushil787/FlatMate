@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../flat_access.dart';
 import '../generated/protocol.dart';
+import '../notify/digests.dart';
 import '../notify/notifier.dart';
 
 /// Events on the Flat's shared calendar.
@@ -53,11 +54,12 @@ class EventEndpoint extends Endpoint {
       ),
     );
     if (tellFlat) {
+      final push = eventPush(me.displayName, event.title);
       await Notifier.toFlat(
         session,
         flat.id!,
-        title: '${me.displayName} added an Event',
-        body: event.title,
+        title: push.title,
+        body: push.body,
         exceptMateId: me.id,
       );
     }

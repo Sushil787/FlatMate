@@ -92,6 +92,25 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'emailIdp',
       endpoint: endpoints['emailIdp']!,
       methodConnectors: {
+        'startRegistration': _is.MethodConnector(
+          name: 'startRegistration',
+          params: {
+            'email': _is.ParameterDescription(
+              name: 'email',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
+                  .startRegistration(
+                    session,
+                    email: params['email'],
+                  ),
+        ),
         'login': _is.MethodConnector(
           name: 'login',
           params: {
@@ -115,25 +134,6 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     email: params['email'],
                     password: params['password'],
-                  ),
-        ),
-        'startRegistration': _is.MethodConnector(
-          name: 'startRegistration',
-          params: {
-            'email': _is.ParameterDescription(
-              name: 'email',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _iuc1hd5t.EmailIdpEndpoint)
-                  .startRegistration(
-                    session,
-                    email: params['email'],
                   ),
         ),
         'verifyRegistrationCode': _is.MethodConnector(
@@ -496,6 +496,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
+            'turnTime': _is.ParameterDescription(
+              name: 'turnTime',
+              type: _is.getType<_ij0lpv6z.TurnTime>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -507,6 +512,7 @@ class Endpoints extends _is.EndpointDispatch {
                 params['period'],
                 params['startDay'],
                 params['rotation'],
+                params['turnTime'],
               ),
         ),
         'update': _is.MethodConnector(
@@ -532,6 +538,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<List<_is.UuidValue>>(),
               nullable: false,
             ),
+            'turnTime': _is.ParameterDescription(
+              name: 'turnTime',
+              type: _is.getType<_ij0lpv6z.TurnTime>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -543,6 +554,7 @@ class Endpoints extends _is.EndpointDispatch {
                 params['name'],
                 params['period'],
                 params['rotation'],
+                params['turnTime'],
               ),
         ),
         'archive': _is.MethodConnector(
@@ -873,6 +885,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<bool>(),
               nullable: false,
             ),
+            'nightSummary': _is.ParameterDescription(
+              name: 'nightSummary',
+              type: _is.getType<bool?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -886,6 +903,7 @@ class Endpoints extends _is.EndpointDispatch {
                     matesNotDone: params['matesNotDone'],
                     notice: params['notice'],
                     addedToRotation: params['addedToRotation'],
+                    nightSummary: params['nightSummary'],
                   ),
         ),
         'setAwayRule': _is.MethodConnector(
@@ -941,25 +959,6 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
                   .finishOnboarding(session),
-        ),
-        'setMorningSummaryAt': _is.MethodConnector(
-          name: 'setMorningSummaryAt',
-          params: {
-            'minutes': _is.ParameterDescription(
-              name: 'minutes',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['flat'] as _iho3d8m1.FlatEndpoint)
-                  .setMorningSummaryAt(
-                    session,
-                    params['minutes'],
-                  ),
         ),
         'transferAdmin': _is.MethodConnector(
           name: 'transferAdmin',

@@ -15,6 +15,9 @@ fields:
   ### Index in [rotation] of the slot the latest Turn was taken from.
   rotationIndex: int
   archived: bool
+  ### When in the day its Turns are meant to be done; the Turn's pushes
+  ### follow it.
+  turnTime: TurnTime, default=evening
   createdAt: DateTime, default=now
   updatedAt: DateTime, default=now
 indexes:

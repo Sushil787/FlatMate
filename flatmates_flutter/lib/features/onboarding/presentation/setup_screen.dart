@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -22,6 +23,8 @@ import '../../flat/application/mate_directory.dart';
 import '../../home/presentation/widgets/home_empty.dart';
 import '../../home/presentation/widgets/turn_card.dart';
 import '../application/practice.dart';
+import 'notifications_ask.dart';
+import 'step_layout.dart';
 
 enum _Step { chore, invite, welcome, done, away, notifications }
 
@@ -121,7 +124,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                           busy: finishing,
                           onNext: next,
                         ),
-                        _Step.notifications => _NotificationsStep(
+                        _Step.notifications => NotificationsAsk(
                           asking: _asking || finishing,
                           onYes: _turnOn,
                           onNo: _finish,
@@ -135,71 +138,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A step's layout: [art], a big [title], [body] and [content] in a scroll,
-/// then the [action] and an optional quieter [secondary] at the bottom.
-class _StepLayout extends StatelessWidget {
-  const _StepLayout({
-    this.art,
-    this.title,
-    this.body,
-    this.content,
-    required this.action,
-    this.secondary,
-  });
-
-  final Widget? art;
-  final String? title;
-  final String? body;
-  final Widget? content;
-  final Widget action;
-  final Widget? secondary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: Space.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: Space.lg,
-              children: [
-                ?art,
-                if (title != null)
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      title!,
-                      style: context.text.displaySmall?.copyWith(
-                        fontSize: 34,
-                        height: 1.05,
-                      ),
-                    ),
-                  ),
-                if (body != null)
-                  Text(
-                    body!,
-                    style: context.text.bodyLarge?.copyWith(
-                      color: context.fm.inkSoft,
-                    ),
-                  ),
-                ?content,
-              ],
-            ),
-          ),
-        ),
-        action,
-        if (secondary != null) ...[
-          const SizedBox(height: Space.sm),
-          Center(child: secondary),
-        ],
-      ],
     );
   }
 }
@@ -253,7 +191,7 @@ class _ChoreStep extends ConsumerWidget {
       child: Text(label),
     );
 
-    return _StepLayout(
+    return StepLayout(
       title: 'Make a Chore. You\'re not spared either.',
       body: chore == null
           ? 'Pick one to try. As the Admin you make the Chores, and you\'re '
@@ -277,7 +215,7 @@ class _ChoreStep extends ConsumerWidget {
                   leading: _avatar(directory, chore.rotation.first),
                   title: Text(chore.name),
                   meta: Text(
-                    '${everyLabel(chore.period)} · '
+                    '${everyLabel(chore.period)} · ${chore.turnTime.label} · '
                     '${_names(directory, chore.rotation)}',
                   ),
                 ),
@@ -301,7 +239,7 @@ class _InviteStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final directory = ref.watch(mateDirectoryProvider);
-    return _StepLayout(
+    return StepLayout(
       content: InviteCard(
         meId: directory.me.id!,
         flatName: directory.flat.name,
@@ -325,7 +263,7 @@ class _WelcomeStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final directory = ref.watch(mateDirectoryProvider);
     final admin = directory.realNameOf(directory.flat.adminMateId);
-    return _StepLayout(
+    return StepLayout(
       art: ExcludeSemantics(
         child: Wrap(
           spacing: Space.sm,
@@ -369,7 +307,7 @@ class _DoneStep extends ConsumerWidget {
         : null;
     final now = DateTime.now();
 
-    return _StepLayout(
+    return StepLayout(
       title: 'Your Turn? Do it, then Mark Done.',
       body:
           'On the day of your Turn, this card is on Home. If the day ends '
@@ -440,7 +378,7 @@ class _AwayStep extends ConsumerWidget {
       choreName: (_) => chore.name,
     );
 
-    return _StepLayout(
+    return StepLayout(
       title: 'Going away? Mark yourself Away.',
       body:
           'Do it before you go, from the Flat tab. Your Flat\'s Away rule is '
@@ -486,56 +424,6 @@ class _AwayStep extends ConsumerWidget {
         label: nextLabel,
         busy: busy,
         onPressed: away == null ? null : onNext,
-      ),
-    );
-  }
-}
-
-/// The soft ask: what notifications are for, before the phone's prompt.
-/// "Not now" leaves the prompt unused for later.
-class _NotificationsStep extends StatelessWidget {
-  const _NotificationsStep({
-    required this.asking,
-    required this.onYes,
-    required this.onNo,
-  });
-
-  final bool asking;
-  final VoidCallback onYes;
-  final VoidCallback onNo;
-
-  @override
-  Widget build(BuildContext context) {
-    final fm = context.fm;
-    return _StepLayout(
-      art: Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: fm.primaryTint,
-            shape: BoxShape.circle,
-          ),
-          child: AppIcon(
-            HugeIcons.strokeRoundedNotification02,
-            size: 32,
-            color: fm.onPrimaryTint,
-          ),
-        ),
-      ),
-      title: 'Know when it\'s your Turn',
-      body:
-          'A summary each morning, a nudge 3 hours before a Turn ends, and '
-          'news from your Flat. Pick what you get in Settings.',
-      action: PrimaryButton(
-        label: 'Turn on notifications',
-        busy: asking,
-        onPressed: onYes,
-      ),
-      secondary: TextButton(
-        onPressed: asking ? null : onNo,
-        child: const Text('Not now'),
       ),
     );
   }

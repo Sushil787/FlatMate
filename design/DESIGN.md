@@ -59,11 +59,11 @@ Neutral grey-white ground, near-black ink, one loud accent (lime). Flat cards, n
 
 Missed has the same visual weight as Done. Copy is blame-free and always says who is next. Status never relies on colour alone: every chip has a word, most have an icon.
 
-### Mate colours (avatar = coloured circle + initial)
+### Mate colours (avatar = the colour's face on a coloured circle)
 
-Tomato `#C8431F`, Sky `#2670AD`, Plum `#8E4EA8`, Leaf `#1F7A52`, Marigold `#E0A100` (dark initial), Berry `#B8356B`. White initial on all except Marigold. One colour per Mate in a Flat.
+Tomato `#C8431F`, Sky `#2670AD`, Plum `#8E4EA8`, Leaf `#1F7A52`, Marigold `#E0A100`, Berry `#B8356B`. Each colour comes with its own illustrated face (`flatmates_flutter/assets/avatars/<colour>.svg`: "Notionists" by Zoish, CC0, via DiceBear; gender-neutral: no beards, neutral hair), so picking a colour picks the face too. `design/avatars/generate.js` rebuilds them. One colour per Mate in a Flat.
 
-- Away Mate: no fill, 2px dashed `#2F5275` outline, initial in `#2F5275`.
+- Away Mate: the Away tint instead of their colour, under a 2px dashed `#2F5275` outline.
 - Mate whose Turn it is: 3px lime ring, 2px offset.
 - Sizes: 24 inline, 36 in rows, 48 in headers.
 

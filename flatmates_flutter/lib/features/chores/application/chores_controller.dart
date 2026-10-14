@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart' hide ChoreRepository;
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../flat/application/mate_directory.dart';
@@ -45,12 +46,14 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
     required Duration period,
     required DateTime startDay,
     required List<UuidValue> rotation,
+    required TurnTime turnTime,
   }) async {
     await _repo.create(
       name: name,
       period: period,
       startDay: startDay,
       rotation: rotation,
+      turnTime: turnTime,
     );
     await refresh();
   }
@@ -60,12 +63,14 @@ class ChoresController extends AsyncNotifier<ChoresOverview> {
     required String name,
     required Duration period,
     required List<UuidValue> rotation,
+    required TurnTime turnTime,
   }) async {
     await _repo.update(
       choreId: choreId,
       name: name,
       period: period,
       rotation: rotation,
+      turnTime: turnTime,
     );
     await refresh();
   }

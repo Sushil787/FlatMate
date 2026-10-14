@@ -23,11 +23,14 @@ UuidValue uid(int n) => UuidValue.fromString(
 
 /// An in-memory Flat with Priya (admin, the signed-in user), Sam and Alex.
 class FakeBackend {
-  FakeBackend({bool inFlat = true}) {
+  FakeBackend({bool inFlat = true, this.signedIn = true}) {
     if (inFlat) myFlat = _flat();
   }
 
   MyFlat? myFlat;
+
+  /// Whether the app starts signed in; [FakeAuth.signIn] signs in later.
+  bool signedIn;
   final chores = <Chore>[];
   final turns = <Turn>[];
   final notices = <Notice>[];
@@ -112,7 +115,7 @@ class FakeBackend {
   }
 
   List<Override> overrides() => [
-    authControllerProvider.overrideWith(_SignedIn.new),
+    authControllerProvider.overrideWith(() => FakeAuth(this)),
     myProfileProvider.overrideWith(
       (ref) async => UserProfileModel(
         authUserId: UuidValue.fromString(
@@ -132,9 +135,14 @@ class FakeBackend {
   ];
 }
 
-class _SignedIn extends AuthController {
+class FakeAuth extends AuthController {
+  FakeAuth(this.b);
+  final FakeBackend b;
+
   @override
-  bool build() => true;
+  bool build() => b.signedIn;
+
+  void signIn() => state = b.signedIn = true;
 }
 
 class _NoPush implements PushService {
@@ -197,9 +205,6 @@ class _FlatRepo implements FlatRepository {
   Future<Flat> setAwayRule(AwayRule rule) async =>
       b.myFlat!.flat..awayRule = rule;
   @override
-  Future<Flat> setMorningSummaryAt(int minutes) async =>
-      b.myFlat!.flat..morningSummaryAt = minutes;
-  @override
   Future<Flat> rename(String name) async => b.myFlat!.flat..name = name;
   @override
   Future<Mate> setMyName(String displayName) async =>
@@ -256,10 +261,11 @@ class _ChoreRepo implements ChoreRepository {
     required Duration period,
     required DateTime startDay,
     required List<UuidValue> rotation,
+    required TurnTime turnTime,
   }) async {
     await Future<void>.delayed(b.latency);
     b.addChore(name, mateId: rotation.first, id: b.chores.length + 1);
-    return b.chores.last;
+    return b.chores.last..turnTime = turnTime;
   }
 
   @override
@@ -268,7 +274,10 @@ class _ChoreRepo implements ChoreRepository {
     required String name,
     required Duration period,
     required List<UuidValue> rotation,
-  }) async => b.chores.firstWhere((c) => c.id == choreId)..name = name;
+    required TurnTime turnTime,
+  }) async => b.chores.firstWhere((c) => c.id == choreId)
+    ..name = name
+    ..turnTime = turnTime;
   @override
   Future<void> archive(UuidValue choreId) async =>
       b.chores.removeWhere((c) => c.id == choreId);

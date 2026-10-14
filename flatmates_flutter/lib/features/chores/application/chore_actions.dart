@@ -1,4 +1,5 @@
 import 'package:flatmates_client/flatmates_client.dart';
+import 'package:flatmates_shared/flatmates_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/action_notifier.dart';
@@ -18,12 +19,14 @@ class SaveChore extends ActionNotifier {
     required Duration period,
     required DateTime startDay,
     required List<UuidValue> rotation,
+    required TurnTime turnTime,
   }) => guard(
     () => _chores.create(
       name: name,
       period: period,
       startDay: startDay,
       rotation: rotation,
+      turnTime: turnTime,
     ),
   );
 
@@ -32,12 +35,14 @@ class SaveChore extends ActionNotifier {
     required String name,
     required Duration period,
     required List<UuidValue> rotation,
+    required TurnTime turnTime,
   }) => guard(
     () => _chores.save(
       choreId: choreId,
       name: name,
       period: period,
       rotation: rotation,
+      turnTime: turnTime,
     ),
   );
 }

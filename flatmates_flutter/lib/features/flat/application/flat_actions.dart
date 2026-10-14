@@ -72,17 +72,6 @@ class SetAwayRule extends ActionNotifier {
   Future<bool> run(AwayRule rule) => guard(() => _flat(ref).setAwayRule(rule));
 }
 
-/// Setting when the Flat's morning summary goes out.
-final setMorningSummaryProvider =
-    AsyncNotifierProvider.autoDispose<SetMorningSummary, void>(
-      SetMorningSummary.new,
-    );
-
-class SetMorningSummary extends ActionNotifier {
-  Future<bool> run(int minutes) =>
-      guard(() => _flat(ref).setMorningSummaryAt(minutes));
-}
-
 /// Finishing onboarding.
 final finishOnboardingProvider =
     AsyncNotifierProvider.autoDispose<FinishOnboarding, void>(

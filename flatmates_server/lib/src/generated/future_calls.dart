@@ -16,6 +16,10 @@ import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../future_calls/turn_calls.dart' as _ise3mbl4;
 import 'future_calls_generated_models/turn_calls_ended_model.dart' as _ijoy4xkx;
+import 'future_calls_generated_models/turn_calls_mates_not_done_model.dart'
+    as _imhwsdgw;
+import 'future_calls_generated_models/turn_calls_night_summary_model.dart'
+    as _i7mg47cd;
 import 'future_calls_generated_models/turn_calls_reminder_model.dart'
     as _irgon17h;
 import 'future_calls_generated_models/turn_calls_started_model.dart'
@@ -65,6 +69,8 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
       'TurnCallsStartedFutureCall': TurnCallsStartedFutureCall(),
       'TurnCallsReminderFutureCall': TurnCallsReminderFutureCall(),
+      'TurnCallsMatesNotDoneFutureCall': TurnCallsMatesNotDoneFutureCall(),
+      'TurnCallsNightSummaryFutureCall': TurnCallsNightSummaryFutureCall(),
       'TurnCallsEndedFutureCall': TurnCallsEndedFutureCall(),
     };
     _futureCallManager = futureCallManager;
@@ -210,6 +216,22 @@ class _TurnCallsFutureCallDispatcher {
     );
   }
 
+  Future<void> matesNotDone(_is.UuidValue turnId) {
+    var object = _imhwsdgw.TurnCallsMatesNotDoneModel(turnId: turnId);
+    return _invokeFutureCall(
+      'TurnCallsMatesNotDoneFutureCall',
+      object,
+    );
+  }
+
+  Future<void> nightSummary(_is.UuidValue turnId) {
+    var object = _i7mg47cd.TurnCallsNightSummaryModel(turnId: turnId);
+    return _invokeFutureCall(
+      'TurnCallsNightSummaryFutureCall',
+      object,
+    );
+  }
+
   Future<void> ended(_is.UuidValue turnId) {
     var object = _ijoy4xkx.TurnCallsEndedModel(turnId: turnId);
     return _invokeFutureCall(
@@ -246,6 +268,40 @@ class TurnCallsReminderFutureCall
   ) async {
     if (object != null) {
       await _ise3mbl4.TurnCalls().reminder(
+        session,
+        object.turnId,
+      );
+    }
+  }
+}
+
+class TurnCallsMatesNotDoneFutureCall
+    extends _is.FutureCall<_imhwsdgw.TurnCallsMatesNotDoneModel>
+    implements _is.InvokableFutureCall<_imhwsdgw.TurnCallsMatesNotDoneModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _imhwsdgw.TurnCallsMatesNotDoneModel? object,
+  ) async {
+    if (object != null) {
+      await _ise3mbl4.TurnCalls().matesNotDone(
+        session,
+        object.turnId,
+      );
+    }
+  }
+}
+
+class TurnCallsNightSummaryFutureCall
+    extends _is.FutureCall<_i7mg47cd.TurnCallsNightSummaryModel>
+    implements _is.InvokableFutureCall<_i7mg47cd.TurnCallsNightSummaryModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _i7mg47cd.TurnCallsNightSummaryModel? object,
+  ) async {
+    if (object != null) {
+      await _ise3mbl4.TurnCalls().nightSummary(
         session,
         object.turnId,
       );

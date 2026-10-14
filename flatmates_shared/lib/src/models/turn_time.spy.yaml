@@ -1,0 +1,9 @@
+### The part of the day a Chore's Turns are meant to be done in. Its
+### notifications follow it (see turn_time.dart for the times).
+enum: TurnTime
+serialized: byName
+values:
+  - morning
+  - afternoon
+  - evening
+  - night

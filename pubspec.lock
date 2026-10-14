@@ -1470,10 +1470,10 @@ packages:
     dependency: transitive
     description:
       name: sqlite3_connection_pool
-      sha256: b01024fd67922680e5512abf3201974dab2d98d0664d145ec741740b448fdc5f
+      sha256: d6ba862bd8560f974dfd1ab7a8e679054cdaf08cb016662275ba902737cad7bc
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.11"
+    version: "0.2.12"
   sqlite3_web:
     dependency: transitive
     description:
@@ -1486,10 +1486,10 @@ packages:
     dependency: transitive
     description:
       name: sqlite_async
-      sha256: "40c7d6f660322e4a2b4367ff75b9d5111389441aaa87e44f417420b56e0b0c97"
+      sha256: "1e35687e4053b6f48287e15c97cf6ee556b9770b12a048623e96af7742b3e9db"
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.5"
+    version: "0.14.6"
   sqlparser:
     dependency: transitive
     description:

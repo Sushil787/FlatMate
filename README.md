@@ -382,12 +382,15 @@ data/           repository                thin wrapper over client.<endpoint>.<m
 
 - Each **Chore** has a **Rotation** (ordered Mates, repeats allowed) and a **Rotation period**.
   A **Turn** is one Mate's responsibility for one period; it ends when the period ends, **Done** or **Missed**.
-- Each Turn's morning summary, 3-hour reminder and end are Serverpod **FutureCalls** (`TurnCalls`),
-  so they survive restarts. Turn end marks Missed if needed and creates the next Turn.
-- Pushes are one per Mate, not one per Turn: a morning summary of their Turns for the day (time set
-  by the Admin, 08:00 by default) and, 3 hours before midnight, their own Turns not Done plus their
-  Mates' ones. Of all the calls due at that moment, the Flat's oldest Turn's sends for everyone.
-  Done and Missed send nothing.
+- Each Chore has a **Turn time** (Morning 07–12, Afternoon 12–17, Evening 17–21, Night 21–24, in
+  the Flat's time zone; `flatmates_shared/lib/src/turn_time.dart`). The Turn still lasts the day.
+- Each Turn's pushes and end are Serverpod **FutureCalls** (`TurnCalls`), so they survive restarts
+  (and every open Turn is scheduled again at start-up). Turn end marks Missed if needed and creates
+  the next Turn.
+- Pushes are one per Mate per moment, not one per Turn: their Turns at the start of the Turn time,
+  a reminder an hour before it ends if not Done, Mates' Morning and Afternoon Turns not Done at
+  18:00, and a night summary of the day at 22:00. Of all the calls due at one moment, the Flat's
+  oldest Turn's sends for everyone. Done and Missed send nothing.
 - The Flat-wide **Away rule** (Admin picks): **Swap** (next Mate covers, Away Mate does their next
   Turn in return), **Skip** (next Mate covers, nothing owed), **Pause** (Chore waits; Away days
   mid-Turn extend it). If nobody can cover, the Chore pauses.
